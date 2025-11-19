@@ -1,4 +1,4 @@
-import React from "react";
+ import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import {
@@ -10,7 +10,7 @@ import {
 } from "@material-tailwind/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 
-export function Navbar({ brandName, routes, action }) {
+export function Navbar({brandName, routes, action }) {
   const [openNav, setOpenNav] = React.useState(false);
 
   React.useEffect(() => {
@@ -62,6 +62,8 @@ export function Navbar({ brandName, routes, action }) {
 
   return (
     <MTNavbar color="transparent" className="p-3">
+
+
       <div className="container mx-auto flex items-center justify-between text-white">
         <Link to="/">
           <Typography className="mr-4 ml-2 cursor-pointer py-1.5 font-bold">
@@ -75,7 +77,7 @@ export function Navbar({ brandName, routes, action }) {
             target="_blank"
           >
             <Button variant="text" size="sm" color="white" fullWidth>
-              pro version
+              registro
             </Button>
           </a>
           {React.cloneElement(action, {
@@ -121,18 +123,25 @@ export function Navbar({ brandName, routes, action }) {
 }
 
 Navbar.defaultProps = {
-  brandName: "Material Tailwind React",
+  brandName: (
+    <img
+      src="../../../../public/img/LOGO-CASA-01.png"
+      alt="Logo"
+      className="h-10 w-auto"
+    />
+  ),
   action: (
     <a
       href="https://www.creative-tim.com/product/material-tailwind-kit-react"
       target="_blank"
     >
       <Button variant="gradient" size="sm" fullWidth>
-        free download
+        acceder
       </Button>
     </a>
   ),
 };
+
 
 Navbar.propTypes = {
   brandName: PropTypes.string,
