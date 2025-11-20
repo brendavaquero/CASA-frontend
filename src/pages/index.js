@@ -5,3 +5,5 @@ export * from "@/pages/sign-up";
 export * from "@/pages/convocatorias";
 export * from "@/pages/talleresydiplomados";
 export * from "@/pages/taller";
+export * from "@/pages/tallerindividual";
+export * from "@/pages/postulacion";

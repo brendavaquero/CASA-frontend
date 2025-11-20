@@ -1,6 +1,11 @@
 import axios from "axios";
 
 const REST_API_BASE_URL = 'http://localhost:8080/api/talleresydiplomados';
+
+export const getTallerDiplomadoById = (idActividad) =>
+  axios.get(`${REST_API_BASE_URL}/${idActividad}`);
+
+
 //export const listTalleresDiplomados = () => axios.get(REST_API_BASE_URL);
 export async function listTalleresDiplomados() {
   try {
@@ -28,13 +33,26 @@ export async function listTalleresDiplomados() {
   }
 }
 
-export async function getProgramaByTaller(id) {
-  const resp = await fetch(`/api/talleresydiplomados/${id}/programa`);
+export async function getProgramaByTaller(idActividad) {
+  const resp = await fetch(`/api/talleresydiplomados/${idActividad}/programa`);
   return resp.json();
 }
 
-export async function getDocenteByTaller(id) {
-  const resp = await fetch(`/api/talleresydiplomados/${id}/docente`);
-  return resp.json();
+
+export async function getDocenteByTaller(idActividad) {
+  const url = `${REST_API_BASE_URL}/${idActividad}/docente`;
+
+  try {
+    const res = await fetch(url);
+
+    if (res.status === 204) return null;
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    return await res.json();
+  } catch (err) {
+    console.error("[DocenteService] Error al obtener docente:", err);
+    return null;
+  }
 }
+
 

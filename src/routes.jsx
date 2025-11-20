@@ -1,4 +1,4 @@
-import { Home, Aprender, Convocatorias, PaginaPruebaTaller } from "@/pages";
+import { Home, Aprender, Convocatorias, PaginaPruebaTaller, TallerIndividual, PostulacionForm } from "@/pages";
 
 export const routes = [
   {
@@ -12,6 +12,11 @@ export const routes = [
     element: <Aprender />,
   },
   {
+    name: "Taller individual",
+    path: "/talleresydiplomados/:id",
+    element: <TallerIndividual />,
+  },
+  {
     name: "convocatorias",
     path: "/convocatorias",
     element: <Convocatorias />,
@@ -21,6 +26,11 @@ export const routes = [
     path: "/taller-prueba",
     element: <PaginaPruebaTaller />,
   },
+  {
+    name: "postulacion",
+    path: "/postular/:idActividad",
+    element: <PostulacionForm />,
+  }
 
 ];
 

@@ -8,11 +8,11 @@ import {
   Tooltip,
   Chip,
 } from "@material-tailwind/react";
-//import { calendar, clock } from "heroicons";
 import { CalendarDaysIcon, ClockIcon } from "@heroicons/react/24/outline";
-
+import { Link } from "react-router-dom";
 
 export function TallerCard({
+  id,
   titulo,
   descripcion,
   imagen,
@@ -32,6 +32,7 @@ export function TallerCard({
     });
 
   return (
+    <Link to={`/talleresydiplomados/${id}`}>
     <Card className="max-w-[24rem] overflow-hidden shadow-lg border border-gray-100">
       <CardHeader
         floated={false}
@@ -81,9 +82,6 @@ export function TallerCard({
             por {docente}
           </Typography>
         </div>
-
-        
-       
       </CardBody>
 
       <CardFooter className="pt-0 flex items-center justify-between">
@@ -104,5 +102,6 @@ export function TallerCard({
       </CardFooter>
 
     </Card>
+    </Link>
   );
 }
