@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.requisitar-taller .navbar,
+.requisitar-taller .navbar * {
+  color: #000000 !important;
+}

@@ -1,4 +1,7 @@
-import { Home, Profile, SignIn, SignUp } from "@/pages";
+import { Home, Profile, SignIn, SignUp, Requisitar_Taller} from "@/pages";
+import HomeDocente from "./pages/docente/HomeDocente";
+import { element } from "prop-types";
+import HomeAlumno from "./pages/alumno/HomeAlumno";
 
 export const routes = [
   {
@@ -20,6 +23,21 @@ export const routes = [
     name: "Sign Up",
     path: "/sign-up",
     element: <SignUp />,
+  },
+  {
+    name:"Requisitar Taller",
+    path:"/requisitar-taller",
+    element: <Requisitar_Taller />
+  },
+  {
+    name:"Docente",
+    path:"/homeDocente",
+    element: <HomeDocente />
+  },
+  {
+    name:"Alumno",
+    path:"/homeAlumno",
+    element: <HomeAlumno />
   },
   {
     name: "Docs",
