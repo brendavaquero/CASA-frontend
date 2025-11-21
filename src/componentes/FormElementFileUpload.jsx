@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Upload } from "lucide-react";
+import { uploadArchivo } from "@/apis/archivoService";
 
-const FormElementFileUpload = ({idActividad}) => {
+const FormElementFileUpload = ({idActividad,onUploadSuccess }) => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -13,12 +14,42 @@ const FormElementFileUpload = ({idActividad}) => {
     setFile(null);
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
+    /*
     if (file) {
       alert(`Archivo "${file.name}" subido correctamente 🎉`);
       setFile(null);
     } else {
       alert("Primero selecciona un archivo.");
+    }*/
+   if (!file) {
+      alert("Primero selecciona un archivo.");
+      return;
+    }
+
+    if (!idActividad) {
+      alert("No se encontró idActividad");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("idActividad", idActividad);
+
+      const data = await uploadArchivo(formData);
+
+      alert(`Archivo "${file.name}" subido correctamente 🎉`);
+      setFile(null);
+      if (onUploadSuccess) onUploadSuccess();
+
+    } catch (error) {
+      console.error(error);
+      alert("Error al subir archivo");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,6 +78,7 @@ const FormElementFileUpload = ({idActividad}) => {
 
       <button
         onClick={handleUpload}
+        disabled={loading}
         className="bg-gray-800 hover:bg-gray-900 text-white rounded-full p-2 transition"
         title="Subir archivo"
       >

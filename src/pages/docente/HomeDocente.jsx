@@ -56,7 +56,7 @@ const HomeDocente = () => {
                 </div>
             </div>
             
-        </header>
+        </header>     
 
         <div className="flex flex-1 pt-2">
             <Sidebar />
@@ -65,7 +65,7 @@ const HomeDocente = () => {
             {vistaActual === "grid" ? (
               <GridTallerD onTallerClick={handleTallerClick} talleres={talleres}  />
             ) : (
-              <VistaTaller taller={tallerSeleccionado} onVolver={handleVolver} />
+              <VistaTaller taller={tallerSeleccionado} modo="docente" onVolver={handleVolver} />
             )}
             </main>
         </div>

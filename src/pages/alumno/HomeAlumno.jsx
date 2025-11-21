@@ -6,10 +6,13 @@ import IconButton from '@mui/material/IconButton';
 import IconDocente from '../../assets/images/docenteicon.png';
 import { getAlumnoTalleres } from "@/apis/alumnoService.js";
 import { getTalleres } from "@/apis/tallerDiplomadoService.js";
+import VistaTaller from "@/componentes/VistaTaller.jsx";
 
 const HomeAlumno = () => {
   const [alumno, setAlumno] = useState(null);
   const [talleres, setTalleres] = useState([]);
+  const [vistaActual, setVistaActual] = useState("grid");
+  const [tallerSeleccionado, setTallerSeleccionado] = useState(null);
   const idUsuario = 'USU2025-00007';
     useEffect(() => {
     const fetchAlumno = async () => {
@@ -31,6 +34,16 @@ const HomeAlumno = () => {
 
     fetchAlumno();
   }, []);
+
+  const handleTallerClick = (taller) => {
+    setTallerSeleccionado(taller);
+    setVistaActual("taller");
+  };
+
+  const handleVolver = () => {
+    setVistaActual("grid");
+  };
+
   return (
     <div className="flex h-screen bg-gray-100 pt-20">
       <div className="flex-1 flex flex-col">
@@ -52,7 +65,11 @@ const HomeAlumno = () => {
             <Sidebar />
 
             <main className="flex-1 overflow-y-auto p-6">
-            <GridTallerD talleres={talleres}/> 
+            {vistaActual === "grid" ? (
+                          <GridTallerD onTallerClick={handleTallerClick} talleres={talleres}  />
+                        ) : (
+                          <VistaTaller taller={tallerSeleccionado} modo="alumno" onVolver={handleVolver} />
+                        )}
             </main>
         </div>
         <footer className="bg-gray-700 text-gray-200 text-sm text-center py-3">

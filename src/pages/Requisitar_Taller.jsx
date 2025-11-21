@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Input, Textarea, Button } from "@material-tailwind/react";
+import { Input, Textarea, Button, Radio } from "@material-tailwind/react";
 import { createTaller } from "@/apis/tallerDiplomadoService";
 
 const Requisitar_Taller = () => {
@@ -14,13 +14,16 @@ const Requisitar_Taller = () => {
     materialSol: "",
     criteriosSeleccion: "",
     notas: "",
+    imagen:"",
+    requiereMuestraTrabajo:false,
 
-    //Actividad
-    tipo:"TALLER_PRESENCIAL",
+    //taller
+    tipo:"TALLER",
     estado:"PENDIENTE",
     fechaInicio: "",
     fechaCierre: "",
     fechaResultados: "",
+    infantil:false,
     idPrograma: "PRG2025-00002",
     idDocente: "USU2025-00009"
 
@@ -49,6 +52,8 @@ const Requisitar_Taller = () => {
         materialSol: "",
         criteriosSeleccion: "",
         notas: "",
+        requiereMuestraTrabajo:false,
+        infantil:false,
       });
     } catch (error) {
       console.error(error);
@@ -137,6 +142,7 @@ const Requisitar_Taller = () => {
                   className="text-black text-sm"
                   size="md"
                   name="temas"
+                  required="true"
                   value={formData.temas}
                   onChange={handleChange}
                 />
@@ -192,6 +198,58 @@ const Requisitar_Taller = () => {
                   value={formData.notas}
                   onChange={handleChange}
                 />
+                <div className="flex flex-col space-y-2">
+                  <span className="font-small text-sm text-black">¿Requiere muestra de trabajo?</span>
+
+                  <div className="flex gap-6 items-center">
+                    <Radio
+                      name="requiereMuestraTrabajo"
+                      label="Sí"
+                      value="true"
+                      checked={formData.requiereMuestraTrabajo === true}
+                      onChange={() =>
+                        setFormData({ ...formData, requiereMuestraTrabajo: true })
+                      }
+                    />
+
+                    <Radio
+                      name="requiereMuestraTrabajo"
+                      label="No"
+                      value="false"
+                      checked={formData.requiereMuestraTrabajo === false}
+                      onChange={() =>
+                        setFormData({ ...formData, requiereMuestraTrabajo: false })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col space-y-2">
+                  <span className="font-small text-sm text-black">¿Taller para menores de edad?</span>
+
+                  <div className="flex gap-6 items-center">
+                    <Radio
+                      name="infantil"
+                      label="Sí"
+                      value="true"
+                      checked={formData.infantil === true}
+                      onChange={() =>
+                        setFormData({ ...formData, infantil: true })
+                      }
+                    />
+
+                    <Radio
+                      name="infantil"
+                      label="No"
+                      value="false"
+                      checked={formData.infantil === false}
+                      onChange={() =>
+                        setFormData({ ...formData, infantil: false })
+                      }
+                    />
+                  </div>
+                </div>
+
               </div>
             </div>
 
