@@ -1,4 +1,4 @@
-import { Home, Aprender, Convocatorias, PaginaPruebaTaller, TallerIndividual, PostulacionForm } from "@/pages";
+import { Home, Aprender, Convocatorias, PaginaPruebaTaller, TallerIndividual, PostulacionForm, ProgramasUsuarioPage } from "@/pages";
 
 export const routes = [
   {
@@ -30,6 +30,12 @@ export const routes = [
     name: "postulacion",
     path: "/postular/:idActividad",
     element: <PostulacionForm />,
+  },
+
+  {
+    name: "programas",
+    path: "/programas/usuario/:idUsuario",
+    element: <ProgramasUsuarioPage />,
   }
 
 ];

@@ -9,6 +9,11 @@ import { useState, useEffect } from "react";
 import { crearPostulacion } from "../apis/PostulacionService";
 import { useParams, useNavigate } from "react-router-dom";
 import { getTallerDiplomadoById } from "../apis/TallerDiplomadoService";
+import FormFileUploadPostulacion from "../componentes/FormFileUploadPostulacion";
+import { uploadArchivoPostulacion } from "../apis/ArchivoService"; 
+import DialogDefault from "../componentes/DialogDefault";
+
+
 
 export function PostulacionForm() {
   const { idActividad } = useParams();
@@ -18,6 +23,12 @@ export function PostulacionForm() {
   const [postulante, setPostulante] = useState("");
   const [motivo, setMotivo] = useState("");
   
+  const [archivo, setArchivo] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const [aceptoAsistencia, setAceptoAsistencia] = useState(false);
+  const [aceptoFotos, setAceptoFotos] = useState(false);
+
 
   useEffect(() => {
     const fetchActividad = async () => {
@@ -34,26 +45,51 @@ export function PostulacionForm() {
   }, [idActividad]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  if (!aceptoAsistencia || !aceptoFotos) {
+    alert("Debes aceptar los compromisos antes de enviar la postulación.");
+    return;
+  }
 
-    const payload = {
-
-      // id de usuario de prueba existente en la bd
+  try {
+    // 1. Crear la postulación
+    const nueva = await crearPostulacion({
       idUsuario: "USU2025-00011",
       idActividad: actividad.idActividad,
       postulante,
       motivo,
-    };
+    });
 
-    try {
-      await crearPostulacion(payload);
-      navigate("/postulacion-exitosa");
-    } catch (error) {
-      console.error("Error al crear postulación:", error);
+    const idPostulacion = nueva.idPostulacion; // <-- CORRECTO
+
+    // 2. Si requiere archivo
+    if (actividad.requiereMuestraTrabajo) {
+      if (!archivo) {
+        alert("Debes subir un archivo antes de enviar.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", archivo);
+      formData.append("idPostulacion", idPostulacion);
+
+      await uploadArchivoPostulacion(formData);
     }
-  };
 
-  if (!actividad) return <p>Cargando...</p>;
+    // 3. Mostrar modal de éxito
+    setModalOpen(true);
+
+    // 4. (Opcional) Limpiar formulario
+    setPostulante("");
+    setMotivo("");
+    setArchivo(null);
+
+  } catch (error) {
+    console.error("Error al enviar postulación:", error);
+    alert("Hubo un error, intenta nuevamente.");2
+  }
+};
+
 
   return (
     <div className="flex flex-col min-h-screen relative bg-gray-50 pb-0 pt-24">
@@ -88,7 +124,7 @@ export function PostulacionForm() {
 
           <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-6">
 
-           {/* Solo mostrar si es taller infantil */}
+           {/* Nombre del postualnte: solo mostrar si es taller infantil */}
             {actividad?.infantil && (
               <div className="flex flex-col gap-1">
                 <Typography variant="medium" className="font-medium text-gray-700">
@@ -100,7 +136,7 @@ export function PostulacionForm() {
                   placeholder="Nombre completo del niño o niña participante"
                   value={postulante}
                   onChange={(e) => setPostulante(e.target.value)}
-                  className="!border-gray-300 focus:!border-gray-900"
+                  className="!border-gray-300 focus:!border-gray-900 bg-white"
                   labelProps={{
                     className: "before:content-none after:content-none",
                   }}
@@ -108,7 +144,6 @@ export function PostulacionForm() {
                 />
               </div>
             )}
-
 
             {/* Motivo */}
             <div className="flex flex-col gap-1">
@@ -121,7 +156,7 @@ export function PostulacionForm() {
                 placeholder="Describe brevemente por qué deseas participar."
                 value={motivo}
                 onChange={(e) => setMotivo(e.target.value)}
-                className="!border-gray-300 focus:!border-gray-900"
+                className="!border-gray-300 focus:!border-gray-900 bg-white"
                 labelProps={{
                   className: "before:content-none after:content-none",
                 }}
@@ -129,10 +164,61 @@ export function PostulacionForm() {
               />
             </div>
 
-            <Button variant="gradient" size="md">
+            {actividad?.requiereMuestraTrabajo && (
+              <div className="flex flex-col gap-1">
+                <Typography variant="medium" className="font-medium text-gray-700">
+                  Muestra de trabajo
+                </Typography>
+                <Typography className="text-gray-600 mt-1">
+                  Sube una muestra de tu trabajo en formato PDF (no mayor a 20 MB).
+                </Typography>
+
+                {/* pasamos setArchivo para que el hijo devuelva el archivo seleccionado */}
+                <FormFileUploadPostulacion onFileSelect={setArchivo} />
+              </div>
+            )}
+
+            {/* Checkbox 1 */}
+            <div className="flex items-start gap-2">
+              <input
+                type="checkbox"
+                checked={aceptoAsistencia}
+                onChange={(e) => setAceptoAsistencia(e.target.checked)}
+                className="mt-1 h-4 w-4"
+                required
+              />
+              <label className="text-gray-700 text-sm">
+                Me comprometo a estar todas las sesiones, en los días y horarios establecidos, 
+                y cumplir con todas las actividades.
+              </label>
+            </div>
+
+            {/* Checkbox 2 */}
+            <div className="flex items-start gap-2">
+              <input
+                type="checkbox"
+                checked={aceptoFotos}
+                onChange={(e) => setAceptoFotos(e.target.checked)}
+                className="mt-1 h-4 w-4"
+                required
+              />
+              <label className="text-gray-700 text-sm">
+                Estoy de acuerdo en que se compartan fotos de las actividades artísticas en las que 
+                se utilice mi imagen con fines de promoción y difusión.
+              </label>
+            </div>
+
+
+            <Button type="submit" variant="gradient" size="md">
               Enviar
             </Button>
           </form>
+          <DialogDefault
+            open={modalOpen}
+            onClose={() => setModalOpen(false)}
+            title="Postulación enviada"
+            message="Tu postulación se ha registrado correctamente."
+          />
         </div>
       </div>
     </div>
