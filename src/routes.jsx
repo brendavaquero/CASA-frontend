@@ -2,6 +2,9 @@ import { Home, Profile, SignIn, SignUp, Requisitar_Taller} from "@/pages";
 import HomeDocente from "./pages/docente/HomeDocente";
 import { element } from "prop-types";
 import HomeAlumno from "./pages/alumno/HomeAlumno";
+import HomeAuxiliar from "./pages/auxiliar/HomeAuxiliar";
+import HomeAdmin from "./pages/admin/HomeAdmin";
+import CrearTaller from "./pages/admin/CrearTaller";
 
 export const routes = [
   {
@@ -27,7 +30,7 @@ export const routes = [
   {
     name:"Requisitar Taller",
     path:"/requisitar-taller",
-    element: <Requisitar_Taller />
+    element: <Requisitar_Taller modo="normal" />
   },
   {
     name:"Docente",
@@ -38,6 +41,21 @@ export const routes = [
     name:"Alumno",
     path:"/homeAlumno",
     element: <HomeAlumno />
+  },
+  {
+    name:"Auxiliar",
+    path:"/homeAuxiliar",
+    element: <HomeAuxiliar />
+  },
+  {
+    name:"Administrador",
+    path:"/homeAdministrador",
+    element: <HomeAdmin />
+  },
+  {
+    name: "Aprobación Taller",
+    path: "/vista-aprobacion",
+    element: <CrearTaller />,
   },
   {
     name: "Docs",

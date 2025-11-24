@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input, Textarea, Button, Radio } from "@material-tailwind/react";
-import { createTaller } from "@/apis/tallerDiplomadoService";
+import { createTaller, updateActividad, updateTallerDiplo} from "@/apis/tallerDiplomadoService";
+import { useNavigate } from "react-router-dom";
 
-const Requisitar_Taller = () => {
+const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     titulo: "",
     cupo: "",
@@ -14,20 +16,25 @@ const Requisitar_Taller = () => {
     materialSol: "",
     criteriosSeleccion: "",
     notas: "",
-    imagen:"",
-    requiereMuestraTrabajo:false,
-
-    //taller
-    tipo:"TALLER",
-    estado:"PENDIENTE",
+    imagen: "",
+    requiereMuestraTrabajo: false,
+    tipo: "TALLER",
+    estado: "PENDIENTE",
     fechaInicio: "",
     fechaCierre: "",
     fechaResultados: "",
-    infantil:false,
+    infantil: false,
     idPrograma: "PRG2025-00002",
-    idDocente: "USU2025-00009"
-
+    idDocente: "USU2025-00009",
   });
+
+  useEffect(() => {
+    if (modo === "administrador" && taller) {
+      setFormData({ ...taller });
+      console.log('taller:',taller);
+    }
+  }, [modo, taller]);
+
 
   const handleChange = (e) => {
     setFormData({
@@ -37,36 +44,70 @@ const Requisitar_Taller = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await createTaller(formData);
-      alert("Taller registrado con éxito 🎉");
-      setFormData({
-        titulo: "",
-        cupo: "",
-        descripcion: "",
-        objetivoGeneral: "",
-        objetivosEspecificos: "",
-        temas: "",
-        requisitos: "",
-        materialSol: "",
-        criteriosSeleccion: "",
-        notas: "",
-        requiereMuestraTrabajo:false,
-        infantil:false,
-      });
-    } catch (error) {
-      console.error(error);
-      alert("Error al registrar el taller 😢");
+  e.preventDefault();
+
+  try {
+    // --- MODO ADMIN: Guardar cambios sin aprobar ---
+    if (modo === "administrador" && onAprobar === undefined) {
+      console.log("Actualizando taller:", taller.idActividad);
+
+      await updateTallerDiplo(taller.idActividad, formData);
+
+      alert("Cambios guardados correctamente ✔️");
+      return;
     }
-  };
+
+    // --- MODO ADMIN: Aprobar taller ---
+    if (modo === "administrador" && onAprobar) {
+      await updateActividad(taller.idActividad, "AUTORIZADA");
+      alert("Taller aprobado correctamente ✔️");
+      onAprobar();
+      return;
+    }
+
+    // --- MODO NORMAL: Crear taller ---
+    await createTaller(formData);
+    alert("Taller registrado con éxito 🎉");
+
+    setFormData({
+      titulo: "",
+      cupo: "",
+      descripcion: "",
+      objetivoGeneral: "",
+      objetivosEspecificos: "",
+      temas: "",
+      requisitos: "",
+      materialSol: "",
+      criteriosSeleccion: "",
+      notas: "",
+      imagen: "",
+      requiereMuestraTrabajo: false,
+      infantil: false,
+    });
+
+  } catch (error) {
+    console.error(error);
+    alert("Ocurrió un error 😢");
+  }
+};
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 requisitar-taller">
       <main className="flex-grow p-6">
         <div className="bg-white rounded-lg shadow-md p-20">
-          <h1 className="text-black text-2xl font-semibold mb-6">Requisitar Taller</h1>
-          
+          <div className="flex items-center gap-4 mb-6">
+          <button
+            onClick={onVolver}
+            className="bg-white-400 text-black px-3 py-1 rounded hover:bg-gray-200"
+          >
+            ←
+          </button>
+
+          <h1 className="text-black text-2xl font-semibold">
+            {modo === "administrador" ? "Revisión del Taller" : "Requisitar Taller"}
+          </h1>
+        </div>
+
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               
@@ -238,6 +279,7 @@ const Requisitar_Taller = () => {
                       }
                     />
 
+
                     <Radio
                       name="infantil"
                       label="No"
@@ -252,13 +294,37 @@ const Requisitar_Taller = () => {
 
               </div>
             </div>
-
-            <div className="flex justify-end pt-6">
-              <Button 
-                type="submit"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition duration-200 text-sm"
+            { modo === "administrador" && (
+              <div className="flex justify-first pt-4">
+              <Button
+                type="button"
+                className={
+                   "bg-blue-400 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition duration-200 text-sm "}
+                   onClick={() => {
+                    // Guardar cambios SIN aprobar
+                    updateTallerDiplo(taller.idActividad, formData)
+                      .then(() => alert("Cambios guardados ✔️"))
+                      .catch(() => alert("Error al guardar cambios ❌"));
+                  }}
               >
-                Enviar Solicitud de Taller
+                Guardar cambios
+              </Button>
+            </div>
+            )}
+            
+
+            <div className="flex justify-end pt-2">
+              <Button
+                type="submit"
+                className={`${
+                  modo === "administrador"
+                    ? "bg-green-600 hover:bg-green-700"
+                    : "bg-blue-600 hover:bg-blue-700"
+                } text-white font-medium py-2 px-6 rounded-md transition duration-200 text-sm`}
+              >
+                {modo === "administrador"
+                  ? "Aprobar Taller"
+                  : "Enviar Solicitud de Taller"}
               </Button>
             </div>
           </form>

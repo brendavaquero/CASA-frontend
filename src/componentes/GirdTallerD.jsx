@@ -7,6 +7,7 @@ const GirdTallerD = ({ onTallerClick,talleres: talleresProp }) => {
   useEffect(() => {
     if (talleresProp) {
       setTalleres(talleresProp);
+      console.log('talleres:',talleres);
       return;
     }
   }, [talleresProp]);
@@ -26,7 +27,7 @@ const GirdTallerD = ({ onTallerClick,talleres: talleresProp }) => {
               <div className="h-32 bg-gray-200 flex items-center justify-center mb-4 rounded">
                   {taller.imagen ? (
                     <img
-                      src={taller.imagen}
+                      src={`http://localhost:8080${taller.imagen}`}
                       alt={taller.descripcion}
                       className="h-full object-cover rounded"
                     />

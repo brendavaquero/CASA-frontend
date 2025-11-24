@@ -171,11 +171,12 @@ const reloadArchivos = async () => {
 
 export default VistaTaller;
 */
-const VistaTaller = ({ taller, onVolver, modo = "docente" }) => {
+const VistaTaller = ({ taller, onVolver, modo = " " }) => {
   const [alumnos, setAlumnos] = useState([]);
   const [fechaHoy, setFechaHoy] = useState("");
   const [asistencias, setAsistencias] = useState({});
   const [archivos, setArchivos] = useState([]);
+  const [archivosAuxiliar, setArchivosAuxiliar] = useState([]);
 
 
   useEffect(() => {
@@ -244,34 +245,60 @@ const VistaTaller = ({ taller, onVolver, modo = "docente" }) => {
 
           <div className="rounded-lg overflow-hidden shadow">
             <img
-              src={taller?.imagen || "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1471&q=80"}
+              src={taller?.imagen ? `http://localhost:8080${taller.imagen}` : "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1471&q=80"}
               alt={taller?.titulo || "Imagen del taller"}
               className="object-cover w-full h-72"
             />
           </div>
+          {(modo === "docente" || modo === "alumno") && (
+              <div className="border p-5 rounded bg-white shadow-sm">
+                <h2 className="text-lg font-semibold mb-3 text-gray-800">📚 Recursos</h2>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  {archivos.length === 0 ? (
+                    <p className="text-gray-500">No hay recursos aún.</p>
+                  ) : (
+                    archivos.map((a) => (
+                      <li key={a.idArchivo} className="border-b pb-1">
+                        <a
+                          href={`http://localhost:8080${a.ruta}`}
+                          target="_blank"
+                          className="text-blue-600 hover:underline"
+                        >
+                          {a.nombre}
+                        </a>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              </div>
+            )
+          }
 
-          <div className="border p-5 rounded bg-white shadow-sm">
-            <h2 className="text-lg font-semibold mb-3 text-gray-800">📚 Recursos</h2>
-            <ul className="space-y-2 text-sm text-gray-700">
-              {archivos.length === 0 ? (
-                <p className="text-gray-500">No hay recursos aún.</p>
-              ) : (
-                archivos.map((a) => (
-                  <li key={a.idArchivo} className="border-b pb-1">
-                    <a
-                      href={`http://localhost:8080${a.ruta}`}
-                      target="_blank"
-                      className="text-blue-600 hover:underline"
-                    >
-                      {a.nombre}
-                    </a>
-                  </li>
-                ))
-              )}
-            </ul>
-          </div>
+          {modo === "auxiliar" &&(
+              <div className="border p-5 rounded bg-white shadow-sm">
+                <h2 className="text-lg font-semibold mb-3 text-gray-800">Evidencias del taller:</h2>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  {archivosAuxiliar.length === 0 ? (
+                    <p className="text-gray-500">No hay evidencias aún.</p>
+                  ) : (
+                    archivosAuxiliar.map((a) => (
+                      <li key={a.idArchivo} className="border-b pb-1">
+                        <a
+                          href={`http://localhost:8080${a.ruta}`}
+                          target="_blank"
+                          className="text-blue-600 hover:underline"
+                        >
+                          {a.nombre}
+                        </a>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              </div>
+            )
+          }
 
-          {modo === "docente" && (
+          {(modo === "docente" || modo === "auxiliar") && (
             <FormElementFileUpload
               idActividad={taller.idActividad}
               onUploadSuccess={reloadArchivos}
