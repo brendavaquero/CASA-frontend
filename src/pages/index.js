@@ -8,3 +8,4 @@ export * from "@/pages/taller";
 export * from "@/pages/tallerindividual";
 export * from "@/pages/postulacion";
 export * from "@/pages/programas";
+export * from "@/pages/PostulacionesPendientesPage";

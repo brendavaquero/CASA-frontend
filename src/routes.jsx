@@ -1,4 +1,4 @@
-import { Home, Aprender, Convocatorias, PaginaPruebaTaller, TallerIndividual, PostulacionForm, ProgramasUsuarioPage } from "@/pages";
+import { Home, Aprender, Convocatorias, PaginaPruebaTaller, TallerIndividual, PostulacionForm, ProgramasUsuarioPage, PostulacionesPendientesPage } from "@/pages";
 
 export const routes = [
   {
@@ -21,11 +21,11 @@ export const routes = [
     path: "/convocatorias",
     element: <Convocatorias />,
   },
-  {
+  /* {
     name: "prueba-taller",
     path: "/taller-prueba",
     element: <PaginaPruebaTaller />,
-  },
+  }, */
   {
     name: "postulacion",
     path: "/postular/:idActividad",
@@ -36,7 +36,13 @@ export const routes = [
     name: "programas",
     path: "/programas/usuario/:idUsuario",
     element: <ProgramasUsuarioPage />,
+  },
+  {
+    name: "PostulacionesPendientesPage",
+    path: "/postulaciones/pendientes",
+    element: <PostulacionesPendientesPage />
   }
+
 
 ];
 

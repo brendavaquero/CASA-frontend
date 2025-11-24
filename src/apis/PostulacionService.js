@@ -21,3 +21,26 @@ export const getPostulacionById = async (id) => {
     throw error;
   }
 };
+
+export const updateEstadoPostulacion = async (idPostulacion, estado) => {
+  const response = await axios.put(`${API_URL}/estado/${idPostulacion}`, {
+    estadoPos: estado,
+  });
+  return response.data;
+};
+
+/* export const getPostulacionesPendientes = async (idActividad) => {
+  const response = await axios.get(`${API_URL}/pendientes/${idActividad}`);
+  return response.data; // lista de PostulacionDto
+}; */
+export const getPostulacionesPendientesConParticipante = async (idActividad) => {
+  const response = await axios.get(`${API_URL}/pendientes/actividad/${idActividad}`);
+  return response.data; // trae postulacion + participante
+};
+
+
+export const seleccionarPostulantes = async (idActividad, idsAprobados) => {
+  return axios.post(`${API_URL}/seleccionar/${idActividad}`, idsAprobados);
+};
+
+
