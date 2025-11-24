@@ -4,9 +4,10 @@ import logoCaSa from "../../assets/images/logoCaSa.png";
 import GridTallerD from '../../componentes/GirdTallerD.jsx'
 import IconButton from '@mui/material/IconButton';
 import IconDocente from '../../assets/images/docenteicon.png';
-import { getDocenteById } from "@/apis/docenteService.js";
+import { getDocenteById} from "@/apis/docenteService.js";
+import { getUsuarioById } from "@/apis/usuarios.js";
 import VistaTaller from "@/componentes/VistaTaller.jsx";
-import { getTalleresDocentes } from "@/apis/tallerDiplomadoService.js";
+import { getTalleresDocentes, getTalleres } from "@/apis/tallerDiplomadoService.js";
 
 const HomeAuxiliar = () => {
   const [auxiliar, setAuxiliar] = useState(null);
@@ -17,10 +18,10 @@ const HomeAuxiliar = () => {
     useEffect(() => {
     const fetchDocente = async () => {
       try {
-        const data = await getDocenteById(idUsuario);
+        const data = await getUsuarioById(idUsuario);
         console.log('data:',data);
         setAuxiliar(data);
-        const dataTalleres = await getTalleresDocentes(idUsuario);
+        const dataTalleres = await getTalleres(idUsuario);
         console.log("Talleres del docente:", dataTalleres);
         setTalleres(dataTalleres);
       } catch (error) {

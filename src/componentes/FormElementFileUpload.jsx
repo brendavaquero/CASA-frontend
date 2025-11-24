@@ -15,13 +15,6 @@ const FormElementFileUpload = ({idActividad,onUploadSuccess }) => {
   };
 
   const handleUpload = async () => {
-    /*
-    if (file) {
-      alert(`Archivo "${file.name}" subido correctamente 🎉`);
-      setFile(null);
-    } else {
-      alert("Primero selecciona un archivo.");
-    }*/
    if (!file) {
       alert("Primero selecciona un archivo.");
       return;

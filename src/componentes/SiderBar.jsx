@@ -30,13 +30,13 @@ const Sidebar = () => {
           >
             <FileText className="w-5 h-5 mr-3" /> Requisitar Taller
           </NavLink>
-
+{/*
           <NavLink
             to="/postulaciones"
             className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
           >
             <FileText className="w-5 h-5 mr-3" /> Postulaciones
-          </NavLink>
+          </NavLink>*/}
         </nav>
       </div>
 

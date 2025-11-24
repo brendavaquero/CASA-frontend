@@ -8,7 +8,7 @@ import { Requisitar_Taller } from "../index.js";
 import { getTalleres } from "@/apis/tallerDiplomadoService.js";
 import { getUsuarioById } from "@/apis/usuarios.js";
 import CrearTaller from "./CrearTaller.jsx";
-
+import VistaTaller from "@/componentes/VistaTaller.jsx";
 const HomeAdmin = () => {
   const [administrador, setAdministrador] = useState(null);
   const [talleres, setTalleres] = useState([]);
@@ -32,6 +32,13 @@ const HomeAdmin = () => {
   }, []);
 
    const handleTallerClick = (taller) => {
+    if (taller.estado === "FINALIZADA") {
+      setTallerSeleccionado(taller);
+      setVistaActual("tallerFinalizado");
+      return;
+    }
+
+    
     setTallerSeleccionado(taller);
     setVistaActual("taller");
   };
@@ -76,7 +83,15 @@ const HomeAdmin = () => {
                 />
             ) : vistaActual === "crearTaller" ? (
                 <CrearTaller taller={tallerSeleccionado} onVolver={handleVolver} />
+                ) : vistaActual === "tallerFinalizado" ? (
+                <VistaTaller 
+                  modo="administradorFinal"
+                  taller={tallerSeleccionado}
+                  onVolver={handleVolver}
+                  administrador={administrador}
+                />
             ) : null}
+            
             </main>
         </div>
         <footer className="bg-gray-700 text-gray-200 text-sm text-center py-3">

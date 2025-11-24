@@ -47,7 +47,6 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
   e.preventDefault();
 
   try {
-    // --- MODO ADMIN: Guardar cambios sin aprobar ---
     if (modo === "administrador" && onAprobar === undefined) {
       console.log("Actualizando taller:", taller.idActividad);
 
@@ -57,7 +56,6 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
       return;
     }
 
-    // --- MODO ADMIN: Aprobar taller ---
     if (modo === "administrador" && onAprobar) {
       await updateActividad(taller.idActividad, "AUTORIZADA");
       alert("Taller aprobado correctamente ✔️");
@@ -65,7 +63,7 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
       return;
     }
 
-    // --- MODO NORMAL: Crear taller ---
+  
     await createTaller(formData);
     alert("Taller registrado con éxito 🎉");
 
@@ -111,7 +109,7 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               
-              {/* Columna 1 */}
+              
               <div className="space-y-4">
                 <Input 
                   variant="static" 
@@ -301,7 +299,6 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
                 className={
                    "bg-blue-400 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition duration-200 text-sm "}
                    onClick={() => {
-                    // Guardar cambios SIN aprobar
                     updateTallerDiplo(taller.idActividad, formData)
                       .then(() => alert("Cambios guardados ✔️"))
                       .catch(() => alert("Error al guardar cambios ❌"));
