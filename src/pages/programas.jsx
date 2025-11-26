@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import SimpleCard from "../componentes/programa-card";
-import { getProgramasByUsuario, getById, descargarZipEvidencias } from "../apis/ProgramaService";
+import { getProgramasByUsuario, getById, descargarZipEvidencias } from "../apis/programaService";
 
 export function ProgramasUsuarioPage() {
   const [programas, setProgramas] = useState([]);

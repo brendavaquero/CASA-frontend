@@ -1,4 +1,4 @@
-/*import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Navbar } from "@/widgets/layout";
 import routes from "@/routes";
 
@@ -27,8 +27,9 @@ function App() {
   );
 }
 
-export default App;*/
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+export default App;
+
+/* import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Navbar } from "@/widgets/layout";
 import routes from "@/routes";
 
@@ -58,3 +59,4 @@ function App() {
 }
 
 export default App;
+ */
