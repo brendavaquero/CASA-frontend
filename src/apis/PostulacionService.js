@@ -44,3 +44,4 @@ export const seleccionarPostulantes = async (idActividad, idsAprobados) => {
 };
 
 
+
