@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { listTalleresDiplomados, getDocenteByTaller } from "../apis/TallerDiplomadoService";
+import { listTalleresDiplomados, getDocenteByTaller } from "../apis/tallerDiplomadoService";
 import { TallerCard } from "../componentes/taller-card";
 
 export function Aprender() {

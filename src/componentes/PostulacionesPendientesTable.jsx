@@ -3,7 +3,7 @@ import { Card, Typography, Button } from "@material-tailwind/react";
 import {
   getPostulacionesPendientesConParticipante,
   seleccionarPostulantes,
-} from "../apis/PostulacionService";
+} from "../apis/postulacionService";
 
 import DialogDefault from "./DialogDefault";
 

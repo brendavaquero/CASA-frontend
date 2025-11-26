@@ -1,15 +1,15 @@
 import axios from "axios";
 
-const REST_API_BASE_URL = 'http://localhost:8080/api/talleresydiplomados';
+const API_URL = 'http://localhost:8080/api/talleresydiplomados';
 
 export const getTallerDiplomadoById = (idActividad) =>
-  axios.get(`${REST_API_BASE_URL}/${idActividad}`);
+  axios.get(`${API_URL}/${idActividad}`);
 
 
 //export const listTalleresDiplomados = () => axios.get(REST_API_BASE_URL);
 export async function listTalleresDiplomados() {
   try {
-    const response = await fetch(REST_API_BASE_URL, {
+    const response = await fetch(API_URL, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -40,7 +40,7 @@ export async function getProgramaByTaller(idActividad) {
 
 
 export async function getDocenteByTaller(idActividad) {
-  const url = `${REST_API_BASE_URL}/${idActividad}/docente`;
+  const url = `${API_URL}/${idActividad}/docente`;
 
   try {
     const res = await fetch(url);

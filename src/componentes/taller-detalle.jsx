@@ -8,7 +8,7 @@ import {
   Avatar,
 } from "@material-tailwind/react";
 import { CalendarDaysIcon } from "@heroicons/react/24/outline";
-import { getSesionesByTaller } from "../apis/SesionService"; 
+import { getSesionesByTaller } from "../apis/sesionService"; 
 import { getDocenteById } from "../apis/DocenteService";
 
 export default function TallerDetalle({ actividad }) {
