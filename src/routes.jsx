@@ -1,4 +1,5 @@
-import { Home, Profile, SignIn, SignUp, Requisitar_Taller} from "@/pages";
+import { Home, Aprender, Convocatorias, PaginaPruebaTaller, TallerIndividual, PostulacionForm, ProgramasUsuarioPage, PostulacionesPendientesPage } from "@/pages";
+import { Requisitar_Taller} from "@/pages";
 import HomeDocente from "./pages/docente/HomeDocente";
 import { element } from "prop-types";
 import HomeAlumno from "./pages/alumno/HomeAlumno";
@@ -13,20 +14,42 @@ export const routes = [
     element: <Home />,
   },
   {
-    name: "profile",
-    path: "/profile",
-    element: <Profile />,
+    name: "Aprender",
+    path: "/talleresydiplomados",
+    element: <Aprender />,
   },
   {
-    name: "Sign In",
-    path: "/sign-in",
-    element: <SignIn />,
+    name: "Taller individual",
+    path: "/talleresydiplomados/:id",
+    element: <TallerIndividual />,
   },
   {
-    name: "Sign Up",
-    path: "/sign-up",
-    element: <SignUp />,
+    name: "convocatorias",
+    path: "/convocatorias",
+    element: <Convocatorias />,
   },
+  /* {
+    name: "prueba-taller",
+    path: "/taller-prueba",
+    element: <PaginaPruebaTaller />,
+  }, */
+  {
+    name: "postulacion",
+    path: "/postular/:idActividad",
+    element: <PostulacionForm />,
+  },
+
+  {
+    name: "programas",
+    path: "/programas/usuario/:idUsuario",
+    element: <ProgramasUsuarioPage />,
+  },
+  {
+    name: "PostulacionesPendientesPage",
+    path: "/postulaciones/pendientes",
+    element: <PostulacionesPendientesPage />
+  },
+
   {
     name:"Requisitar Taller",
     path:"/requisitar-taller",

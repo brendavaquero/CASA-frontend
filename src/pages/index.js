@@ -1,5 +1,12 @@
-export { default as Home } from "./home";
-export { default as Profile } from "./profile";
-export { default as SignIn } from "./sign-in";
-export { default as SignUp } from "./sign-up";
+export * from "@/pages/home";
+export * from "@/pages/profile";
+export * from "@/pages/sign-in";
+export * from "@/pages/sign-up";
+export * from "@/pages/convocatorias";
+export * from "@/pages/talleresydiplomados";
+export * from "@/pages/taller";
+export * from "@/pages/tallerindividual";
+export * from "@/pages/postulacion";
+export * from "@/pages/programas";
+export * from "@/pages/PostulacionesPendientesPage";
 export { default as Requisitar_Taller } from "./Requisitar_Taller";

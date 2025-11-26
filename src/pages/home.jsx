@@ -14,6 +14,7 @@ import { FingerPrintIcon, UsersIcon } from "@heroicons/react/24/solid";
 import { PageTitle, Footer } from "@/widgets/layout";
 import { FeatureCard, TeamCard } from "@/widgets/cards";
 import { featuresData, teamData, contactData } from "@/data";
+import { TallerCard } from "@/componentes";
 
 export function Home() {
   return (
@@ -23,18 +24,16 @@ export function Home() {
         <div className="absolute top-0 h-full w-full bg-black/60 bg-cover bg-center" />
         <div className="max-w-8xl container relative mx-auto">
           <div className="flex flex-wrap items-center">
-            <div className="ml-auto mr-auto w-full px-4 text-center lg:w-8/12">
+            <div className="ml-auto mr-auto w-full px-4 text-center lg:w-6/12">
               <Typography
                 variant="h1"
                 color="white"
                 className="mb-6 font-black"
               >
-                Your story starts with us.
+                Centro de las Artes de San Agustín
               </Typography>
               <Typography variant="lead" color="white" className="opacity-80">
-                This is a simple example of a Landing Page you can build using
-                Material Tailwind. It features multiple components based on the
-                Tailwind CSS and Material Design by Google.
+                El primer centro de las artes ecológico de Latinoamérica, comprometido con la formación, creación y experimentación artística.
               </Typography>
             </div>
           </div>
@@ -42,7 +41,7 @@ export function Home() {
       </div>
       <section className="-mt-32 bg-white px-4 pb-20 pt-4">
         <div className="container mx-auto">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
             {featuresData.map(({ color, title, icon, description }) => (
               <FeatureCard
                 key={title}
