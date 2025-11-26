@@ -9,3 +9,4 @@ export * from "@/pages/tallerindividual";
 export * from "@/pages/postulacion";
 export * from "@/pages/programas";
 export * from "@/pages/PostulacionesPendientesPage";
+export { default as Requisitar_Taller } from "./Requisitar_Taller";
