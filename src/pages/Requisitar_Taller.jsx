@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Input, Textarea, Button, Radio } from "@material-tailwind/react";
-import { createTaller, updateActividad, updateTallerDiplo} from "@/apis/tallerDiplomadoService";
+import { createTaller, updateActividad, updateTallerDiplo} from "@/apis/tallerDiplomado_Service";
 import { useNavigate } from "react-router-dom";
 
 const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar }) => {

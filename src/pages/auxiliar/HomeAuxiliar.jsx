@@ -4,10 +4,10 @@ import logoCaSa from "../../assets/images/logoCaSa.png";
 import GridTallerD from '../../componentes/GirdTallerD.jsx'
 import IconButton from '@mui/material/IconButton';
 import IconDocente from '../../assets/images/docenteicon.png';
-import { getDocenteById} from "@/apis/docenteService.js";
+import { getDocenteById} from "@/apis/docente_Service.js";
 import { getUsuarioById } from "@/apis/usuarios.js";
 import VistaTaller from "@/componentes/VistaTaller.jsx";
-import { getTalleresDocentes, getTalleres } from "@/apis/tallerDiplomadoService.js";
+import { getTalleresDocentes, getTalleres } from "@/apis/tallerDiplomado_Service.js";
 
 const HomeAuxiliar = () => {
   const [auxiliar, setAuxiliar] = useState(null);

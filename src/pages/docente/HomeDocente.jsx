@@ -4,9 +4,9 @@ import logoCaSa from "../../assets/images/logoCaSa.png";
 import GridTallerD from '../../componentes/GirdTallerD.jsx'
 import IconButton from '@mui/material/IconButton';
 import IconDocente from '../../assets/images/docenteicon.png';
-import { getDocenteById } from "@/apis/docenteService.js";
+import { getDocenteById } from "@/apis/docente_Service.js";
 import VistaTaller from "@/componentes/VistaTaller.jsx";
-import { getTalleresDocentes } from "@/apis/tallerDiplomadoService.js";
+import { getTalleresDocentes } from "@/apis/tallerDiplomado_Service.js";
 
 const HomeDocente = () => {
   const [docente, setDocente] = useState(null);
