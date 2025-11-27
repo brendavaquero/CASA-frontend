@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import FormElementFileUpload from "./FormElementFileUpload";
-import { getAlumnosTaller } from "@/apis/tallerDiplomadoService";
-import { registrarAsistencia } from "@/apis/asistenciaService";
-import { getArchivosActividad } from "@/apis/archivoService";
+import { getAlumnosTaller } from "@/apis/tallerDiplomado_Service";
+import { registrarAsistencia } from "@/apis/asistencia_Service";
+import { getArchivosActividad } from "@/apis/archivo_Service";
 import { generarConstancia } from "./GenerarConstancia";
 const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
   const [alumnos, setAlumnos] = useState([]);

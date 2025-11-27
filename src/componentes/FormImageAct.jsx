@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Upload } from "lucide-react";
-import { uploadImagenActividad } from "@/apis/tallerDiplomadoService";
+import { uploadImagenActividad } from "@/apis/tallerDiplomado_Service";
 
 const FormImageAct = ({idActividad,onUploadSuccess }) => {
   const [file, setFile] = useState(null);

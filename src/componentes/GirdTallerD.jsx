@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getTalleres } from "@/apis/tallerDiplomadoService";
+import { getTalleres } from "@/apis/tallerDiplomado_Service";
 
 const GirdTallerD = ({ onTallerClick,talleres: talleresProp }) => {
   const [talleres, setTalleres] = useState([]);

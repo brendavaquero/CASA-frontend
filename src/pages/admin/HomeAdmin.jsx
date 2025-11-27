@@ -5,7 +5,7 @@ import GridTallerD from '../../componentes/GirdTallerD.jsx'
 import IconButton from '@mui/material/IconButton';
 import IconDocente from '../../assets/images/docenteicon.png';
 import { Requisitar_Taller } from "../index.js";
-import { getTalleres } from "@/apis/tallerDiplomadoService.js";
+import { getTalleres } from "@/apis/tallerDiplomado_Service.js";
 import { getUsuarioById } from "@/apis/usuarios.js";
 import CrearTaller from "./CrearTaller.jsx";
 import VistaTaller from "@/componentes/VistaTaller.jsx";

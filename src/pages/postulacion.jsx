@@ -6,11 +6,11 @@ import {
   Textarea,
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
-import { crearPostulacion } from "../apis/postulacionService";
+import { crearPostulacion } from "../apis/postulacion_Service";
 import { useParams, useNavigate } from "react-router-dom";
-import { getTallerDiplomadoById } from "../apis/tallerDiplomadoService";
+import { getTallerDiplomadoById } from "../apis/tallerDiplomado_Service";
 import FormFileUploadPostulacion from "../componentes/FormFileUploadPostulacion";
-import { uploadArchivoPostulacion } from "../apis/archivoService"; 
+import { uploadArchivoPostulacion } from "../apis/archivo_Service"; 
 import DialogDefault from "../componentes/DialogDefault";
 
 

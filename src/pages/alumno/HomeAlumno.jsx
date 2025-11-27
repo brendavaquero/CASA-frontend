@@ -4,8 +4,8 @@ import logoCaSa from "../../assets/images/logoCaSa.png";
 import GridTallerD from '../../componentes/GirdTallerD.jsx'
 import IconButton from '@mui/material/IconButton';
 import IconDocente from '../../assets/images/docenteicon.png';
-import { getAlumnoTalleres } from "@/apis/alumnoService.js";
-import { getTalleres } from "@/apis/tallerDiplomadoService.js";
+import { getAlumnoTalleres } from "@/apis/alumno_Service.js";
+import { getTalleres } from "@/apis/tallerDiplomado_Service.js";
 import VistaTaller from "@/componentes/VistaTaller.jsx";
 
 const HomeAlumno = () => {

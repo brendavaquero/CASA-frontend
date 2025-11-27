@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, Input } from "@material-tailwind/react";
 import FormImageAct from "@/componentes/FormImageAct";
 import { createSesiones } from "@/apis/sesiones";
-import { updatedActividad } from "@/apis/tallerDiplomadoService";
+import { updatedActividad } from "@/apis/tallerDiplomado_Service";
 
 const CrearTaller = ({ taller, onVolver }) => {
   const [form, setForm] = useState({
