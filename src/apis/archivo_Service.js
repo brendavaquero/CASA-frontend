@@ -38,3 +38,12 @@ export const getEvidenciasByActividad = async (idActividad) => {
     throw error;
   }
 };
+
+export const deleteArchivo = async (idArchivo) => {
+  const res = await fetch(`${API_URL}/archivo/${idArchivo}`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) throw new Error("Error al eliminar archivo");
+};
+

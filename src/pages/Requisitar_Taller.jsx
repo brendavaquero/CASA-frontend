@@ -43,6 +43,11 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
     });
   };
 
+  const onRechazar = async () => {
+    await updateActividad(taller.idActividad, "RECHAZDA");
+    alert("Taller rechazado");
+  };
+
   const handleSubmit = async (e) => {
   e.preventDefault();
 
@@ -296,8 +301,7 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
               <div className="flex justify-first pt-4">
               <Button
                 type="button"
-                className={
-                   "bg-blue-400 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition duration-200 text-sm "}
+                variant="gradient" size="md"
                    onClick={() => {
                     updateTallerDiplo(taller.idActividad, formData)
                       .then(() => alert("Cambios guardados ✔️"))
@@ -310,12 +314,21 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
             )}
             
 
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-end pt-2 gap-3">
+              {modo === "administrador" && (
+                <Button
+                  onClick={onRechazar}
+                  className="bg-red-400 hover:bg-red-600 text-white font-medium py-2 px-6 rounded-md transition duration-200 text-sm"
+                >
+                  Rechazar
+                </Button>
+              )}
+
               <Button
                 type="submit"
                 className={`${
                   modo === "administrador"
-                    ? "bg-green-600 hover:bg-green-700"
+                    ? "bg-green-400 hover:bg-green-600"
                     : "bg-blue-600 hover:bg-blue-700"
                 } text-white font-medium py-2 px-6 rounded-md transition duration-200 text-sm`}
               >
@@ -323,7 +336,9 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
                   ? "Aprobar Taller"
                   : "Enviar Solicitud de Taller"}
               </Button>
+
             </div>
+
           </form>
         </div>
       </main>

@@ -15,6 +15,8 @@ const HomeAdmin = () => {
   const [vistaActual, setVistaActual] = useState("grid");
   const [tallerSeleccionado, setTallerSeleccionado] = useState(null);
   const idUsuario = 'USU2025-00011';
+  const [filtroEstado, setFiltroEstado] = useState("TODOS");
+
     useEffect(() => {
     const fetchAuxiliar = async () => {
       try {
@@ -47,6 +49,11 @@ const HomeAdmin = () => {
     setVistaActual("grid");
   };
 
+  const talleresFiltrados =
+  filtroEstado === "TODOS"
+    ? talleres
+    : talleres.filter(t => t.estado === filtroEstado);
+
 
   return (
     <div className="flex h-screen bg-gray-100 pt-20">
@@ -69,8 +76,29 @@ const HomeAdmin = () => {
             {/*<Sidebar />*/}
 
             <main className="flex-1 overflow-y-auto p-6">
+            {vistaActual === "grid" && (
+            <div className="mb-4 flex gap-4 items-center">
+              <label className="text-gray-700 font-medium">Filtrar por estado:</label>
+
+              <select
+                className="border px-2 py-2 rounded-md bg-white shadow-sm"
+                value={filtroEstado}
+                onChange={(e) => setFiltroEstado(e.target.value)}
+              >
+                <option value="TODOS">Todos</option>
+                <option value="PENDIENTE">Pendiente</option>
+                <option value="APROBADA">Aprobado</option>
+                <option value="FINALIZADA">Finalizada</option>
+                <option value="RECHAZADA">Rechazada</option>
+                <option value="EN_CURSO">En Curso</option>
+                <option value="CONVOCATORIA_ABIERTA">Convocatoria Abierta</option>
+                <option value="CONVOCATORIA_CERRADA">Convocatoria Cerrada</option>
+                <option value="CANCELADA">Cancelada</option>
+              </select>
+            </div>
+          )}
             {vistaActual === "grid" ? (
-                <GridTallerD onTallerClick={handleTallerClick} talleres={talleres} />
+                <GridTallerD onTallerClick={handleTallerClick} talleres={talleresFiltrados} />
             ) : vistaActual === "taller" ? (
                 <Requisitar_Taller
                 modo="administrador"

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Upload } from "lucide-react";
 import { uploadArchivo } from "@/apis/archivo_Service";
 
-const FormElementFileUpload = ({idActividad,onUploadSuccess }) => {
+const FormElementFileUpload = ({idActividad,categoria,onUploadSuccess }) => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -31,6 +31,8 @@ const FormElementFileUpload = ({idActividad,onUploadSuccess }) => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("idActividad", idActividad);
+      formData.append("categoria", categoria);
+      console.log('DATOS ARCHIVO',formData);
 
       const data = await uploadArchivo(formData);
 

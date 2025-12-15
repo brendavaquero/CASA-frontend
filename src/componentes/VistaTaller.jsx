@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
 import FormElementFileUpload from "./FormElementFileUpload";
 import { getAlumnosTaller } from "@/apis/tallerDiplomado_Service";
-import { registrarAsistencia } from "@/apis/asistencia_Service";
+import { registrarAsistencia, getAprobadosPorTaller } from "@/apis/asistencia_Service";
 import { getArchivosActividad } from "@/apis/archivo_Service";
 import { generarConstancia } from "./GenerarConstancia";
+import { getSesionesByTaller } from "@/apis/sesiones";
 const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
   const [alumnos, setAlumnos] = useState([]);
   const [fechaHoy, setFechaHoy] = useState("");
   const [asistencias, setAsistencias] = useState({});
   const [archivos, setArchivos] = useState([]);
   const [archivosAuxiliar, setArchivosAuxiliar] = useState([]);
-
+  const [alumnosAprobados, setAlumnosAprobados] = useState([]);
+  const [sesiones, setSesiones] = useState([]);
 
   useEffect(() => {
     if (modo === "alumno") return;
@@ -37,10 +39,54 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
     reloadArchivos();
   }, [taller]);
 
-  const reloadArchivos = async () => {
+  useEffect(() => {
+  if (modo !== "administradorFinal") return;
+  if (!taller?.idActividad) return;
+
+  const fetchAprobados = async () => {
     try {
+      const data = await getAprobadosPorTaller(taller.idActividad);
+      setAlumnosAprobados(data);
+    } catch (error) {
+      console.error("Error al obtener aprobados:", error);
+    }
+  };
+
+  fetchAprobados();
+}, [taller, modo]);
+
+
+useEffect(() => {
+  if (!taller?.idActividad) return;
+
+  const fetchSesiones = async () => {
+    try {
+      const data = await getSesionesByTaller(taller.idActividad);
+      const ordenadas = data.sort(
+        (a, b) => new Date(a.fechaInicio) - new Date(b.fechaInicio)
+      );
+
+      setSesiones(ordenadas);
+    } catch (error) {
+      console.error("Error al obtener sesiones:", error);
+    }
+  };
+
+  fetchSesiones();
+}, [taller]);
+
+  const reloadArchivos = async () => {
+   try {
       const res = await getArchivosActividad(taller.idActividad);
-      setArchivos(res);
+
+      // Filtrar recursos
+      const recursos = res.filter(a => a.categoria === "RECURSO");
+
+      // Filtrar evidencias
+      const evidencias = res.filter(a => a.categoria === "EVIDENCIA");
+
+      setArchivos(recursos);
+      setArchivosAuxiliar(evidencias);  // o setArchivosEvidencias
     } catch (error) {
       console.error("Error al cargar archivos:", error);
     }
@@ -60,6 +106,8 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
       alert("Error al registrar asistencia");
     }
   };
+  const fechaInicioTaller = sesiones.length > 0 ? sesiones[0].fechaInicio : taller.fechaInicio;
+  const fechaCierreTaller = sesiones.length > 0 ? sesiones[sesiones.length - 1].fechaFin : taller.fechaCierre;
 
   return (
     <div className="p-6">
@@ -109,7 +157,19 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
           {modo === "administradorFinal" && (
           <button
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-800 w-full"
-            onClick={() => alumnos.forEach(al => generarConstancia(taller, administrador, al))}
+            onClick={() =>
+              alumnosAprobados.forEach(al =>
+                generarConstancia(
+                  { 
+                    ...taller,
+                    fechaInicioTaller,
+                    fechaCierreTaller
+                  },
+                  administrador,
+                  al
+                )
+              )
+            }
           >
             Generar constancias
           </button>
@@ -143,6 +203,7 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
             <FormElementFileUpload
               idActividad={taller.idActividad}
               onUploadSuccess={reloadArchivos}
+              categoria={modo === "auxiliar" ? "EVIDENCIA" : "RECURSO"}
             />
           )}
         </div>
@@ -216,6 +277,41 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
   </div>
 )}
 
+          {/*sesiones*/}
+          {(modo === "docente" || modo === "auxiliar" || modo === "alumno" || modo === "administradorFinal") && (
+          <div className="border p-5 rounded bg-white shadow-sm mt-4">
+            <h2 className="text-lg font-semibold mb-3 text-gray-800">🗓️ Sesiones del taller</h2>
+
+            {sesiones.length === 0 ? (
+              <p className="text-gray-500">No hay sesiones registradas aún.</p>
+            ) : (
+              <ul className="space-y-2 text-sm text-gray-700">
+                {sesiones.map((s, index) => {
+                  // Si fechaInicio y fechaFin son iguales, mostramos solo una fecha
+                  const mismaFecha = s.fechaInicio && s.fechaFin && s.fechaInicio === s.fechaFin;
+                  const fechaTexto = mismaFecha
+                    ? s.fechaInicio
+                    : `${s.fechaInicio} - ${s.fechaFin}`;
+
+                  const horaInicio = s.horaInicio ? s.horaInicio.substring(0, 5) : "";
+                  const horaFin = s.horaFin ? s.horaFin.substring(0, 5) : "";
+
+                  return (
+                    <li key={s.idSesion} className="border-b pb-2">
+                      <div className="flex items-baseline justify-between">
+                        <div>
+                          <strong>Sesión {index + 1}:</strong>{" "}
+                          {fechaTexto} — {horaInicio} a {horaFin}
+                        </div>
+                        <div className="text-xs text-gray-500">Aula {s.aula}</div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        )}
 
         </div>
       </div>

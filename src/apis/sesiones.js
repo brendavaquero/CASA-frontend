@@ -10,3 +10,8 @@ export const createSesiones = async (sesionData) => {
   });
   return res.data;
 };
+
+export const getSesionesByTaller = async(idTaller) => {
+  const res = await axios.get(`${API_URL}/tallerdiplomado/${idTaller}`);
+  return res.data;
+};

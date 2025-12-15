@@ -80,7 +80,7 @@ export const generarConstancia = async (taller, docente, alumno) => {
   doc.setFont("Times", "italic");
   doc.setFontSize(15);
   doc.text(
-    `Periodo: ${taller.fechaInicio}  a  ${taller.fechaCierre}`,
+    `Periodo: ${taller.fechaInicioTaller}  a  ${taller.fechaCierreTaller}`,
     105,
     205,
     { align: "center" }
