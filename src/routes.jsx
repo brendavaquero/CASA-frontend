@@ -1,4 +1,4 @@
-import { Home, Aprender, Convocatorias, PaginaPruebaTaller, TallerIndividual, PostulacionForm, ProgramasUsuarioPage, PostulacionesPendientesPage } from "@/pages";
+import { Home, Aprender, RondaUnoEvaluacion, PostulacionesEvaluar, Convocatorias, TallerIndividual, PostulacionForm, ProgramasUsuarioPage, PostulacionesPendientesPage } from "@/pages";
 import { Requisitar_Taller} from "@/pages";
 import HomeDocente from "./pages/docente/HomeDocente";
 import { element } from "prop-types";
@@ -17,6 +17,16 @@ export const routes = [
     name: "Aprender",
     path: "/talleresydiplomados",
     element: <Aprender />,
+  },
+  {
+    name: "Evaluación 1",
+    path: "/evaluar/ronda1/:idPostulacion",
+    element: <RondaUnoEvaluacion />,
+  },
+  {
+    name: "Por evaluar",
+    path: "/evaluar",
+    element: <PostulacionesEvaluar />,
   },
   {
     name: "Taller individual",

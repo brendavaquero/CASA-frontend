@@ -38,3 +38,14 @@ export const getEvidenciasByActividad = async (idActividad) => {
     throw error;
   }
 };
+
+/* export const getArchivoPostulacion = async (idPostulacion) => {
+  const response = await axios.get(
+    `${API_URL}/postulacion/${idPostulacion}`,
+    {
+      responseType: "blob",
+    }
+  );
+
+  return response.data; 
+}; */

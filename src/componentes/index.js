@@ -4,3 +4,8 @@ export { default as FormFileUploadPostulacion } from "@/componentes/FormFileUplo
 export * from "@/componentes/DialogDefault";
 export * from "@/componentes/programa-card";
 export * from "@/componentes/PostulacionesPendientesTable";
+export * from "@/pages/RondaUnoEvaluacion";
+export * from "@/componentes/FileViewer";
+export * from "@/componentes/EvaluacionForm";
+export * from "@/componentes/postulacionesJuradoTable";
+export * from "@/componentes/EvaluacionConfirmModal";

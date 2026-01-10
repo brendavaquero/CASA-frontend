@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/postulaciones";
+const API_URL = "http://localhost:8080/api/postulaciones/taller";
 
 export const crearPostulacion = async (postulacionData) => {
   try {
@@ -42,6 +42,20 @@ export const getPostulacionesPendientesConParticipante = async (idActividad) => 
 export const seleccionarPostulantes = async (idActividad, idsAprobados) => {
   return axios.post(`${API_URL}/seleccionar/${idActividad}`, idsAprobados);
 };
+
+export async function getPendientesParaJurado(idJurado, ronda) {
+  const params = new URLSearchParams({ idJurado, ronda });
+
+  const response = await fetch(
+    `http://localhost:8080/api/postulaciones/pendientes/jurado?${params.toString()}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Error al obtener postulaciones pendientes");
+  }
+
+  return response.json();
+}
 
 
 
