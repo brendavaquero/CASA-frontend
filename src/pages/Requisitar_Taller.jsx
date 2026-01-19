@@ -3,8 +3,9 @@ import { Input, Textarea, Button, Radio } from "@material-tailwind/react";
 import { createTaller, updateActividad, updateTallerDiplo} from "@/apis/tallerDiplomado_Service";
 import { useNavigate } from "react-router-dom";
 
-const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar }) => {
+const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar,docente }) => {
   const navigate = useNavigate();
+  console.log('docente',docente);
   const [formData, setFormData] = useState({
     titulo: "",
     cupo: "",
@@ -25,11 +26,11 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
     fechaResultados: "",
     infantil: false,
     idPrograma: "PRG2025-00002",
-    idDocente: "USU2025-00009",
+    idDocente: docente.idUsuario,
   });
 
   useEffect(() => {
-    if (modo === "administrador" && taller) {
+    if (modo === "ADMINISTRADOR" && taller) {
       setFormData({ ...taller });
       console.log('taller:',taller);
     }
@@ -52,7 +53,7 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
   e.preventDefault();
 
   try {
-    if (modo === "administrador" && onAprobar === undefined) {
+    if (modo === "ADMINISTRADOR" && onAprobar === undefined) {
       console.log("Actualizando taller:", taller.idActividad);
 
       await updateTallerDiplo(taller.idActividad, formData);
@@ -61,15 +62,16 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
       return;
     }
 
-    if (modo === "administrador" && onAprobar) {
+    if (modo === "ADMINISTRADOR" && onAprobar) {
       await updateActividad(taller.idActividad, "AUTORIZADA");
       alert("Taller aprobado correctamente ✔️");
       onAprobar();
       return;
     }
 
-  
+    console.log('form',formData);
     await createTaller(formData);
+
     alert("Taller registrado con éxito 🎉");
 
     setFormData({
@@ -96,18 +98,20 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 requisitar-taller">
-      <main className="flex-grow p-6">
+      
         <div className="bg-white rounded-lg shadow-md p-20">
           <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={onVolver}
-            className="bg-white-400 text-black px-3 py-1 rounded hover:bg-gray-200"
-          >
-            ←
-          </button>
-
+            {( modo === "ADMINISTRADOR" &&
+              <button
+                onClick={onVolver}
+                className="bg-white-400 text-black px-3 py-1 rounded hover:bg-gray-200"
+              >
+                ←
+              </button>
+            )}
+            
           <h1 className="text-black text-2xl font-semibold">
-            {modo === "administrador" ? "Revisión del Taller" : "Requisitar Taller"}
+            {modo === "ADMINISTRADOR" ? "Revisión del Taller" : "Requisitar Taller"}
           </h1>
         </div>
 
@@ -297,7 +301,7 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
 
               </div>
             </div>
-            { modo === "administrador" && (
+            { modo === "ADMINISTRADOR" && (
               <div className="flex justify-first pt-4">
               <Button
                 type="button"
@@ -315,7 +319,7 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
             
 
             <div className="flex justify-end pt-2 gap-3">
-              {modo === "administrador" && (
+              {modo === "ADMINISTRADOR" && (
                 <Button
                   onClick={onRechazar}
                   className="bg-red-400 hover:bg-red-600 text-white font-medium py-2 px-6 rounded-md transition duration-200 text-sm"
@@ -327,12 +331,12 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
               <Button
                 type="submit"
                 className={`${
-                  modo === "administrador"
+                  modo === "ADMINISTRADOR"
                     ? "bg-green-400 hover:bg-green-600"
                     : "bg-blue-600 hover:bg-blue-700"
                 } text-white font-medium py-2 px-6 rounded-md transition duration-200 text-sm`}
               >
-                {modo === "administrador"
+                {modo === "ADMINISTRADOR"
                   ? "Aprobar Taller"
                   : "Enviar Solicitud de Taller"}
               </Button>
@@ -341,7 +345,6 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
 
           </form>
         </div>
-      </main>
     </div>
   );
 };

@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { Upload } from "lucide-react";
 import { uploadImagenActividad } from "@/apis/tallerDiplomado_Service";
+import ModalMensaje from "./ModalMensaje";
 
 const FormImageAct = ({idActividad,onUploadSuccess }) => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalTitle, setModalTitle] = useState("Mensaje");
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -16,12 +20,16 @@ const FormImageAct = ({idActividad,onUploadSuccess }) => {
 
  const handleUpload = async () => {
   if (!file) {
-    alert("Selecciona una imagen");
+    setModalTitle("Advertencia");
+    setModalMessage("Selecciona una imagen");
+    setModalOpen(true);
     return;
   }
 
   if (!idActividad) {
-    alert("No se encontró idActividad");
+    setModalTitle("Error");
+    setModalMessage("No se encontro idActividad");
+    setModalOpen(true);
     return;
   }
 
@@ -33,8 +41,9 @@ const FormImageAct = ({idActividad,onUploadSuccess }) => {
     formData.append("idActividad", idActividad);
 
     const urlImagen = await uploadImagenActividad(formData);
-
-    alert(`Imagen subida correctamente 🎉`);
+    setModalTitle("Éxito");
+    setModalMessage("Imagen subida correctamente");
+    setModalOpen(true);
 
     if (onUploadSuccess) onUploadSuccess(urlImagen); // ENVÍA LA URL
 
@@ -42,7 +51,9 @@ const FormImageAct = ({idActividad,onUploadSuccess }) => {
 
   } catch (error) {
     console.error(error);
-    alert("Error al subir la imagen");
+    setModalTitle("Error");
+    setModalMessage("Error al subir la imagen: ",error);
+    setModalOpen(true);
   } finally {
     setLoading(false);
   }
@@ -80,6 +91,14 @@ const FormImageAct = ({idActividad,onUploadSuccess }) => {
       >
         <Upload size={18} />
       </button>
+      <ModalMensaje
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        message={modalMessage}
+        autoClose
+        autoCloseTime={10000}
+      />
     </div>
   );
 };

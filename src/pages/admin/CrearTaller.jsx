@@ -82,8 +82,9 @@ const CrearTaller = ({ taller, onVolver }) => {
 
         alert("Actividad publicada 🚀");
 
-        await updateActividad(taller.idActividad, "CONVOCATORIA_ABIERTA");
+        //await updateActividad(taller.idActividad, "CONVOCATORIA_ABIERTA");
         navigate("/homeAdministrador");
+        onVolver();
 
     } catch (err) {
         console.error("Error al publicar", err);

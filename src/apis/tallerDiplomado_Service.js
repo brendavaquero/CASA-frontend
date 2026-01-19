@@ -1,129 +1,111 @@
-import axios from "axios";
+import api from "./axios";
 
-const API_URL = "http://localhost:8080/api/talleresydiplomados";
-const API_URL_ALUMNOS = "http://localhost:8080/api/postulaciones";
+/* ==============================
+   TALLERES Y DIPLOMADOS
+================================ */
+
 
 export const getTalleres = async () => {
-  const res = await axios.get(API_URL);
+  const res = await api.get("/talleresydiplomados");
   return res.data;
 };
+
+
+export const getTallerDiplomadoById = async (idActividad) => {
+  const res = await api.get(`/talleresydiplomados/${idActividad}`);
+  return res.data;
+};
+
 
 export const createTaller = async (tallerData) => {
-  const res = await axios.post(API_URL, tallerData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const res = await api.post("/talleresydiplomados", tallerData);
   return res.data;
 };
 
-//Alumnos de un taller
-export const getAlumnosTaller = async (idTaller) => {
-  const res = await axios.get(`${API_URL_ALUMNOS}/alumnos/${idTaller}`);
+
+export const updateTallerDiplo = async (idTallerDiplo, formData) => {
+  const res = await api.put(`/talleresydiplomados/${idTallerDiplo}`, formData);
   return res.data;
 };
 
-//Talleres por docente
-export const getTalleresDocentes = async (idusuario) => {
-  const res = await axios.get(`${API_URL}/docente/${idusuario}`);
-  return res.data;
-};
 
-//Editar el taller desde auxiliar
-export const updateTallerDiplo = async(idTallerDiplo, formData) => {
-  const rest = await axios.put(`${API_URL}/${idTallerDiplo}`,formData);
-  return rest.data;
-}; 
-
-//Aprobar una actividad
-export const updateActividad = async(idActividad,estado) => {
-  const res = await axios.put(
-    `${API_URL}/estado/${idActividad}`,
-    { estado: estado },
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
+export const updateActividad = async (idActividad, estado) => {
+  const res = await api.put(
+    `/talleresydiplomados/estado/${idActividad}`,
+    { estado }
   );
   return res.data;
 };
 
 
-//Acompletar la actividad(fechas)
-export const updatedActividad = async(idActividad,formData) => {
-  const res = await axios.put(
-    `${API_URL}/actividad/${idActividad}`,
+export const updatedActividad = async (idActividad, formData) => {
+  const res = await api.put(
+    `/talleresydiplomados/actividad/${idActividad}`,
+    formData
+  );
+  return res.data;
+};
+
+/* ==============================
+   IMÁGENES
+================================ */
+
+
+export const uploadImagenActividad = async (formData) => {
+  const res = await api.post(
+    "/talleresydiplomados/uploadImagen",
     formData,
     {
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "multipart/form-data" },
     }
   );
   return res.data;
 };
 
-//Subir imagen
-export const uploadImagenActividad = async (formData) => {
-  const response = await axios.post(`${API_URL}/uploadImagen`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-  return response.data; // la URL
+/* ==============================
+   DOCENTES
+================================ */
+
+
+export const getTalleresDocentes = async (idUsuario) => {
+  const res = await api.get(`/talleresydiplomados/docente/${idUsuario}`);
+  return res.data;
 };
 
+
+export const getDocenteByTaller = async (idActividad) => {
+  const res = await api.get(`/talleresydiplomados/${idActividad}/docente`);
+  return res.status === 204 ? null : res.data;
+};
+
+/* ==============================
+   ALUMNOS / POSTULACIONES
+================================ */
+
+
+
+export const getAlumnosTaller = async (idTaller) => {
+  const res = await api.get(`/postulaciones/alumnos/${idTaller}`);
+  return res.data;
+};
+
+
+export const getProgramaByTaller = async (idActividad) => {
+  const res = await api.get(`/talleresydiplomados/${idActividad}/programa`);
+  return res.data;
+};
+
+
 //brenda:
-
-export const getTallerDiplomadoById = (idActividad) =>
-  axios.get(`${API_URL}/${idActividad}`);
-
-
-//export const listTalleresDiplomados = () => axios.get(REST_API_BASE_URL);
-export async function listTalleresDiplomados() {
+export const listTalleresDiplomados = async () => {
   try {
-    const response = await fetch(API_URL, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}`);
-    }
-
-    /*if (taller.getDocente() == null) {
-        throw new IllegalStateException("El taller requiere un docente asignado");
-    }*/
-
-
-    const data = await response.json();
-    return data;
+    const res = await api.get("/talleresydiplomados");
+    return res.data;
   } catch (error) {
     console.error("Error al obtener los talleres:", error);
     return [];
   }
-}
-
-export async function getProgramaByTaller(idActividad) {
-  const resp = await fetch(`/api/talleresydiplomados/${idActividad}/programa`);
-  return resp.json();
-}
+};
 
 
-export async function getDocenteByTaller(idActividad) {
-  const url = `${API_URL}/${idActividad}/docente`;
-
-  try {
-    const res = await fetch(url);
-
-    if (res.status === 204) return null;
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    return await res.json();
-  } catch (err) {
-    console.error("[DocenteService] Error al obtener docente:", err);
-    return null;
-  }
-}
 

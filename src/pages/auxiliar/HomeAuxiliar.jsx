@@ -1,44 +1,47 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../../componentes/SiderBar.jsx";
 import logoCaSa from "../../assets/images/logoCaSa.png";
 import GridTallerD from '../../componentes/GirdTallerD.jsx'
 import IconButton from '@mui/material/IconButton';
 import IconDocente from '../../assets/images/docenteicon.png';
-import { getDocenteById} from "@/apis/docente_Service.js";
-import { getUsuarioById } from "@/apis/usuarios.js";
 import VistaTaller from "@/componentes/VistaTaller.jsx";
-import { getTalleresDocentes, getTalleres } from "@/apis/tallerDiplomado_Service.js";
+import { getTalleres } from "@/apis/tallerDiplomado_Service.js";
+import { useAuth } from "@/context/AuthContext";
+import ModalMensaje from "@/componentes/ModalMensaje.jsx";
 
 const HomeAuxiliar = () => {
-  const [auxiliar, setAuxiliar] = useState(null);
   const [talleres, setTalleres] = useState([]);
   const [vistaActual, setVistaActual] = useState("grid");
   const [tallerSeleccionado, setTallerSeleccionado] = useState(null);
-  const idUsuario = 'USU2025-00010';
-    useEffect(() => {
-    const fetchDocente = async () => {
-      try {
-        const data = await getUsuarioById(idUsuario);
-        console.log('data:',data);
-        setAuxiliar(data);
-        const dataTalleres = await getTalleres(idUsuario);
-        console.log("Talleres del docente:", dataTalleres);
-        setTalleres(dataTalleres);
-      } catch (error) {
-        console.error("Error al obtener el docente:", error);
-      }
-    };
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [seccion, setSeccion] = useState("TALLERES");
+  const { user } = useAuth();
+  const auxiliar = user;
+  const [openLogoutModal, setOpenLogoutModal] = useState(false);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
-    fetchDocente();
-  }, []);
+    useEffect(() => {
+        const cargarDatos = async () => {
+          try {
+            const dataTalleres = await getTalleres();
+            setTalleres(dataTalleres);
+          } catch (error) {
+            console.error("Error al cargar datos:", error);
+          }
+        };
+    
+        cargarDatos();
+      }, []);
 
    const handleTallerClick = (taller) => {
     setTallerSeleccionado(taller);
-    setVistaActual("taller");
+    setSeccion("DETALLE_TALLER");
   };
 
   const handleVolver = () => {
-    setVistaActual("grid");
+    setSeccion("TALLERES_DIPLO");
   };
 
 
@@ -60,13 +63,29 @@ const HomeAuxiliar = () => {
         </header>     
 
         <div className="flex flex-1 pt-2">
-            <Sidebar />
+            <Sidebar role={auxiliar.rol} open={sidebarOpen} activeSection={seccion}
+              onToggle={() => setSidebarOpen(!sidebarOpen)} 
+              onSelect={(key) => {
+                setSeccion(key);
+                setVistaActual("grid");
+              }}
+              onLogoutClick={() => setOpenLogoutModal(true)}
+              />
 
             <main className="flex-1 overflow-y-auto p-6">
-            {vistaActual === "grid" ? (
-              <GridTallerD onTallerClick={handleTallerClick} talleres={talleres}  />
-            ) : (
-              <VistaTaller taller={tallerSeleccionado} modo="auxiliar" onVolver={handleVolver} />
+            {seccion === "TALLERES_DIPLO" && (
+              <GridTallerD
+                onTallerClick={handleTallerClick}
+                talleres={talleres}
+              />
+            )}
+
+            {seccion === "DETALLE_TALLER" && (
+              <VistaTaller
+                taller={tallerSeleccionado}
+                modo={auxiliar.rol}
+                onVolver={handleVolver}
+              />
             )}
             </main>
         </div>
@@ -74,6 +93,19 @@ const HomeAuxiliar = () => {
           CompanyName © 2025. All rights reserved.
         </footer>
       </div>
+      <ModalMensaje
+        open={openLogoutModal}
+        onClose={() => setOpenLogoutModal(false)}
+        type="confirm"
+        title="Cerrar sesión"
+        message="¿Estás seguro de que deseas cerrar sesión?"
+        confirmText="Sí, salir"
+        cancelText="Cancelar"
+        onConfirm={() => {
+          logout();
+          navigate("/login");
+        }}
+      />
     </div>
   );
 };

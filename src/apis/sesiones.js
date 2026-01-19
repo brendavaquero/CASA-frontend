@@ -1,9 +1,9 @@
-import axios from "axios";
-
+//import axios from "axios";
+import api from "./axios";
 const API_URL = "http://localhost:8080/api/sesiones";
 
 export const createSesiones = async (sesionData) => {
-  const res = await axios.post(API_URL, sesionData, {
+  const res = await api.post("/sesiones", sesionData, {
     headers: {
       "Content-Type": "application/json",
     },
@@ -12,6 +12,6 @@ export const createSesiones = async (sesionData) => {
 };
 
 export const getSesionesByTaller = async(idTaller) => {
-  const res = await axios.get(`${API_URL}/tallerdiplomado/${idTaller}`);
+  const res = await api.get(`/sesiones/tallerdiplomado/${idTaller}`);
   return res.data;
 };
