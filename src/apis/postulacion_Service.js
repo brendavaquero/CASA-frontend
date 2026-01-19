@@ -1,3 +1,6 @@
+/*import axios from "axios";
+
+const API_URL = "http://localhost:8080/api/postulaciones/taller";*/
 //import axios from "axios";
 import api from "./axios";
 const API_URL = "http://localhost:8080/api/postulaciones";
@@ -52,6 +55,20 @@ export const participantesByIdActivdad =  async(idActividad) =>{
     throw error;
   }
 };
+
+export async function getPendientesParaJurado(idJurado, ronda) {
+  const params = new URLSearchParams({ idJurado, ronda });
+
+  const response = await fetch(
+    `http://localhost:8080/api/postulaciones/pendientes/jurado?${params.toString()}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Error al obtener postulaciones pendientes");
+  }
+
+  return response.json();
+}
 
 
 

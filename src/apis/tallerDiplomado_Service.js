@@ -37,6 +37,10 @@ export const updateActividad = async (idActividad, estado) => {
   return res.data;
 };
 
+//Acompletar la actividad(fechas)
+/*export const updatedActividad = async(idActividad,formData) => {
+  const res = await axios.put(
+    `${API_URL}/actividad/${idActividad}`, )}*/
 
 export const updatedActividad = async (idActividad, formData) => {
   const res = await api.put(
@@ -97,6 +101,12 @@ export const getProgramaByTaller = async (idActividad) => {
 
 
 //brenda:
+
+/*export const getTallerDiplomadoById = (idActividad) =>
+  axios.get(`${API_URL}/${idActividad}`); */
+
+//export const listTalleresDiplomados = () => axios.get(REST_API_BASE_URL);
+//export async function listTalleresDiplomados() {
 export const listTalleresDiplomados = async () => {
   try {
     const res = await api.get("/talleresydiplomados");
@@ -107,5 +117,18 @@ export const listTalleresDiplomados = async () => {
   }
 };
 
+/*export async function getDocenteByTaller(idActividad) {
+  const url = `${API_URL}/${idActividad}/docente`;
 
+  try {
+    const res = await fetch(url);
 
+    if (res.status === 204) return null;
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    return await res.json();
+  } catch (err) {
+    console.error("[DocenteService] Error al obtener docente:", err);
+    return null;
+  }
+}*/

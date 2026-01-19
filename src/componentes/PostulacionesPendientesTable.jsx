@@ -26,7 +26,7 @@ export default function PostulacionesPendientesTable() {
   const [seleccionadas, setSeleccionadas] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
 
-  const idActividad = "ACT2025-00021"; // temporal
+  const idActividad = "ACT2025-00027"; // temporal
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,9 +86,11 @@ export default function PostulacionesPendientesTable() {
       </div>
 
       {/* Tabla */}
+
       <Card className="h-full w-full overflow-scroll">
+        <div className="max-h-[200px] overflow-y-auto">
         <table className="w-full min-w-max table-auto text-left">
-          <thead>
+          <thead className="sticky top-0 bg-blue-gray-50 z-10">
             <tr>
               {TABLE_HEAD.map((head) => (
                 <th
@@ -203,6 +205,7 @@ export default function PostulacionesPendientesTable() {
             })}
           </tbody>
         </table>
+        </div>
       </Card>
 
       {/* Dialog de confirmación */}

@@ -17,6 +17,7 @@ export function Aprender() {
         imagen: t.imagen || "https://placehold.co/600x400",
         tipo: t.tipo,
         estado: t.estado,
+        visible: t.visible,  
         fechaInicio: t.fechaInicio,
         fechaCierre: t.fechaCierre,
         docente: null,
@@ -24,7 +25,7 @@ export function Aprender() {
       }));
 
       // Obtener docentes por taller
-      const talleresConDocentes = await Promise.all(
+      /* const talleresConDocentes = await Promise.all(
         talleresBase.map(async (t) => {
           try {
             const docente = await getDocenteByTaller(t.id);
@@ -45,7 +46,33 @@ export function Aprender() {
             };
           }
         })
-      );
+      ); */
+
+      const talleresConDocentes = await Promise.all(
+      talleresBase.map(async (t) => {
+        try {
+          const docente = await getDocenteByTaller(t.id);
+
+          return {
+            ...t,                           // visible ya viene desde talleresBase
+            docente: docente
+              ? `${docente.nombre} ${docente.apellidos || ""}`
+              : "Docente no asignado",
+            docenteFoto:
+              docente?.foto ||
+              "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1471&q=80",
+          };
+        } catch (err) {
+          return {
+            ...t,
+            docente: "Docente no asignado",
+            docenteFoto:
+              "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1471&q=80",
+          };
+        }
+      })
+    );
+
 
       setTalleres(talleresConDocentes);
     }
@@ -61,7 +88,7 @@ export function Aprender() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
         {talleres.length ? (
-          talleres.map((taller) => <TallerCard key={taller.id} {...taller} />)
+          talleres.filter((taller) => taller.visible === true).map((taller) => <TallerCard key={taller.id} {...taller} />)
         ) : (
           <p className="text-gray-500 text-center col-span-full">
             No hay talleres disponibles.
