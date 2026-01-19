@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button, Input } from "@material-tailwind/react";
 import FormImageAct from "@/componentes/FormImageAct";
 import { createSesiones } from "@/apis/sesiones";
-import { updatedActividad } from "@/apis/tallerDiplomado_Service";
+import { updatedActividad,updateActividad } from "@/apis/tallerDiplomado_Service";
 
 const CrearTaller = ({ taller, onVolver }) => {
+  const navigate = useNavigate(); 
   const [form, setForm] = useState({
     sesiones: 0,
     inicio:"",
@@ -50,7 +52,9 @@ const CrearTaller = ({ taller, onVolver }) => {
     }
     try {
         // 1️⃣ ACTUALIZAR ACTIVIDAD
+        console.log('form',form.cierre,form.inicio,form.sesiones);
         await updatedActividad(taller.idActividad, {
+        fechaInicio: form.inicio,
         fechaCierre: form.cierre,
         fechaResultados: form.publicacion,
         numSesiones: form.sesiones
@@ -77,6 +81,10 @@ const CrearTaller = ({ taller, onVolver }) => {
         }
 
         alert("Actividad publicada 🚀");
+
+        //await updateActividad(taller.idActividad, "CONVOCATORIA_ABIERTA");
+        navigate("/homeAdministrador");
+        onVolver();
 
     } catch (err) {
         console.error("Error al publicar", err);

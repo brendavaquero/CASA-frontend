@@ -1,23 +1,21 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:8080/api/archivos";
+import api from "./axios";
 
 //Archivo de actividad
 export const uploadArchivo = async (formData) =>{
-    const res = await axios.post(`${API_URL}/upload`,formData, {
+    const res = await api.post(`/archivos/upload`,formData, {
         headers: { "Content-Type": "multipart/form-data" }
     });
     return res.data;
 };
 
 export const getArchivosActividad = async(idActividad) =>{
-    const res = await axios.get(`${API_URL}/actividad/${idActividad}`);
+    const res = await api.get(`/archivos/actividad/${idActividad}`);
     return res.data;
 };
 
 export const uploadArchivoPostulacion = async (formData) => {
-  const res = await axios.post(
-    "http://localhost:8080/api/archivos/upload",
+  const res = await api.post(
+    "/archivos/upload",
     formData,
     {
       headers: { "Content-Type": "multipart/form-data" }
@@ -29,8 +27,8 @@ export const uploadArchivoPostulacion = async (formData) => {
 
 export const getEvidenciasByActividad = async (idActividad) => {
   try {
-    const response = await axios.get(
-      `${API_URL}/${idActividad}/evidencias`
+    const response = await api.get(
+      `/archivos/${idActividad}/evidencias`
     );
     return response.data;
   } catch (error) {
@@ -49,3 +47,8 @@ export const getEvidenciasByActividad = async (idActividad) => {
 
   return response.data; 
 }; */
+export const deleteArchivo = async (idArchivo) => {
+  const res = await api.delete(`/archivos/archivo/${idArchivo}`);
+  return res.data;
+};
+

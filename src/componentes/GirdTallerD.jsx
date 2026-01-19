@@ -28,7 +28,7 @@ const GirdTallerD = ({ onTallerClick,talleres: talleresProp }) => {
                   {taller.imagen ? (
                     <img
                       src={`http://localhost:8080${taller.imagen}`}
-                      alt={taller.descripcion}
+                      alt={taller.titulo}
                       className="h-full object-cover rounded"
                     />
                   ) : (

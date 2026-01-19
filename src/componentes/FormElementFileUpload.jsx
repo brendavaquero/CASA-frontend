@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { Upload } from "lucide-react";
 import { uploadArchivo } from "@/apis/archivo_Service";
+import ModalMensaje from "./ModalMensaje";
 
-const FormElementFileUpload = ({idActividad,onUploadSuccess }) => {
+const FormElementFileUpload = ({idActividad,categoria,onUploadSuccess }) => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalTitle, setModalTitle] = useState("Mensaje");
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -16,12 +20,16 @@ const FormElementFileUpload = ({idActividad,onUploadSuccess }) => {
 
   const handleUpload = async () => {
    if (!file) {
-      alert("Primero selecciona un archivo.");
+      setModalTitle("Advertencia");
+      setModalMessage("Primero selecciona un archivo.");
+      setModalOpen(true);
       return;
     }
 
     if (!idActividad) {
-      alert("No se encontró idActividad");
+      setModalTitle("Error");
+      setModalMessage("No se encontro la actividad");
+      setModalOpen(true);
       return;
     }
 
@@ -31,16 +39,22 @@ const FormElementFileUpload = ({idActividad,onUploadSuccess }) => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("idActividad", idActividad);
+      formData.append("categoria", categoria);
+      console.log('DATOS ARCHIVO',formData);
 
       const data = await uploadArchivo(formData);
 
-      alert(`Archivo "${file.name}" subido correctamente`);
+      setModalTitle("Éxito");
+      setModalMessage(`Archivo "${file.name}" subido correctamente`);
+      setModalOpen(true);
       setFile(null);
       if (onUploadSuccess) onUploadSuccess();
 
     } catch (error) {
       console.error(error);
-      alert("Error al subir archivo");
+      setModalTitle("Error");
+      setModalMessage("Error al subir el archivo: ",error);
+      setModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -77,6 +91,14 @@ const FormElementFileUpload = ({idActividad,onUploadSuccess }) => {
       >
         <Upload size={18} />
       </button>
+      <ModalMensaje
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        message={modalMessage}
+        autoClose
+        autoCloseTime={10000}
+      />
     </div>
   );
 };

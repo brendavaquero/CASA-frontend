@@ -6,6 +6,11 @@ import HomeAlumno from "./pages/alumno/HomeAlumno";
 import HomeAuxiliar from "./pages/auxiliar/HomeAuxiliar";
 import HomeAdmin from "./pages/admin/HomeAdmin";
 import CrearTaller from "./pages/admin/CrearTaller";
+import CrearConvocatoria from "./pages/admin/CrearConvocatoria";
+import ListaJurados from "./pages/admin/ListaJurados";
+import HomeJurado from "./pages/jurado/HomeJurado";
+import Login from "./pages/login/Login";
+import ProtectedRoute from "./componentes/ProtectedRoute";
 
 export const routes = [
   {
@@ -84,36 +89,73 @@ export const routes = [
     path: "/postulaciones/pendientes",
     element: <PostulacionesPendientesPage />
   },
-
   {
-    name:"Requisitar Taller",
-    path:"/requisitar-taller",
-    element: <Requisitar_Taller modo="normal" />
+    name: "login",
+    path: "/login",
+    element: <Login />,
   },
   {
-    name:"Docente",
-    path:"/homeDocente",
-    element: <HomeDocente />
+    path: "/requisitarTaller",
+    element: (
+      <ProtectedRoute roles={["DOCENTE","ADMINISTRADOR"]}>
+        <Requisitar_Taller />
+      </ProtectedRoute>
+    ),
   },
   {
-    name:"Alumno",
+    path: "/homeDocente",
+    element: (
+      <ProtectedRoute roles={["DOCENTE"]}>
+        <HomeDocente />
+      </ProtectedRoute>
+    ),
+  },
+  {
     path:"/homeAlumno",
-    element: <HomeAlumno />
+    element: (
+      <ProtectedRoute roles={["PARTICIPANTE"]}>
+        <HomeAlumno />
+      </ProtectedRoute>
+    ),
   },
   {
-    name:"Auxiliar",
     path:"/homeAuxiliar",
-    element: <HomeAuxiliar />
+    element: ( 
+      <ProtectedRoute roles={["AUXILIAR"]}>
+        <HomeAuxiliar />
+      </ProtectedRoute>
+    )
   },
   {
-    name:"Administrador",
-    path:"/homeAdministrador",
-    element: <HomeAdmin />
+    path: "/homeAdministrador",
+    element: (
+      <ProtectedRoute roles={["ADMINISTRADOR"]}>
+        <HomeAdmin />
+      </ProtectedRoute>
+    ),
   },
   {
     name: "Aprobación Taller",
     path: "/vista-aprobacion",
     element: <CrearTaller />,
+  },
+  {
+    name: "Crear convocatoria",
+    path: "/crearConvocatoria",
+    element: <CrearConvocatoria />,
+  },
+  {
+    name: "Jurados",
+    path: "/jurados",
+    element: <ListaJurados />,
+  },
+  {
+    path: "/homeJurado",
+    element: (
+      <ProtectedRoute roles={["JURADO"]}>
+        <HomeJurado />
+      </ProtectedRoute>
+    ),
   },
   {
     name: "Docs",

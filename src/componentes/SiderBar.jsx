@@ -1,51 +1,119 @@
-import { NavLink } from "react-router-dom";
-import { Home, User, FileText, LogOut } from "lucide-react";
+import { NavLink,useNavigate } from "react-router-dom";
+import { Home, User, FileText, LogOut, Menu, X,BookPlus, NotebookTabs,BookImage,ClipboardList,NotebookPen } from "lucide-react";
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
-const Sidebar = () => {
+const Sidebar = ({ role,open, onSelect, activeSection,onToggle,onLogoutClick  }) => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  /*
+  const handleLogout = () => {
+    setOpenLogoutModal(true);
+  };
+  const confirmLogout = () => {
+  logout();
+  navigate("/login");
+};*/
+
   const linkClass =
-    "flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors duration-200";
-  const activeClass = "bg-blue-100 text-blue-700 font-medium border-r-4 border-blue-500";
+    "flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 transition";
+  const activeClass =
+    "bg-gray-200 text-blue-700 font-medium border-r-4 border-black";
+
+  const menuItems = [
+    //Para admin
+    {
+      label: "Talleres y Diplomados",
+      key:"TALLERES_DIPLO",
+      icon: NotebookTabs,
+      roles: ["ADMINISTRADOR","AUXILIAR"],
+    },
+    {
+      label: "Mis talleres",
+      key: "MIS_TALLERES",
+      icon: Home,
+      roles: ["DOCENTE" ,"PARTICIPANTE"],
+    },
+    {
+      label: "Convocatorias y Residencias",
+      key: "CONVOCATORIAS_RESI",
+      icon: BookImage,
+      roles: ["ADMINISTRADOR","JURADO"],
+    },
+    {
+      label: "Crear Convocatoria",
+      key: "CREAR_CONVOCATORIA",
+      icon: BookPlus,
+      roles: ["ADMINISTRADOR"],
+    },
+    {
+      label: "Requisitar Taller",
+      key: "REQUISITAR_TALLER",
+      icon: NotebookPen,
+      roles: ["DOCENTE"],
+    },
+    {
+      label: "Postulaciones",
+      to: "/postulaciones",
+      icon: ClipboardList,
+      roles: ["DOCENTE","PARTICIPANTE"],
+    },
+    {
+      label: "Perfil",
+      to: "/perfil",
+      icon: User,
+      roles: ["DOCENTE", "AUXILIAR", "ADMINISTRADOR"],
+    },
+  ];
 
   return (
-    <div className="flex flex-col justify-between h-screen w-56 bg-gray-50 border-r">
-      <div>
-        <nav className="flex flex-col">
-          <NavLink
-            to="/homeDocente"
-            className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
-          >
-            <Home className="w-5 h-5 mr-3" /> Mis actividades
-          </NavLink>
-
-          <NavLink
-            to="/perfil"
-            className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
-          >
-            <User className="w-5 h-5 mr-3" /> Perfil
-          </NavLink>
-
-          <NavLink
-            to="/requisitar-taller"
-            className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
-          >
-            <FileText className="w-5 h-5 mr-3" /> Requisitar Taller
-          </NavLink>
-{/*
-          <NavLink
-            to="/postulaciones"
-            className={({ isActive }) => `${linkClass} ${isActive ? activeClass : ""}`}
-          >
-            <FileText className="w-5 h-5 mr-3" /> Postulaciones
-          </NavLink>*/}
-        </nav>
-      </div>
-
-      <div className="p-4">
-        <button className="flex items-center justify-center w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-          <LogOut className="w-5 h-5 mr-2" /> Log out
+    <>
+       {!open && (
+        <button
+          className="absolute bg-black left-4 z-50 p-2 text-white hover:bg-gray-600 rounded"
+          onClick={onToggle}
+        >
+          <Menu />
         </button>
+      )}
+
+      <div
+        className={`relative h-full bg-gray-50 border-r flex flex-col
+        transition-all duration-300
+        ${open ? "w-56" : "w-0 overflow-hidden"}`}
+      >
+        <div className="flex items-center justify-between p-4 border-b shrink-0">
+          <span className="font-semibold text-lg">Menú</span>
+          <button onClick={onToggle}>
+            <X />
+          </button>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto">
+          {menuItems
+            .filter(item => item.roles.includes(role))
+            .map(({ label, key, icon: Icon }) => (
+              <NavLink
+                key={key}
+                onClick={() => onSelect(key)}
+                className={`${linkClass} ${
+                  activeSection === key ? activeClass : ""
+                }`}
+              >
+                <Icon className="w-5 h-5 mr-3" />
+                {label}
+              </NavLink>
+            ))}
+        </nav>
+
+        <div className="shrink-0 p-4">
+          <button onClick={onLogoutClick} className="flex items-center justify-center w-full py-2 bg-black text-white rounded hover:bg-gray-700">
+            <LogOut className="w-5 h-5 mr-2" />
+            Log out
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

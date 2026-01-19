@@ -1,19 +1,33 @@
 import React, { useEffect, useState } from "react";
 import FormElementFileUpload from "./FormElementFileUpload";
 import { getAlumnosTaller } from "@/apis/tallerDiplomado_Service";
-import { registrarAsistencia } from "@/apis/asistencia_Service";
-import { getArchivosActividad } from "@/apis/archivo_Service";
+import { registrarAsistencia, getAprobadosPorTaller } from "@/apis/asistencia_Service";
+import { getArchivosActividad,deleteArchivo } from "@/apis/archivo_Service";
 import { generarConstancia } from "./GenerarConstancia";
+import { getSesionesByTaller } from "@/apis/sesiones";
+import {ChevronLeft} from "lucide-react";
+import ModalMensaje from "./ModalMensaje";
+import { Trash2 } from "lucide-react";
+
+
 const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
   const [alumnos, setAlumnos] = useState([]);
   const [fechaHoy, setFechaHoy] = useState("");
   const [asistencias, setAsistencias] = useState({});
   const [archivos, setArchivos] = useState([]);
   const [archivosAuxiliar, setArchivosAuxiliar] = useState([]);
+  const [alumnosAprobados, setAlumnosAprobados] = useState([]);
+  const [sesiones, setSesiones] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalTitle, setModalTitle] = useState("Mensaje");
+
+  const [archivoAEliminar, setArchivoAEliminar] = useState(null);
+  const [modalType, setModalType] = useState("info");
 
 
   useEffect(() => {
-    if (modo === "alumno") return;
+    if (modo === "ALUMNO") return;
     if (!taller?.idActividad) return;
 
     const fetchAlumnosTaller = async () => {
@@ -37,10 +51,54 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
     reloadArchivos();
   }, [taller]);
 
-  const reloadArchivos = async () => {
+  useEffect(() => {
+  if (modo !== "ADMINISTRADOR") return;
+  if (!taller?.idActividad) return;
+
+  const fetchAprobados = async () => {
     try {
+      const data = await getAprobadosPorTaller(taller.idActividad);
+      setAlumnosAprobados(data);
+    } catch (error) {
+      console.error("Error al obtener aprobados:", error);
+    }
+  };
+
+  fetchAprobados();
+}, [taller, modo]);
+
+
+useEffect(() => {
+  if (!taller?.idActividad) return;
+
+  const fetchSesiones = async () => {
+    try {
+      const data = await getSesionesByTaller(taller.idActividad);
+      const ordenadas = data.sort(
+        (a, b) => new Date(a.fechaInicio) - new Date(b.fechaInicio)
+      );
+
+      setSesiones(ordenadas);
+    } catch (error) {
+      console.error("Error al obtener sesiones:", error);
+    }
+  };
+
+  fetchSesiones();
+}, [taller]);
+
+  const reloadArchivos = async () => {
+   try {
       const res = await getArchivosActividad(taller.idActividad);
-      setArchivos(res);
+
+      // Filtrar recursos
+      const recursos = res.filter(a => a.categoria === "RECURSO");
+
+      // Filtrar evidencias
+      const evidencias = res.filter(a => a.categoria === "EVIDENCIA");
+
+      setArchivos(recursos);
+      setArchivosAuxiliar(evidencias);  // o setArchivosEvidencias
     } catch (error) {
       console.error("Error al cargar archivos:", error);
     }
@@ -55,20 +113,56 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
           presente: asistencias[idAlumno],
         });
       }
-      alert("Asistencia registrada correctamente");
+      setModalTitle("Éxito");
+      setModalMessage("Asistencia registrada correctamente");
+      setModalOpen(true);
     } catch (error) {
-      alert("Error al registrar asistencia");
+      setModalTitle("Error");
+      setModalMessage("Asistencia  no registrada: ",error);
+      setModalOpen(true);
     }
   };
+  const fechaInicioTaller = sesiones.length > 0 ? sesiones[0].fechaInicio : taller.fechaInicio;
+  const fechaCierreTaller = sesiones.length > 0 ? sesiones[sesiones.length - 1].fechaFin : taller.fechaCierre;
+
+const solicitarEliminarArchivo = (archivo) => {
+  setArchivoAEliminar(archivo);
+  setModalType("confirm");
+  setModalTitle("Confirmar eliminación");
+  setModalMessage(`¿Deseas eliminar el archivo "${archivo.nombre}"?`);
+  setModalOpen(true);
+};
+
+const confirmarEliminarArchivo = async () => {
+  if (!archivoAEliminar) return;
+
+  try {
+    await deleteArchivo(archivoAEliminar.idArchivo);
+    reloadArchivos();
+
+    setModalType("info");
+    setModalTitle("Archivo eliminado");
+    setModalMessage("El archivo se eliminó correctamente");
+    setModalOpen(true);
+  } catch (error) {
+    setModalType("info");
+    setModalTitle("Error");
+    setModalMessage("No se pudo eliminar el archivo");
+    setModalOpen(true);
+  } finally {
+    setArchivoAEliminar(null);
+  }
+};
+
 
   return (
-    <div className="p-6">
+    <div className="p-4">
 
       <button
         onClick={onVolver}
-        className="bg-blue-400 text-white px-4 py-2 rounded mb-6 hover:bg-blue-700"
+        className="text-black px-4 py-2"
       >
-        ←
+        <ChevronLeft size={30} />
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -83,33 +177,63 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
               className="object-cover w-full h-72"
             />
           </div>
-          {(modo === "docente" || modo === "alumno" || modo === "administradorFinal") && (
-              <div className="border p-5 rounded bg-white shadow-sm">
-                <h2 className="text-lg font-semibold mb-3 text-gray-800">📚 Recursos</h2>
-                <ul className="space-y-2 text-sm text-gray-700">
-                  {archivos.length === 0 ? (
-                    <p className="text-gray-500">No hay recursos aún.</p>
-                  ) : (
-                    archivos.map((a) => (
-                      <li key={a.idArchivo} className="border-b pb-1">
-                        <a
-                          href={`http://localhost:8080${a.ruta}`}
-                          target="_blank"
-                          className="text-blue-600 hover:underline"
+          
+          {(modo === "DOCENTE" || modo === "ALUMNO" || modo === "ADMINISTRADOR") && (
+            <div className="border p-5 rounded bg-white shadow-sm">
+              <h2 className="text-lg font-semibold mb-3 text-gray-800">
+                📚 Recursos
+              </h2>
+
+              <ul className="space-y-2 text-sm text-gray-700">
+                {archivos.length === 0 ? (
+                  <p className="text-gray-500">No hay recursos aún.</p>
+                ) : (
+                  archivos.map((a) => (
+                    <li
+                      key={a.idArchivo}
+                      className="border-b pb-1 flex items-center justify-between"
+                    >
+                      <a
+                        href={`http://localhost:8080${a.ruta}`}
+                        target="_blank"
+                        className="text-blue-600 hover:underline"
+                      >
+                        {a.nombre}
+                      </a>
+
+                      {modo === "DOCENTE" && (
+                        <button
+                          onClick={() => solicitarEliminarArchivo(a)}
+                          className="text-red-600 hover:text-red-800 ml-3"
+                          title="Eliminar archivo"
                         >
-                          {a.nombre}
-                        </a>
-                      </li>
-                    ))
-                  )}
-                </ul>
-              </div>
-            )
-          }
-          {modo === "administradorFinal" && (
+                          <Trash2 size={18} />
+                        </button>
+                      )}
+                    </li>
+                  ))
+                )}
+              </ul>
+            </div>
+          )}
+
+          
+          {modo === "ADMINISTRADOR" && (
           <button
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-800 w-full"
-            onClick={() => alumnos.forEach(al => generarConstancia(taller, administrador, al))}
+            onClick={() =>
+              alumnosAprobados.forEach(al =>
+                generarConstancia(
+                  { 
+                    ...taller,
+                    fechaInicioTaller,
+                    fechaCierreTaller
+                  },
+                  administrador,
+                  al
+                )
+              )
+            }
           >
             Generar constancias
           </button>
@@ -139,10 +263,11 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
             )
           }
 
-          {(modo === "docente" || modo === "auxiliar") && (
+          {(modo === "DOCENTE" || modo === "auxiliar") && (
             <FormElementFileUpload
               idActividad={taller.idActividad}
               onUploadSuccess={reloadArchivos}
+              categoria={modo === "auxiliar" ? "EVIDENCIA" : "RECURSO"}
             />
           )}
         </div>
@@ -157,7 +282,7 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
             <p className="text-gray-600 mb-4">{taller?.descripcion}</p>
 
             <div className="text-sm text-gray-500 space-y-1">
-              {modo === "alumno" && (
+              {modo === "ALUMNO" && (
                 <>
                   <p><strong>Material solicitado:</strong> {taller?.materialSol}</p>
                   <p><strong>Notas:</strong> {taller?.notas}</p>
@@ -166,7 +291,7 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
               <p><strong>Número de sesiones:</strong> {taller?.numSesiones}</p>
               <p><strong>Objetivo general:</strong> {taller?.objetivoGeneral}</p>
               <p><strong>Objetivos específicos:</strong> {taller?.objetivosEspecificos}</p>
-              {modo === "docente" && (
+              {modo === "DOCENTE" && (
                 <>
                   <p><strong>Fecha de inicio:</strong> {taller?.fechaInicio}</p>
                   <p><strong>Cupo:</strong> {taller?.cupo}</p>
@@ -176,10 +301,10 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
             </div>
           </div>
 
-          {(modo === "docente" || modo === "administradorFinal") && (
+          {(modo === "DOCENTE" || modo === "ADMINISTRADOR") && (
   <div className="border p-5 rounded bg-white shadow-sm">
     <h2 className="text-lg font-semibold mb-3 text-gray-800">
-      {modo === "administradorFinal" ? "👥 Lista de alumnos" : `🗓️ Asistencias ${fechaHoy}`}
+      {modo === "ADMINISTRADOR" ? "👥 Lista de alumnos" : `🗓️ Asistencias ${fechaHoy}`}
     </h2>
 
     {alumnos.length === 0 ? (
@@ -187,7 +312,7 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
     ) : (
       alumnos.map((alumno) => (
         <div key={alumno.idAlumno} className="flex items-center gap-3">
-          {modo === "docente" && (
+          {modo === "DOCENTE" && (
             <input
               type="checkbox"
               checked={asistencias[alumno.idAlumno] || false}
@@ -205,7 +330,7 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
       ))
     )}
 
-    {modo === "docente" && (
+    {modo === "DOCENTE" && (
       <button
         onClick={handleGuardarAsistencia}
         className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800"
@@ -216,9 +341,64 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
   </div>
 )}
 
+          {/*sesiones*/}
+          {(modo === "DOCENTE" || modo === "auxiliar" || modo === "ALUMNO" || modo === "ADMINISTRADOR") && (
+          <div className="border p-5 rounded bg-white shadow-sm mt-4">
+            <h2 className="text-lg font-semibold mb-3 text-gray-800">🗓️ Sesiones del taller</h2>
+
+            {sesiones.length === 0 ? (
+              <p className="text-gray-500">No hay sesiones registradas aún.</p>
+            ) : (
+              <ul className="space-y-2 text-sm text-gray-700">
+                {sesiones.map((s, index) => {
+                  // Si fechaInicio y fechaFin son iguales, mostramos solo una fecha
+                  const mismaFecha = s.fechaInicio && s.fechaFin && s.fechaInicio === s.fechaFin;
+                  const fechaTexto = mismaFecha
+                    ? s.fechaInicio
+                    : `${s.fechaInicio} - ${s.fechaFin}`;
+
+                  const horaInicio = s.horaInicio ? s.horaInicio.substring(0, 5) : "";
+                  const horaFin = s.horaFin ? s.horaFin.substring(0, 5) : "";
+
+                  return (
+                    <li key={s.idSesion} className="border-b pb-2">
+                      <div className="flex items-baseline justify-between">
+                        <div>
+                          <strong>Sesión {index + 1}:</strong>{" "}
+                          {fechaTexto} — {horaInicio} a {horaFin}
+                        </div>
+                        <div className="text-xs text-gray-500">Aula {s.aula}</div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        )}
 
         </div>
       </div>
+      <ModalMensaje
+        open={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setModalType("info");
+        }}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+        autoClose={modalType === "info"}
+        autoCloseTime={10000}
+        onConfirm={confirmarEliminarArchivo}
+        onCancel={() => {
+          setArchivoAEliminar(null);
+          setModalOpen(false);
+        }}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+      />
+
     </div>
   );
 };

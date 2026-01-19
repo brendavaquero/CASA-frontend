@@ -1,14 +1,15 @@
-import axios from "axios";
+//import axios from "axios";
+import api from "./axios";
 
 const API_URL = "http://localhost:8080/api/programas"; 
 
 export const getProgramasByUsuario = async (usuarioId) => {
-  const response = await axios.get(`${API_URL}/usuario/${usuarioId}`);
+  const response = await api.get(`/programas/usuario/${usuarioId}`);
   return response.data;
 };
 
 export const getById = async (idPrograma) => {
-  const response = await axios.get(`${API_URL}/${idPrograma}`);
+  const response = await api.get(`/programas/${idPrograma}`);
   return response.data;
 };
 
@@ -23,8 +24,8 @@ export const getById = async (idPrograma) => {
 
 export const descargarZipEvidencias = async (idPrograma) => {
   try {
-    const response = await axios.get(
-      `${API_URL}/${idPrograma}/evidencias/zip`,
+    const response = await api.get(
+      `/programas/${idPrograma}/evidencias/zip`,
       { responseType: "blob" }
     );
 
