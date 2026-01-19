@@ -31,14 +31,14 @@ export default function PostulacionesJuradoTable({ postulaciones }) {
 
   return (
     <Card className="w-full shadow-sm">
-      <CardBody className="overflow-x-auto px-0">
+      <CardBody className="max-h-[500px] overflow-y-auto overflow-x-auto px-0">
         <table className="w-full min-w-max table-auto text-left">
           <thead>
             <tr>
               <th className="border-b border-blue-gray-100 p-4">
                 <Typography
                   variant="small"
-                  className="font-semibold text-gray-500"
+                  className="font-semibold text-blue-gray-600"
                 >
                   Participante
                 </Typography>

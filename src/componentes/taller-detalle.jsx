@@ -54,6 +54,7 @@ export default function TallerDetalle({ actividad }) {
     if (actividad && actividad.idUsuario) {
       console.log("[TallerDetalle] idUsuario:", actividad.idUsuario);
 
+      // corregir
       getDocenteById(actividad.idUsuario)
         .then((data) => {
           console.log("[TallerDetalle] docente:", data);

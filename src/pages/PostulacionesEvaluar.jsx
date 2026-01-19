@@ -9,7 +9,7 @@ export default function PostulacionesEvaluar() {
   const [error, setError] = useState(null);
 
   // luego vendrán de auth / contexto
-  const idJurado = "JUR2025-00001";
+  const idJurado = "JUR2026-00005";
   const ronda = 1;
 
   useEffect(() => {

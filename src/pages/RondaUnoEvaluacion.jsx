@@ -19,7 +19,7 @@ export default function RondaUnoEvaluacion() {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [cargando, setCargando] = useState(false);
 
-  // 👉 AQUÍ guardamos temporalmente la evaluación
+  // Evaluación, guardado temporal
   const [datosEvaluacion, setDatosEvaluacion] = useState(null);
 
   useEffect(() => {
@@ -28,8 +28,11 @@ export default function RondaUnoEvaluacion() {
 
       const archivoUrl = `http://localhost:8080${postulacion.ruta}`;
       const autor = !postulacion.infantil
-        ? `${postulacion.nombre} ${postulacion.apellidos} "${postulacion.seudonimo}"`
+        ? `${postulacion.nombre} ${postulacion.apellidos}${
+            postulacion.seudonimo ? ` "${postulacion.seudonimo}"` : ''
+          }`
         : postulacion.postulante;
+
 
       setObra({
         idPostulacion,
@@ -43,8 +46,7 @@ export default function RondaUnoEvaluacion() {
     cargarDatos();
   }, [idPostulacion]);
 
-  // 👉 Se ejecuta cuando el jurado CONFIRMA en el modal
-  const ID_JURADO_ESTATICO = "JUR2025-00001";
+  const ID_JURADO_ESTATICO = "JUR2026-00005";
   const confirmarEnvio = async () => {
     try {
       setCargando(true);
@@ -74,8 +76,8 @@ export default function RondaUnoEvaluacion() {
         <EvaluacionForm
           obra={obra}
           onEnviar={(data) => {
-            setDatosEvaluacion(data); // 👈 guardamos la evaluación
-            setMostrarModal(true);    // 👈 abrimos modal
+            setDatosEvaluacion(data); 
+            setMostrarModal(true); 
           }}
         />
       </div>

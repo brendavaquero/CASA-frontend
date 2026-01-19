@@ -34,7 +34,7 @@ const FormElementFileUpload = ({idActividad,onUploadSuccess }) => {
 
       const data = await uploadArchivo(formData);
 
-      alert(`Archivo "${file.name}" subido correctamente 🎉`);
+      alert(`Archivo "${file.name}" subido correctamente`);
       setFile(null);
       if (onUploadSuccess) onUploadSuccess();
 

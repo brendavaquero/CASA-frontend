@@ -49,7 +49,6 @@ export const updateActividad = async(idActividad,estado) => {
   return res.data;
 };
 
-
 //Acompletar la actividad(fechas)
 export const updatedActividad = async(idActividad,formData) => {
   const res = await axios.put(
@@ -76,7 +75,6 @@ export const uploadImagenActividad = async (formData) => {
 
 export const getTallerDiplomadoById = (idActividad) =>
   axios.get(`${API_URL}/${idActividad}`);
-
 
 //export const listTalleresDiplomados = () => axios.get(REST_API_BASE_URL);
 export async function listTalleresDiplomados() {
@@ -110,7 +108,6 @@ export async function getProgramaByTaller(idActividad) {
   return resp.json();
 }
 
-
 export async function getDocenteByTaller(idActividad) {
   const url = `${API_URL}/${idActividad}/docente`;
 
@@ -126,4 +123,3 @@ export async function getDocenteByTaller(idActividad) {
     return null;
   }
 }
-
