@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { enviarCorreoRecuperacion } from "@/apis/passwordReset";
 import {
   Box,
   TextField,
@@ -24,6 +25,10 @@ const Login = () => {
   const [contrasenia, setContrasenia] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [openRecoveryModal, setOpenRecoveryModal] = useState(false);
+  const [recoveryEmail, setRecoveryEmail] = useState("");
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
 
   const [errors, setErrors] = useState({
     correo: "",
@@ -81,6 +86,9 @@ const Login = () => {
         case "PARTICIPANTE":
           navigate("/homeAlumno");
           break;
+        case "INVITADO":
+          navigate("/programas");
+          break;
         default:
           navigate("/home");
       }
@@ -92,6 +100,39 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  const handlePasswordRecovery = async () => {
+    if (!recoveryEmail.trim()) {
+      setModalTitle("Error");
+      setModalMessage("Ingresa un correo válido");
+      setModalOpen(true);
+      return;
+    }
+
+    try {
+      setRecoveryLoading(true);
+      await enviarCorreoRecuperacion(recoveryEmail);
+
+      setModalTitle("Correo enviado");
+      setModalMessage(
+        "Te hemos enviado un correo con las instrucciones para restablecer tu contraseña"
+      );
+      setModalOpen(true);
+      setOpenRecoveryModal(false);
+      setRecoveryEmail("");
+    } catch (error) {
+      setModalTitle("Error");
+      if (error.response?.status === 403) {
+        setModalMessage("Acceso denegado (seguridad)");
+      } else {
+        setModalMessage("El correo no está registrado");
+      }
+      setModalOpen(true);
+    } finally {
+      setRecoveryLoading(false);
+    }
+  };
+
 
   return (
     <>
@@ -164,7 +205,8 @@ const Login = () => {
 
             <Typography
               variant="body2"
-              sx={{ cursor: "pointer", color: "text.secondary" }}
+              sx={{ cursor: "pointer", color: "primary.main" }}
+              onClick={() => setOpenRecoveryModal(true)}
             >
               Forgot Password?
             </Typography>
@@ -185,15 +227,29 @@ const Login = () => {
           >
             {loading ? "Ingresando..." : "Login"}
           </Button>
-
-          <Typography variant="body2" textAlign="center" mt={3}>
-            You don't have an account?{" "}
-            <span style={{ color: "#1976d2", cursor: "pointer" }}>
-              Register
-            </span>
-          </Typography>
         </Box>
       </Box>
+
+      <ModalMensaje
+        open={openRecoveryModal}
+        onClose={() => setOpenRecoveryModal(false)}
+        title="Recuperar contraseña"
+        type="confirm"
+        confirmText="Enviar"
+        cancelText="Cancelar"
+        onConfirm={handlePasswordRecovery}
+        onCancel={() => setOpenRecoveryModal(false)}
+      >
+        <TextField
+          fullWidth
+          label="Correo electrónico"
+          type="email"
+          margin="normal"
+          value={recoveryEmail}
+          onChange={(e) => setRecoveryEmail(e.target.value)}
+        />
+      </ModalMensaje>
+
 
       <ModalMensaje
         open={modalOpen}

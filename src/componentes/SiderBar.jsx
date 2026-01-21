@@ -1,11 +1,9 @@
 import { NavLink,useNavigate } from "react-router-dom";
-import { Home, User, Users2Icon, FileText, LogOut, Menu, X,BookPlus, NotebookTabs,BookImage,ClipboardList,NotebookPen,Camera } from "lucide-react";
+import { Home, User, Users2Icon, FileText, LogOut, Menu, X,BookPlus, NotebookTabs,BookImage,ClipboardList,NotebookPen,Camera,ShieldUser,FolderPlus } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 const Sidebar = ({ role,open, onSelect, activeSection,onToggle,onLogoutClick  }) => {
-  const { logout } = useAuth();
-  const navigate = useNavigate();
   const linkClass =
     "flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 transition";
   const activeClass =
@@ -44,10 +42,22 @@ const Sidebar = ({ role,open, onSelect, activeSection,onToggle,onLogoutClick  })
       roles: ["ADMINISTRADOR"],
     },
     {
+      label: "Asignar Jurados",
+      key: "ASIGNAR_JURADOS",
+      icon: ShieldUser,
+      roles: ["ADMINISTRADOR"],
+    },
+    {
       label: "Requisitar Taller",
       key: "REQUISITAR_TALLER",
       icon: NotebookPen,
       roles: ["DOCENTE"],
+    },
+    {
+      label: "Programas",
+      key: "PROGRAMAS",
+      icon: FolderPlus,
+      roles: ["ADMINISTRADOR"],
     },
     {
       label: "Usuarios",

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ChevronLeft } from "lucide-react";
 import {
   Typography,
   Dialog,
@@ -15,7 +16,8 @@ import { confirmarGanador } from "../apis/ganador_Service";
 
 
 
-const RondaFinal = () => {
+const RondaFinal = ({convocatoria, onVolver}) => {
+  console.log('convo:',convocatoria.idActividad);
   const confirmar = async () => {
   console.log("Finalista enviado al backend:", finalistaSeleccionado);
 
@@ -41,7 +43,7 @@ const RondaFinal = () => {
 
 const cargarFinalistas = async () => {
   try {
-    const data = await obtenerFinalistas(idConvocatoria);
+    const data = await obtenerFinalistas(convocatoria.idActividad);
     setFinalistas(data);
   } catch (error) {
   console.error("Error al confirmar ganador");
@@ -77,6 +79,9 @@ const cargarFinalistas = async () => {
 
   return (
     <div className="p-6">
+      <button onClick={onVolver}>
+              <ChevronLeft size={28} />
+            </button>
       <Typography variant="h4" className="mb-6">
         Ronda Final – Selección de Ganador
       </Typography>

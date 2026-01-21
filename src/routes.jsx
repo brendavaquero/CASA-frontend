@@ -11,6 +11,7 @@ import ListaJurados from "./pages/admin/ListaJurados";
 import HomeJurado from "./pages/jurado/HomeJurado";
 import Login from "./pages/login/Login";
 import ProtectedRoute from "./componentes/ProtectedRoute";
+import ResetPassword from "./componentes/ResetPassword";
 
 export const routes = [
   {
@@ -33,6 +34,7 @@ export const routes = [
     path: "/convocatoria/registropostal",
     element: <RegistroPostal />,
   },
+  /*
   {
     name: "Por evaluar",
     path: "/evaluar",
@@ -42,6 +44,10 @@ export const routes = [
     name: "Ronda final",
     path: "/evaluar/ronda-final",
     element: <RondaFinal />,
+  },*/
+  {
+    path: "/reset-password",
+    element: <ResetPassword />
   },
   /*
   {
@@ -81,15 +87,19 @@ export const routes = [
     element: <PostulacionConvocatoriaForm />,
   },
   {
-    name: "programas",
-    path: "/programas/usuario/:idUsuario",
-    element: <ProgramasUsuarioPage />,
+    path: "/programas",
+    element: (
+      <ProtectedRoute roles={["INVITADO"]}>
+        <ProgramasUsuarioPage />
+      </ProtectedRoute>
+    ),
   },
+  /*
   {
     name: "PostulacionesPendientesPage",
     path: "/postulaciones/pendientes",
     element: <PostulacionesPendientesPage />
-  },
+  },*/
   {
     name: "login",
     path: "/login",
@@ -135,7 +145,7 @@ export const routes = [
       </ProtectedRoute>
     ),
   },
-  {
+  /*{
     name: "Aprobación Taller",
     path: "/vista-aprobacion",
     element: <CrearTaller />,
@@ -144,12 +154,13 @@ export const routes = [
     name: "Crear convocatoria",
     path: "/crearConvocatoria",
     element: <CrearConvocatoria />,
-  },
+  },*/
+  /*
   {
     name: "Jurados",
     path: "/jurados",
     element: <ListaJurados />,
-  },
+  },*/
   {
     path: "/homeJurado",
     element: (
