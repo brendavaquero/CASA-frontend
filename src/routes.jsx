@@ -18,11 +18,13 @@ export const routes = [
     name: "home",
     path: "/home",
     element: <Home />,
+    showInNavbar: true,
   },
   {
     name: "Aprender",
     path: "/talleresydiplomados",
     element: <Aprender />,
+    showInNavbar: true,
   },
   {
     name: "Evaluación 1",
@@ -64,6 +66,7 @@ export const routes = [
     name: "convocatorias",
     path: "/convocatorias",
     element: <Convocatorias />,
+    showInNavbar: true,
   },
   {
     name: "Convocatoria individual",

@@ -26,3 +26,13 @@ export const updateConvocatoria = async(idConvocatoria, formData) => {
   const rest = await api.put(`/convocatoriasyresidencias/updated/${idConvocatoria}`,formData);
   return rest.data;
 }; 
+
+export const obtenerActaPorConvocatoria = async (idConvocatoria) => {
+  try {
+    const response = await api.get(`/convocatoriasyresidencias/acta/${idConvocatoria}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error en obtenerActaPorConvocatoria:", error);
+    throw error;
+  }
+};
