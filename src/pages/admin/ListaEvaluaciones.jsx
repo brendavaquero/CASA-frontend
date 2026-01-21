@@ -1,6 +1,6 @@
 import { ChevronLeft } from "lucide-react";
 
-const ListaEvaluaciones = ({evaluaciones = [], convocatoria, onVolver }) => {
+const ListaEvaluaciones = ({evaluaciones = [], convocatoria,onNavigate, onVolver }) => {
   console.log(evaluaciones);
 
   return (
@@ -46,6 +46,13 @@ const ListaEvaluaciones = ({evaluaciones = [], convocatoria, onVolver }) => {
             </tbody>
           </table>
         </div>
+      </div>
+      <div className="flex justify-end gap-3 mt-5">
+        <button className="px-4 py-2 bg-black text-white rounded-lg" 
+          onClick={() => onNavigate("selectGanador")}
+        >
+          Seleccionar Ganador
+        </button>
       </div>
     </div>
   );

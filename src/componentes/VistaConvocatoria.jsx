@@ -5,14 +5,13 @@ import { getJuradosByConvocatoria } from '@/apis/jurado';
 import { participantesByIdActivdad } from "@/apis/postulacion_Service";
 import { getEvaluacionByConvocatoria } from "@/apis/evaluacion";
 import { updateConvocatoriaRondas } from "@/apis/convocatorias";
+import { getGanadoresByConvocatoria } from "@/apis/ganador_Service";
 import ModalMensaje from "./ModalMensaje";
 
-const VistaConvocatoria = ({convocatoria,jurados = [],evaluaciones = [],participantes = [], onVolver,onNavigate,setJurados, setEvaluaciones, setParticipantes}) => {
+const VistaConvocatoria = ({convocatoria,jurados = [],evaluaciones = [],participantes = [], ganadores=[], onVolver,onNavigate,setJurados, setEvaluaciones, setParticipantes, setGanadores}) => {
   const [form, setForm] = useState({
     fechaInicioR1: '',
     fechaLimiteR1: '',
-    fechaInicioR2: '',
-    fechaLimiteR2: '',
   });
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -53,6 +52,18 @@ const VistaConvocatoria = ({convocatoria,jurados = [],evaluaciones = [],particip
 
   }, [convocatoria, setParticipantes]);
 
+  useEffect(() => {
+    if (!convocatoria?.idActividad) return;
+
+     getGanadoresByConvocatoria(convocatoria.idActividad)
+      .then(setGanadores)
+      .catch(err =>
+        console.error("Error al obtener los ganadores:", err)
+      );
+    console.log('ganador',ganadores);
+
+  }, [convocatoria, setGanadores]);
+
   const cards = [
     {
       key: 'participantes',
@@ -73,9 +84,9 @@ const VistaConvocatoria = ({convocatoria,jurados = [],evaluaciones = [],particip
       icon: ClipboardCheck,
     },
     {
-      key: 'ganador',
+      key: 'ganadores',
       label: 'Ganador',
-      value: convocatoria.ganador ?? 'Sin asignar',
+      value: ganadores.length ?? 'Sin asignar',
       icon: Trophy,
     },
   ];

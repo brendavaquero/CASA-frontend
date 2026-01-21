@@ -7,8 +7,8 @@ import { generarConstancia } from "./GenerarConstancia";
 import { getSesionesByTaller } from "@/apis/sesiones";
 import {ChevronLeft} from "lucide-react";
 import ModalMensaje from "./ModalMensaje";
-import { Trash2 } from "lucide-react";
-
+import { Trash2,ClipboardList } from "lucide-react";
+import { PostulacionesPendientesPage } from "@/pages";
 
 const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
   const [alumnos, setAlumnos] = useState([]);
@@ -21,7 +21,7 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [modalTitle, setModalTitle] = useState("Mensaje");
-
+  const [verPostulaciones, setVerPostulaciones] = useState(false);
   const [archivoAEliminar, setArchivoAEliminar] = useState(null);
   const [modalType, setModalType] = useState("info");
 
@@ -153,7 +153,14 @@ const confirmarEliminarArchivo = async () => {
     setArchivoAEliminar(null);
   }
 };
-
+  if (verPostulaciones) {
+    return (
+      <PostulacionesPendientesPage
+        taller={taller}
+        onVolver={() => setVerPostulaciones(false)}
+      />
+    );
+  }
 
   return (
     <div className="p-4">
@@ -177,7 +184,14 @@ const confirmarEliminarArchivo = async () => {
               className="object-cover w-full h-72"
             />
           </div>
-          
+          {modo === "DOCENTE" && (
+              <button
+                onClick={() => setVerPostulaciones(true)}
+                className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
+              >
+                Ver postulaciones
+              </button>
+            )}
           {(modo === "DOCENTE" || modo === "ALUMNO" || modo === "ADMINISTRADOR") && (
             <div className="border p-5 rounded bg-white shadow-sm">
               <h2 className="text-lg font-semibold mb-3 text-gray-800">

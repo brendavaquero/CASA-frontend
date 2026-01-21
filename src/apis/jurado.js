@@ -14,3 +14,8 @@ export const getConvocatoriasByJurado = async (idUsuario) => {
   const res = await api.get(`/jurado/usuarioJurado/convocatorias/${idUsuario}`);
   return res.data;
 };
+
+export const createJurado = async (data) => {
+  const res = await api.post("/jurado",data);
+  return res.data;
+};

@@ -20,6 +20,11 @@ import EditarConvocatoria from "@/componentes/EditarConvocatoria.jsx";
 import { FormControl, Select, MenuItem } from "@mui/material";
 import { useAuth } from "@/context/AuthContext";
 import ModalMensaje from "@/componentes/ModalMensaje.jsx";
+import { PerfilGanador } from "../index.js";
+import UsuariosPage from "./UsuariosPage.jsx";
+import { RondaFinal } from "../index.js";
+import AsignarJurados from "./AsignarJurados.jsx";
+import CrearPrograma from "./CrearPrograma.jsx";
 
 const HomeAdmin = () => {
   const [talleres, setTalleres] = useState([]);
@@ -35,6 +40,7 @@ const HomeAdmin = () => {
   const [jurados, setJurados] = useState([]);
   const [evaluaciones, setEvaluaciones] = useState([]);
   const [participantes, setParticipantes] = useState([]);
+  const [ganadores, setGanadores] = useState([]);
   const [openLogoutModal, setOpenLogoutModal] = useState(false);
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -93,6 +99,12 @@ const HomeAdmin = () => {
     setVistaActual("convocatoria");
     console.log(vistaActual);
   };
+   const handleConvocatoriaJurados = (convocatoria) => {
+    console.log('selecciomada:',convocatoria);
+    setConvocatoriaSeleccionada(convocatoria);
+    setVistaActual("asignar");
+    console.log(vistaActual);
+  };
 
   const recargarConvocatoriaSeleccionada = async () => {
     if (!convocatoriaSeleccionada?.idActividad) return;
@@ -117,6 +129,9 @@ const HomeAdmin = () => {
     const handleNavigateConvocatoria = (vista) => {
       setVistaActual(vista);
   };
+  const convocatoriasAbiertas = convocatorias.filter(
+    c => c.estado === "CONVOCATORIA_ABIERTA"
+  );
 
   return (
     <div className="flex flex-col h-screen bg-gray-100 pt-20">
@@ -264,11 +279,13 @@ const HomeAdmin = () => {
                           jurados={jurados}
                           evaluaciones={evaluaciones}
                           participantes={participantes}
+                          ganadores={ganadores}
                           onVolver={() => setVistaActual("grid")}
                           onNavigate={handleNavigateConvocatoria}
                           setJurados={setJurados} 
                           setEvaluaciones={setEvaluaciones}
                           setParticipantes={setParticipantes}
+                          setGanadores={setGanadores}
                         />
                       )}
                       {vistaActual === "jurados" && (
@@ -282,7 +299,14 @@ const HomeAdmin = () => {
                         <ListaEvaluaciones
                           convocatoria={convocatoriaSeleccionada}
                           evaluaciones={evaluaciones}
+                          onNavigate={handleNavigateConvocatoria} 
                           onVolver={() => setVistaActual("convocatoria")}
+                        />
+                      )}
+                      {vistaActual === "selectGanador" && (
+                        <RondaFinal
+                          convocatoria = {convocatoriaSeleccionada}
+                          onVolver={() => setVistaActual("evaluaciones")}
                         />
                       )}
                       {vistaActual === "participantes" && (
@@ -290,6 +314,12 @@ const HomeAdmin = () => {
                           convocatoria={convocatoriaSeleccionada}
                           participantes={participantes}
                           onVolver={() => setVistaActual("convocatoria")}
+                        />
+                      )}
+                      {vistaActual === "ganadores" && (
+                        <PerfilGanador
+                          onVolver={() => setVistaActual("convocatoria")}
+                          ganadores={ganadores}
                         />
                       )}
                       {vistaActual === "editarConvocatoria" && (
@@ -313,6 +343,34 @@ const HomeAdmin = () => {
                     setSeccion("CONVOCATORIAS_RESI");
                     setVistaActual("grid");
                   }} />
+                </>
+              )}
+              {seccion === "ASIGNAR_JURADOS" && (
+                <>
+                  {vistaActual === "grid" && (
+                    <>
+                      <GirdConvocatoria
+                        convocatorias={convocatoriasAbiertas}
+                        onConvocatoriaClick={handleConvocatoriaJurados}
+                      />
+                    </>)}
+                  {vistaActual === "asignar" && (
+                    <>
+                      <AsignarJurados 
+                        convocatoria={convocatoriaSeleccionada}
+                        onVolver={() => setVistaActual("gird")}
+                      />
+                    </>)}
+                </>
+              )}
+              {seccion === "PROGRAMAS" && (
+                <>
+                  <CrearPrograma />
+                </>
+              )}
+              {seccion === "USUARIOS" && (
+                <>
+                  <UsuariosPage />
                 </>
               )}
             </main>

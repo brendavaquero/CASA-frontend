@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import {  Dialog,  DialogTitle,  DialogContent,  DialogActions,  Button,  Typography,  Box} from "@mui/material";
 import modalIcon from "@/assets/images/logoCaSa.png";
 
-const ModalMensaje = ({open, onClose, title = "Mensaje", message = "", type = "info", autoClose = false, autoCloseTime = 10000, onConfirm, onCancel, confirmText = "Sí", cancelText = "No"}) => {
+const ModalMensaje = ({open, onClose, title = "Mensaje", message = "", type = "info", autoClose = false, autoCloseTime = 10000, onConfirm, onCancel, confirmText = "Sí", cancelText = "No", children}) => {
 
   useEffect(() => {
     if (!open) return;
@@ -38,6 +38,7 @@ const ModalMensaje = ({open, onClose, title = "Mensaje", message = "", type = "i
 
       <DialogContent >
         <Typography>{message}</Typography>
+        {children}
       </DialogContent>
 
       {type === "confirm" && (

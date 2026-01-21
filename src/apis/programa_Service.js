@@ -45,3 +45,8 @@ export const descargarZipEvidencias = async (idPrograma) => {
     console.error("Error descargando ZIP:", error);
   }
 };
+
+export const createPrograma = async (data) => {
+  const res = await api.post("/programas",data);
+  return res.data;
+};

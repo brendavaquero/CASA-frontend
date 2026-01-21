@@ -21,18 +21,17 @@ const TABLE_HEAD = [
   "Estado",
 ];
 
-export default function PostulacionesPendientesTable() {
+export default function PostulacionesPendientesTable({taller}) {
   const [postulaciones, setPostulaciones] = useState([]);
   const [seleccionadas, setSeleccionadas] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
 
-  const idActividad = "ACT2025-00027"; // temporal
-
+  //const idActividad = "ACT2025-00027"; // temporal
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await getPostulacionesPendientesConParticipante(
-          idActividad
+          taller.idActividad
         );
         setPostulaciones(data);
       } catch (error) {

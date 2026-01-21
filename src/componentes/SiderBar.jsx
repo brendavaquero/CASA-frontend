@@ -1,20 +1,9 @@
 import { NavLink,useNavigate } from "react-router-dom";
-import { Home, User, FileText, LogOut, Menu, X,BookPlus, NotebookTabs,BookImage,ClipboardList,NotebookPen } from "lucide-react";
+import { Home, User, Users2Icon, FileText, LogOut, Menu, X,BookPlus, NotebookTabs,BookImage,ClipboardList,NotebookPen,Camera,ShieldUser,FolderPlus } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 const Sidebar = ({ role,open, onSelect, activeSection,onToggle,onLogoutClick  }) => {
-  const { logout } = useAuth();
-  const navigate = useNavigate();
-  /*
-  const handleLogout = () => {
-    setOpenLogoutModal(true);
-  };
-  const confirmLogout = () => {
-  logout();
-  navigate("/login");
-};*/
-
   const linkClass =
     "flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 transition";
   const activeClass =
@@ -26,7 +15,7 @@ const Sidebar = ({ role,open, onSelect, activeSection,onToggle,onLogoutClick  })
       label: "Talleres y Diplomados",
       key:"TALLERES_DIPLO",
       icon: NotebookTabs,
-      roles: ["ADMINISTRADOR","AUXILIAR"],
+      roles: ["ADMINISTRADOR"],
     },
     {
       label: "Mis talleres",
@@ -35,15 +24,27 @@ const Sidebar = ({ role,open, onSelect, activeSection,onToggle,onLogoutClick  })
       roles: ["DOCENTE" ,"PARTICIPANTE"],
     },
     {
+      label: "Evidencias Talleres",
+      key: "EVIDENCIAS",
+      icon: Camera,
+      roles: ["AUXILIAR","INVITADO"],
+    },
+    {
       label: "Convocatorias y Residencias",
       key: "CONVOCATORIAS_RESI",
       icon: BookImage,
-      roles: ["ADMINISTRADOR","JURADO"],
+      roles: ["ADMINISTRADOR","JURADO","AUXILIAR"],
     },
     {
       label: "Crear Convocatoria",
       key: "CREAR_CONVOCATORIA",
       icon: BookPlus,
+      roles: ["ADMINISTRADOR"],
+    },
+    {
+      label: "Asignar Jurados",
+      key: "ASIGNAR_JURADOS",
+      icon: ShieldUser,
       roles: ["ADMINISTRADOR"],
     },
     {
@@ -53,10 +54,16 @@ const Sidebar = ({ role,open, onSelect, activeSection,onToggle,onLogoutClick  })
       roles: ["DOCENTE"],
     },
     {
-      label: "Postulaciones",
-      to: "/postulaciones",
-      icon: ClipboardList,
-      roles: ["DOCENTE","PARTICIPANTE"],
+      label: "Programas",
+      key: "PROGRAMAS",
+      icon: FolderPlus,
+      roles: ["ADMINISTRADOR"],
+    },
+    {
+      label: "Usuarios",
+      key: "USUARIOS",
+      icon: Users2Icon,
+      roles: ["ADMINISTRADOR"],
     },
     {
       label: "Perfil",

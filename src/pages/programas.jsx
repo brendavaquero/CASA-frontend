@@ -3,17 +3,18 @@
 import { useEffect, useState } from "react";
 import SimpleCard from "../componentes/programa-card";
 import { getProgramasByUsuario, getById, descargarZipEvidencias } from "../apis/programa_Service";
-import DescargarReporteTrimestral from "../componentes/DescargarReporteTrimestral";
-
+import { useAuth } from "@/context/AuthContext";
 
 export function ProgramasUsuarioPage() {
   const [programas, setProgramas] = useState([]);
-  const usuarioId = "USU2025-00007"; // prueba
+  const { user } = useAuth();
+  const invitado = user;
+  //const usuarioId = "USU2025-00007"; // prueba
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getProgramasByUsuario(usuarioId);
+        const data = await getProgramasByUsuario(invitado.idUsuario);
         setProgramas(data);
       } catch (error) {
         console.error("Error al cargar programas:", error);
