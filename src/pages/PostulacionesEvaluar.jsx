@@ -2,20 +2,18 @@ import { useEffect, useState } from "react";
 import { Typography, Spinner } from "@material-tailwind/react";
 import PostulacionesJuradoTable from "../componentes/PostulacionesJuradoTable";
 import { getPendientesParaJurado } from "../apis/postulacion_Service";
+import { ChevronLeft } from "lucide-react";
 
-export default function PostulacionesEvaluar() {
+export default function PostulacionesEvaluar({jurado, onVolver}) {
   const [postulaciones, setPostulaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // luego vendrán de auth / contexto
-  const idJurado = "JUR2026-00005";
   const ronda = 1;
 
   useEffect(() => {
     const cargarPostulaciones = async () => {
       try {
-        const data = await getPendientesParaJurado(idJurado, ronda);
+        const data = await getPendientesParaJurado(jurado.idUsuario, ronda);
         setPostulaciones(data);
       } catch (err) {
         setError("No se pudieron cargar las postulaciones");
@@ -26,12 +24,18 @@ export default function PostulacionesEvaluar() {
     };
 
     cargarPostulaciones();
-  }, [idJurado, ronda]);
+  }, [jurado.idUsuario, ronda]);
 
   console.log("PostulacionesEvaluar render");
 
   return (
-    <div className="p-6 max-w-7xl mx-auto pt-24">
+    <div className="p-6 max-w-7xl mx-auto">
+      <button
+        onClick={onVolver}
+        className="text-black px-4 py-2"
+      >
+        <ChevronLeft size={30} />
+    </button>
       <Typography variant="h4" className="mb-6">
         Postulaciones pendientes de evaluar
       </Typography>

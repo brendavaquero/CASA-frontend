@@ -56,6 +56,7 @@ export const participantesByIdActivdad =  async(idActividad) =>{
   }
 };
 
+/*
 export async function getPendientesParaJurado(idJurado, ronda) {
   const params = new URLSearchParams({ idJurado, ronda });
 
@@ -68,6 +69,24 @@ export async function getPendientesParaJurado(idJurado, ronda) {
   }
 
   return response.json();
+}*/
+export async function getPendientesParaJurado(idJurado, ronda) {
+  try {
+    const response = await api.get(
+      "/postulaciones/pendientes/jurado",
+      {
+        params: {
+          idJurado,
+          ronda,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener postulaciones pendientes", error);
+    throw error;
+  }
 }
 
 

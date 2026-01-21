@@ -161,10 +161,6 @@ const Login = () => {
               mt: 1,
             }}
           >
-            <FormControlLabel
-              control={<Checkbox size="small" />}
-              label="Remember me"
-            />
 
             <Typography
               variant="body2"

@@ -1,20 +1,11 @@
 import React, { useEffect, useState } from "react";
-import FormElementFileUpload from "./FormElementFileUpload";
-import { getAlumnosTaller } from "@/apis/tallerDiplomado_Service";
-import { registrarAsistencia, getAprobadosPorTaller } from "@/apis/asistencia_Service";
 import { getArchivosActividad } from "@/apis/archivo_Service";
-import { generarConstancia } from "./GenerarConstancia";
 import { getSesionesByTaller } from "@/apis/sesiones";
 import {ChevronLeft} from "lucide-react";
 
 
 const VistaTallerAlumno = ({ taller, onVolver}) => {
-  const [alumnos, setAlumnos] = useState([]);
-  const [fechaHoy, setFechaHoy] = useState("");
-  const [asistencias, setAsistencias] = useState({});
   const [archivos, setArchivos] = useState([]);
-  const [archivosAuxiliar, setArchivosAuxiliar] = useState([]);
-  const [alumnosAprobados, setAlumnosAprobados] = useState([]);
   const [sesiones, setSesiones] = useState([]);
 
     const reloadArchivos = async () => {

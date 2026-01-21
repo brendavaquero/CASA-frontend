@@ -5,15 +5,21 @@ import logoCaSa from "../../assets/images/logoCaSa.png";
 import GridTallerD from '../../componentes/GirdTallerD.jsx'
 import IconButton from '@mui/material/IconButton';
 import IconDocente from '../../assets/images/docenteicon.png';
-import VistaTaller from "@/componentes/VistaTaller.jsx";
 import { getTalleres } from "@/apis/tallerDiplomado_Service.js";
 import { useAuth } from "@/context/AuthContext";
 import ModalMensaje from "@/componentes/ModalMensaje.jsx";
+import EvidenciasTaller from "./EvidenciasTaller.jsx";
+import GirdConvocatoria from "@/componentes/GirdConvocatoria.jsx";
+import { getConvocatorias } from "@/apis/convocatoria_Service.js";
+import RegistroPostalAux from "@/componentes/RegistroPostAux.jsx";
+
 
 const HomeAuxiliar = () => {
   const [talleres, setTalleres] = useState([]);
   const [vistaActual, setVistaActual] = useState("grid");
   const [tallerSeleccionado, setTallerSeleccionado] = useState(null);
+  const [convocatorias, setConvocatorias] = useState([]);
+  const [convocatoriaSeleccionada, setConvocatoriaSeleccionada] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [seccion, setSeccion] = useState("TALLERES");
   const { user } = useAuth();
@@ -27,6 +33,7 @@ const HomeAuxiliar = () => {
           try {
             const dataTalleres = await getTalleres();
             setTalleres(dataTalleres);
+            await cargarConvocatorias();
           } catch (error) {
             console.error("Error al cargar datos:", error);
           }
@@ -35,20 +42,44 @@ const HomeAuxiliar = () => {
         cargarDatos();
       }, []);
 
+    const cargarConvocatorias = async () => {
+        try {
+          const dataConvocatorias = await getConvocatorias();
+          setConvocatorias(dataConvocatorias);
+        } catch (error) {
+          console.error("Error al cargar convocatorias", error);
+        }
+      };
+
    const handleTallerClick = (taller) => {
     setTallerSeleccionado(taller);
     setSeccion("DETALLE_TALLER");
   };
-
-  const handleVolver = () => {
-    setSeccion("TALLERES_DIPLO");
+  const handleTallerVista = (taller) => {
+    setTallerSeleccionado(taller);
+    setVistaActual("postulacion");
   };
 
+  const handleVolver = () => {
+    setSeccion("EVIDENCIAS");
+  };
+  const handleConvocatoriaClick = (convocatoria) => {
+    console.log('selecciomada:',convocatoria);
+    setConvocatoriaSeleccionada(convocatoria);
+    setVistaActual("postulacion");
+    console.log(vistaActual);
+  };
+
+ const convocatoriasAbiertas = convocatorias.filter(
+    c => c.estado === "CONVOCATORIA_ABIERTA"
+  );
+  const tallresAbiertos = talleres.filter(
+    c => c.estado === "CONVOCATORIA_ABIERTA"
+  );
 
   return (
-    <div className="flex h-screen bg-gray-100 pt-20">
-      <div className="flex-1 flex flex-col">
-        <header className="flex justify-between items-center bg-white px-6 py-4 border-b">
+    <div className="flex flex-col h-screen bg-gray-100 pt-20">
+        <header className="flex justify-between items-center bg-white px-6 py-4 border-b shrink-0">
             <img src={logoCaSa} alt="Logo CaSa" width={60} />
             <h1 className="text-lg font-medium text-gray-700">Centro de las Artes de San Agustín</h1> 
             <div className="flex items-center">
@@ -62,7 +93,7 @@ const HomeAuxiliar = () => {
             
         </header>     
 
-        <div className="flex flex-1 pt-2">
+        <div className="flex flex-1 overflow-hidden">
             <Sidebar role={auxiliar.rol} open={sidebarOpen} activeSection={seccion}
               onToggle={() => setSidebarOpen(!sidebarOpen)} 
               onSelect={(key) => {
@@ -72,8 +103,8 @@ const HomeAuxiliar = () => {
               onLogoutClick={() => setOpenLogoutModal(true)}
               />
 
-            <main className="flex-1 overflow-y-auto p-6">
-            {seccion === "TALLERES_DIPLO" && (
+            <main className="flex-1 overflow-y-auto p-8">
+            {seccion === "EVIDENCIAS" && (
               <GridTallerD
                 onTallerClick={handleTallerClick}
                 talleres={talleres}
@@ -81,18 +112,34 @@ const HomeAuxiliar = () => {
             )}
 
             {seccion === "DETALLE_TALLER" && (
-              <VistaTaller
+              <EvidenciasTaller
                 taller={tallerSeleccionado}
-                modo={auxiliar.rol}
                 onVolver={handleVolver}
               />
+            )}
+            {seccion === "CONVOCATORIAS_RESI" && (
+                <>
+                  {vistaActual === "grid" && (
+                    <>
+                      <GirdConvocatoria
+                        convocatorias={convocatoriasAbiertas}
+                        onConvocatoriaClick={handleConvocatoriaClick}
+                      />
+                    </>)}
+                    {vistaActual === "postulacion" && (
+                    <>
+                      <RegistroPostalAux
+                       actividad={convocatoriaSeleccionada}
+                       onVolver={() => setVistaActual("grid")}
+                      />
+                    </>)}
+                  </>
             )}
             </main>
         </div>
         <footer className="bg-gray-700 text-gray-200 text-sm text-center py-3">
           CompanyName © 2025. All rights reserved.
         </footer>
-      </div>
       <ModalMensaje
         open={openLogoutModal}
         onClose={() => setOpenLogoutModal(false)}

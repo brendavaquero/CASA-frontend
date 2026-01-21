@@ -1,18 +1,18 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:8080/api/ganador";
+//import axios from "axios";
+import api from "./axios";
+//const API_URL = "http://localhost:8080/api/ganador";
 
 
 export const getGanadorById = async (idusuario) =>{
-    const res = await axios.get(`${API_URL}/${idusuario}`)
+    const res = await api.get(`/ganador/${idusuario}`)
     return res.data;
 };
 
 export const actualizarGanador = async (idGanador, ganadorActualizado) => {
   console.log("PUT ganador:", idGanador, ganadorActualizado);
 
-  const response = await axios.put(
-    `${API_URL}/${idGanador}`,
+  const response = await api.put(
+    `/ganador/${idGanador}`,
     ganadorActualizado
   );
 
@@ -21,7 +21,7 @@ export const actualizarGanador = async (idGanador, ganadorActualizado) => {
 
 //Subir imagen
 export const uploadImagenGanador = async (formData) => {
-  const response = await axios.post(`${API_URL}/uploadImagen`, formData, {
+  const response = await api.post(`/ganador/uploadImagen`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return response.data; // la URL
@@ -36,8 +36,8 @@ export const uploadImagenGanador = async (formData) => {
  */
 export const confirmarGanador = async (finalista) => {
   try {
-    const response = await axios.post(
-      `${API_URL}/confirmar`,
+    const response = await api.post(
+      `/ganador/confirmar`,
       {
         idResultado: finalista.idResultado,
         idPostulacion: finalista.idPostulacion,
@@ -49,4 +49,9 @@ export const confirmarGanador = async (finalista) => {
     console.error("Error al confirmar ganador", error);
     throw error;
   }
+};
+
+export const getGanadoresByConvocatoria = async (idConvocatoria) =>{
+    const res = await api.get(`/ganador/convocatoria/${idConvocatoria}`)
+    return res.data;
 };

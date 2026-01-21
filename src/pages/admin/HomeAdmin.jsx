@@ -20,6 +20,8 @@ import EditarConvocatoria from "@/componentes/EditarConvocatoria.jsx";
 import { FormControl, Select, MenuItem } from "@mui/material";
 import { useAuth } from "@/context/AuthContext";
 import ModalMensaje from "@/componentes/ModalMensaje.jsx";
+import { PerfilGanador } from "../index.js";
+import UsuariosPage from "./UsuariosPage.jsx";
 
 const HomeAdmin = () => {
   const [talleres, setTalleres] = useState([]);
@@ -35,6 +37,7 @@ const HomeAdmin = () => {
   const [jurados, setJurados] = useState([]);
   const [evaluaciones, setEvaluaciones] = useState([]);
   const [participantes, setParticipantes] = useState([]);
+  const [ganadores, setGanadores] = useState([]);
   const [openLogoutModal, setOpenLogoutModal] = useState(false);
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -264,11 +267,13 @@ const HomeAdmin = () => {
                           jurados={jurados}
                           evaluaciones={evaluaciones}
                           participantes={participantes}
+                          ganadores={ganadores}
                           onVolver={() => setVistaActual("grid")}
                           onNavigate={handleNavigateConvocatoria}
                           setJurados={setJurados} 
                           setEvaluaciones={setEvaluaciones}
                           setParticipantes={setParticipantes}
+                          setGanadores={setGanadores}
                         />
                       )}
                       {vistaActual === "jurados" && (
@@ -292,6 +297,12 @@ const HomeAdmin = () => {
                           onVolver={() => setVistaActual("convocatoria")}
                         />
                       )}
+                      {vistaActual === "ganadores" && (
+                        <PerfilGanador
+                          onVolver={() => setVistaActual("convocatoria")}
+                          ganadores={ganadores}
+                        />
+                      )}
                       {vistaActual === "editarConvocatoria" && (
                         <EditarConvocatoria
                           convocatoria={convocatoriaSeleccionada}
@@ -313,6 +324,11 @@ const HomeAdmin = () => {
                     setSeccion("CONVOCATORIAS_RESI");
                     setVistaActual("grid");
                   }} />
+                </>
+              )}
+              {seccion === "USUARIOS" && (
+                <>
+                  <UsuariosPage />
                 </>
               )}
             </main>

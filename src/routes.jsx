@@ -43,11 +43,12 @@ export const routes = [
     path: "/evaluar/ronda-final",
     element: <RondaFinal />,
   },
+  /*
   {
     name: "Ganador",
     path: "/ganador/:id",
     element: <PerfilGanador />,
-  },
+  },*/
   {
     name: "Taller individual",
     path: "/talleresydiplomados/:id",

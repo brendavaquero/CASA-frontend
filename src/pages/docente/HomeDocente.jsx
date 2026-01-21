@@ -10,6 +10,7 @@ import VistaTaller from "@/componentes/VistaTaller.jsx";
 import { getTalleresDocentes } from "@/apis/tallerDiplomado_Service.js";
 import { useAuth } from "@/context/AuthContext";
 import ModalMensaje from "@/componentes/ModalMensaje.jsx";
+import { PostulacionesPendientesPage } from "../index.js";
 
 const HomeDocente = () => {
   const [talleres, setTalleres] = useState([]);
@@ -23,23 +24,6 @@ const HomeDocente = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  /*
-    useEffect(() => {
-    const fetchDocente = async () => {
-      try {
-        const data = await getDocenteById(idUsuario);
-        console.log('data:',data);
-        setDocente(data);
-        const dataTalleres = await getTalleresDocentes(idUsuario);
-        console.log("Talleres del docente:", dataTalleres);
-        setTalleres(dataTalleres);
-      } catch (error) {
-        console.error("Error al obtener el docente:", error);
-      }
-    };
-
-    fetchDocente();
-  }, []);*/
 useEffect(() => {
     const cargarDatos = async () => {
       try {
@@ -64,9 +48,8 @@ useEffect(() => {
 
 
   return (
-    <div className="flex h-screen bg-gray-100 pt-20">
-      <div className="flex-1 flex flex-col">
-        <header className="flex justify-between items-center bg-white px-6 py-4 border-b">
+    <div className="flex flex-col h-screen bg-gray-100 pt-20">
+        <header className="flex justify-between items-center bg-white px-6 py-4 border-b shrink-0">
             <img src={logoCaSa} alt="Logo CaSa" width={60} />
             <h1 className="text-lg font-medium text-gray-700">Centro de las Artes de San Agustín</h1> 
             <div className="flex items-center">
@@ -80,7 +63,7 @@ useEffect(() => {
             
         </header>     
 
-        <div className="flex flex-1 pt-2">
+        <div className="flex flex-1 overflow-hidden">
             <Sidebar role={docente.rol} open={sidebarOpen} activeSection={seccion}
               onToggle={() => setSidebarOpen(!sidebarOpen)} 
               onSelect={(key) => {
@@ -90,7 +73,7 @@ useEffect(() => {
               onLogoutClick={() => setOpenLogoutModal(true)}
             />
 
-            <main className="flex-1 overflow-y-auto p-6">
+            <main className="flex-1 overflow-y-auto p-8">
             {seccion === "MIS_TALLERES" && (
               <GridTallerD
                 onTallerClick={handleTallerClick}
@@ -114,11 +97,10 @@ useEffect(() => {
               />
             )}
             </main>
-        </div>
-        <footer className="bg-gray-700 text-gray-200 text-sm text-center py-3">
+          </div>
+        <footer className="bg-gray-700 text-gray-200 text-sm text-center py-3 shrink-0">
           CompanyName © 2025. All rights reserved.
         </footer>
-      </div>
       <ModalMensaje
         open={openLogoutModal}
         onClose={() => setOpenLogoutModal(false)}

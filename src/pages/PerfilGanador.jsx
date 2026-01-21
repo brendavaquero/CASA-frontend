@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { getGanadorById, actualizarGanador } from "@/apis/ganador_Service";
 import FormImageGanador from "../componentes/FormImageGanador";
+import { ChevronLeft } from "lucide-react";
 
-const ID_GANADOR = "GAN2026-00008";
+//const ID_GANADOR = "GAN2026-00003";
 
-const PerfilGanador = () => {
+const PerfilGanador = ({onVolver,ganadores = []}) => {
+  console.log('ganadores',ganadores);
   const [ganador, setGanador] = useState(null);
   const [semblanza, setSemblanza] = useState("");
   const [guardando, setGuardando] = useState(false);
@@ -15,9 +17,10 @@ const PerfilGanador = () => {
 
   const cargarGanador = async () => {
     try {
-      const data = await getGanadorById(ID_GANADOR);
+      const data = await getGanadorById(ganadores[0].idGanador);
       setGanador(data);
       setSemblanza(data.semblanza || "");
+      console.log('gandor', data);
     } catch (error) {
       console.error("Error al cargar ganador", error);
     }
@@ -50,7 +53,7 @@ const PerfilGanador = () => {
   const onFotoActualizada = async (urlFoto) => {
     const actualizado = await actualizarGanador(ganador.idGanador, {
       ...ganador,
-      fotoPerfil: urlFoto,
+      foto: urlFoto,
     });
 
     setGanador(actualizado);
@@ -59,12 +62,18 @@ const PerfilGanador = () => {
   if (!ganador) return <p>Cargando perfil...</p>;
 
   return (
+    <>
+    <button
+        onClick={onVolver}
+        className="text-black px-4 py-2"
+      >
+        <ChevronLeft size={30} />
+    </button>
     <div className="max-w-5xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6 py-10">
-      
       {/* IZQUIERDA */}
       <div className="flex flex-col items-center gap-4">
         <img
-          src={ganador.fotoPerfil || "/placeholder-user.png"}
+          src={ganador.foto ? `http://localhost:8080${ganador.foto}` : "/placeholder-user.png"}
           alt="Foto ganador"
           className="w-48 h-48 object-cover rounded-full border"
         />
@@ -108,6 +117,7 @@ const PerfilGanador = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

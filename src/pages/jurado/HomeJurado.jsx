@@ -10,6 +10,7 @@ import VistaConvocatoria from "@/componentes/VistaConvocatoria.jsx";
 import { getConvocatoriasByJurado } from "@/apis/jurado.js";
 import { useAuth } from "@/context/AuthContext";
 import ModalMensaje from "@/componentes/ModalMensaje.jsx";
+import { PostulacionesEvaluar } from "../index.js";
 
 const HomeJurado = () => {
   const [vistaActual, setVistaActual] = useState("grid");
@@ -60,10 +61,6 @@ const HomeJurado = () => {
     const data = await getByIdConvocatoria(convocatoriaSeleccionada.idActividad);
     setConvocatoriaSeleccionada(data);
   };
-  const handleVolver = () => {
-    setSeccion("CONVOCATORIAS_RESI");
-  };
-
     const convocatoriasFiltradas =
   filtroEstado === "TODOS"
     ? convocatorias
@@ -73,9 +70,8 @@ const HomeJurado = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 pt-20">
-      <div className="flex-1 flex flex-col">
-        <header className="flex justify-between items-center bg-white px-6 py-4 border-b">
+    <div className="flex flex-col h-screen bg-gray-100 pt-20">
+        <header className="flex justify-between items-center bg-white px-6 py-4 border-b shrink-0">
             <img src={logoCaSa} alt="Logo CaSa" width={60} />
             <h1 className="text-lg font-medium text-gray-700">Centro de las Artes de San Agustín</h1> 
             <div className="flex items-center">
@@ -89,7 +85,7 @@ const HomeJurado = () => {
             
         </header>     
 
-        <div className="flex flex-1 pt-2">
+        <div className="flex flex-1 overflow-hidden">
             <Sidebar role={jurado.rol} open={sidebarOpen} activeSection={seccion}
               onToggle={() => setSidebarOpen(!sidebarOpen)} 
               onSelect={(key) => {
@@ -109,21 +105,13 @@ const HomeJurado = () => {
                         onConvocatoriaClick={handleConvocatoriaClick}
                       />
                     </>)}
-                      
-                      {/*
+
                       {vistaActual === "convocatoria" && (
-                        <VistaConvocatoria
-                          convocatoria={convocatoriaSeleccionada}
-                          jurados={jurados}
-                          evaluaciones={evaluaciones}
-                          participantes={participantes}
-                          onVolver={() => setVistaActual("grid")}
-                          onNavigate={handleNavigateConvocatoria}
-                          setJurados={setJurados} 
-                          setEvaluaciones={setEvaluaciones}
-                          setParticipantes={setParticipantes}
+                        <PostulacionesEvaluar
+                        jurado={jurado}
+                        onVolver={() => setVistaActual("grid")}
                         />
-                      )}*/}
+                      )}
                      
                   </>
               )}
@@ -132,7 +120,6 @@ const HomeJurado = () => {
         <footer className="bg-gray-700 text-gray-200 text-sm text-center py-3">
           CompanyName © 2025. All rights reserved.
         </footer>
-      </div>
       <ModalMensaje
         open={openLogoutModal}
         onClose={() => setOpenLogoutModal(false)}
