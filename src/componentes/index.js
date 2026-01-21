@@ -16,3 +16,5 @@ export * from "@/componentes/FormPerfilGanador";
 export * from "@/componentes/FormImageGanador";
 export * from "@/componentes/PasoParticipante";
 export * from "@/componentes/PasoPostulacion";
+export * from "@/componentes/DescargarReporteTrimestral";
+export * from "@/componentes/BotonDescargarActa";

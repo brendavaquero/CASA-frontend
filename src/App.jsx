@@ -5,12 +5,14 @@ import routes from "@/routes";
 
 function App() {
   const { pathname } = useLocation();
+  const navbarRoutes = routes.filter(route => route.showInNavbar);
+
 
   return (
     <>
       {!(pathname == '/sign-in' || pathname == '/sign-up') && (
         <div className="container absolute left-2/4 z-10 mx-auto -translate-x-2/4 p-4">
-          <Navbar routes={routes} />
+          <Navbar routes={navbarRoutes} />
         </div>
       )
       }

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import SimpleCard from "../componentes/programa-card";
 import { getProgramasByUsuario, getById, descargarZipEvidencias } from "../apis/programa_Service";
+import DescargarReporteTrimestral from "../componentes/DescargarReporteTrimestral";
+
 
 export function ProgramasUsuarioPage() {
   const [programas, setProgramas] = useState([]);
@@ -67,6 +69,7 @@ export function ProgramasUsuarioPage() {
       </div>
     </div>
   );
+  
 }
 
 export default ProgramasUsuarioPage;
