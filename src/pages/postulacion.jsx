@@ -5,14 +5,15 @@ import {
   Typography,
   Textarea,
 } from "@material-tailwind/react";
+import { useAuth } from "../context/AuthContext";
 import { useState, useEffect } from "react";
 import { crearPostulacion } from "../apis/postulacion_Service";
 import { useParams, useNavigate } from "react-router-dom";
 import { getTallerDiplomadoById } from "../apis/tallerDiplomado_Service";
 import FormFileUploadPostulacion from "../componentes/FormFileUploadPostulacion";
 import { uploadArchivoPostulacion } from "../apis/archivo_Service"; 
-import DialogDefault from "../componentes/DialogDefault";
-
+import DialogDefault from "../componentes/DialogDefault"
+import { AuthRequiredModal } from "@/componentes/AuthRequiredModal";
 
 
 export function PostulacionForm() {
@@ -29,6 +30,26 @@ export function PostulacionForm() {
   const [aceptoAsistencia, setAceptoAsistencia] = useState(false);
   const [aceptoFotos, setAceptoFotos] = useState(false);
 
+  const { isAuthenticated } = useAuth();
+  //const [openAuthModal, setOpenAuthModal] = useState(false);
+
+
+  const { user } = useAuth();
+
+  useEffect(() => {
+    console.log("usuario desde AuthContext:", user);
+  }, [user]);
+
+  console.log("PostulacionForm render");
+
+  useEffect(() => {
+  if (!isAuthenticated) {
+    navigate("/login", {
+      replace: true,
+      state: { from: `/postular/${idActividad}` },
+    });
+  }
+}, [isAuthenticated, navigate, idActividad]);
 
   useEffect(() => {
     const fetchActividad = async () => {
@@ -36,13 +57,15 @@ export function PostulacionForm() {
         const response = await getTallerDiplomadoById(idActividad);
 
         console.log("RESPONSE:", response);
-        setActividad(response.data);
+        setActividad(response);
       } catch (error) {
         console.error("Error cargando actividad:", error);
       }
     };
     fetchActividad();
   }, [idActividad]);
+
+  console.log("act:", actividad);
 
   const handleSubmit = async (e) => {
   e.preventDefault();
@@ -54,7 +77,7 @@ export function PostulacionForm() {
   try {
     // 1. Crear la postulación
     const nueva = await crearPostulacion({
-      idUsuario: "USU2025-00011",
+      idUsuario: user.idUsuario,
       idActividad: actividad.idActividad,
       postulante,
       motivo,
@@ -88,6 +111,7 @@ export function PostulacionForm() {
     console.error("Error al enviar postulación:", error);
     alert("Hubo un error, intenta nuevamente.");2
   }
+
 };
 
 
@@ -208,9 +232,8 @@ export function PostulacionForm() {
               </label>
             </div>
 
-
-            <Button type="submit" variant="gradient" size="md">
-              Enviar
+            <Button  type="submit" variant="gradient" size="md">
+              Postularme
             </Button>
           </form>
           <DialogDefault

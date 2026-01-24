@@ -25,7 +25,7 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
     fechaCierre: "",
     fechaResultados: "",
     infantil: false,
-    idPrograma: "PRG2025-00002",
+    idPrograma: null,
     idDocente: docente.idUsuario,
   });
 

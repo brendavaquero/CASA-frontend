@@ -3,11 +3,10 @@
 const API_URL = "http://localhost:8080/api/postulaciones/taller";*/
 //import axios from "axios";
 import api from "./axios";
-const API_URL = "http://localhost:8080/api/postulaciones";
 
 export const crearPostulacion = async (postulacionData) => {
   try {
-    const response = await api.post("/postulaciones", postulacionData);
+    const response = await api.post("/postulaciones/taller", postulacionData);
     return response.data;
   } catch (error) {
     console.error("Error creando postulación:", error);

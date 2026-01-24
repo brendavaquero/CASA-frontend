@@ -51,13 +51,14 @@ export default function TallerDetalle({ actividad }) {
   
 
   useEffect(() => {
-    if (actividad && actividad.idUsuario) {
-      console.log("[TallerDetalle] idUsuario:", actividad.idUsuario);
+    if (actividad && actividad.idDocente) {
+      console.log("[TallerDetalle] idUsuario:", actividad.idDocente);
 
       // corregir
-      getDocenteById(actividad.idUsuario)
+      getDocenteById(actividad.idDocente)
         .then((data) => {
           console.log("[TallerDetalle] docente:", data);
+          //checar
           setDocente(data);
         })
         .catch((err) => console.error(err));
@@ -80,7 +81,6 @@ export default function TallerDetalle({ actividad }) {
       .catch((err) => console.error("[TallerDetalle] Error:", err));
   }, [actividad]);
 
-
   // debug
   console.log("[TallerDetalle] actividad:", actividad);
   console.log("[TallerDetalle] idActividad:", actividad.idActividad);
@@ -94,7 +94,8 @@ export default function TallerDetalle({ actividad }) {
         {/* Imagen */}
         <div className="w-full lg:w-1/2 rounded-xl overflow-hidden shadow-md h-96">
           <img
-            src={imagen}
+            src={imagen ? `http://localhost:8080${imagen}` :
+            "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1471&q=80"}
             alt={titulo}
             className="w-full h-full object-cover"
           />

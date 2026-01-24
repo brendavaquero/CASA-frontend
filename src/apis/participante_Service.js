@@ -1,17 +1,34 @@
-
-import axios from "axios";
-
-const API_URL = "http://localhost:8080/api/participantes";
+import api from "./axios";
 
 export const registrarParticipantePostal = async (data) => {
   try {
-    const response = await axios.post(
-      `${API_URL}/registro-postal`,
+    const response = await api.post(
+      `participantes/registro-postal`,
       data
     );
     return response.data;
   } catch (error) {
     console.error("Error al registrar participante postal:", error);
+    throw error;
+  }
+};
+
+export const crearParticipante = async (participanteDto) => {
+  try {
+    const response = await api.post("/participantes", participanteDto);
+    return response.data;
+  } catch (error) {
+    console.error("Error al crear participante:", error);
+    throw error;
+  }
+};
+
+export const crearParticipantePublico = async (participanteDto) => {
+  try {
+    const response = await api.post("/participantes/publico", participanteDto);
+    return response.data;
+  } catch (error) {
+    console.error("Error al crear participante público:", error);
     throw error;
   }
 };

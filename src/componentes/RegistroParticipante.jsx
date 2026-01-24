@@ -9,13 +9,11 @@ import {
     getMunicipiosOaxaca
 } from "../apis/catalogo_Service";
 
-const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
-
+const PasoParticipante = ({ onSubmit }) => {
   const [form, setForm] = useState({
     nombre: "",
     apellidos: "",
     correo: "",
-    contrasenia: "",
     sexo: "",
     fechaNacimiento: "",
     curp: "",
@@ -26,17 +24,15 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
     municipio: null,
     gradoEstudio: "",
     ocupacion: "",
-    lenguaInd: "",
-    seudonimo: ""
+    lenguaInd: ""
   });
+
   
   const [gradosEstudio, setGradosEstudio] = useState([]);
   const [estados, setEstados] = useState([]);
   const [municipios, setMunicipios] = useState([]);
   const [paises, setPaises] = useState([]);
   const [lenguas, setLenguas] = useState([]);
-  const [errors, setErrors] = useState({});
-
 
     useEffect(() => {
     const cargarCatalogos = async () => {
@@ -101,57 +97,11 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    let error = "";
-
-    if (name === "contrasenia") {
-      const passwordRegex =
-        /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]).{8,}$/;
-
-      if (!passwordRegex.test(value)) {
-        error =
-          "Mín. 8 caracteres, una letra, un número y un símbolo";
-      }
-    }
-
-    if (name === "fechaNacimiento") {
-    const hoy = new Date();
-    const fechaNac = new Date(value);
-
-    let edad = hoy.getFullYear() - fechaNac.getFullYear();
-    const mes = hoy.getMonth() - fechaNac.getMonth();
-
-    if (
-      mes < 0 ||
-      (mes === 0 && hoy.getDate() < fechaNac.getDate())
-    ) {
-      edad--;
-    }
-
-    if (edad < 15) {
-      error = "Debes tener al menos 15 años de edad";
-    }
-  }
-
-
     setForm((prev) => ({
       ...prev,
       [name]: value
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      [name]: error
     }));
   };
-
-
-  /* const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-  }; */
 
 
   /* const handleChange = (e) => {
@@ -195,7 +145,6 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
                 name="fechaNacimiento"
                 value={form.fechaNacimiento}
                 onChange={handleChange}
-                error={!!errors.fechaNacimiento}
                 required
             />
 
@@ -280,7 +229,7 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
       {/* BLOQUE: Datos de contacto */}
       <div>
         <Typography variant="h6" className="mb-3">
-          Credenciales de acceso y contacto
+          Contacto
         </Typography>
 
         <div className="grid gap-4">
@@ -292,30 +241,6 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
             onChange={handleChange}
             required
           />
-
-          {pedirContrasenia && (
-            <div>
-              <div className="grid gap-4">
-                <Input
-                  type="password"
-                  label="Contraseña"
-                  name="contrasenia"
-                  value={form.contrasenia}
-                  onChange={handleChange}
-                  error={!!errors.contrasenia}
-                  required
-                />
-                {errors.contrasenia && (
-                  <Typography variant="small" color="red">
-                    {errors.contrasenia}
-                  </Typography>
-                )}
-              </div>
-            </div>
-          )}
-
-
-
           <Input
             label="Teléfono"
             name="numeroTelefono"
