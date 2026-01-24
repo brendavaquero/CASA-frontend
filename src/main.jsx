@@ -20,12 +20,12 @@ import { AuthProvider } from "./context/AuthContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <ThemeProvider>
-        <AuthProvider>
+    <AuthProvider>
+      <BrowserRouter>
+        <ThemeProvider>
           <App />
-        </AuthProvider>
-      </ThemeProvider>
-    </BrowserRouter>
+        </ThemeProvider>
+      </BrowserRouter>
+    </AuthProvider>
   </React.StrictMode>
 );

@@ -11,6 +11,8 @@ import { getConvocatoriaById } from "../apis/convocatoria_Service";
 import FormFileUploadPostulacion from "../componentes/FormFileUploadPostulacion";
 import { uploadArchivoPostulacion } from "../apis/archivo_Service"; 
 import DialogDefault from "../componentes/DialogDefault";
+import { useAuth } from "../context/AuthContext";
+import { AuthRequiredModal } from "../componentes/AuthRequiredModal";
 
 export function PostulacionConvocatoriaForm() {
   const { idActividad } = useParams();
@@ -87,8 +89,22 @@ export function PostulacionConvocatoriaForm() {
 
     } catch (error) {
       console.error("Error al enviar participación:", error);
-      alert("Hubo un error, intenta nuevamente.");
-    } finally {
+
+      if (error.response) {
+        // ⚠️ Caso: ya existe la postulación
+        if (error.response.status === 409) {
+          alert(error.response.data.message || 
+                "Ya estás registrado en esta actividad.");
+          return;
+        }
+
+        // Otros errores del backend
+        alert("Error del servidor. Intenta más tarde.");
+      } else {
+        // Error de red o conexión
+        alert("No se pudo conectar con el servidor.");
+      }
+    }finally {
       setLoading(false);
     }
   };

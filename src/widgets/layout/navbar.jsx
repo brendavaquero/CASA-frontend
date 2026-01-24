@@ -72,14 +72,11 @@ export function Navbar({brandName, routes, action }) {
         </Link>
         <div className="hidden lg:block">{navList}</div>
         <div className="hidden gap-2 lg:flex">
-          <a
-            href="https://www.material-tailwind.com/blocks?ref=mtkr"
-            target="_blank"
-          >
+          <Link to="/registro/participante">
             <Button variant="text" size="sm" color="white" fullWidth>
               registro
             </Button>
-          </a>
+          </Link>
           {React.cloneElement(action, {
             className: "hidden lg:inline-block",
           })}
@@ -131,14 +128,11 @@ Navbar.defaultProps = {
     />
   ),
   action: (
-    <a
-      href="https://www.creative-tim.com/product/material-tailwind-kit-react"
-      target="_blank"
-    >
+    <Link to="/login">
       <Button variant="gradient" size="sm" fullWidth>
         acceder
       </Button>
-    </a>
+    </Link>
   ),
 };
 

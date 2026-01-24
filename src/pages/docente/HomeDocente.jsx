@@ -47,6 +47,7 @@ useEffect(() => {
     setSeccion("MIS_TALLERES");
   };
 
+  console.log ("usuario: ", user);
 
   return (
     <div className="flex flex-col h-screen bg-gray-100 pt-20">

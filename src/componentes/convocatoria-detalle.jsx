@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   Typography,
@@ -6,9 +6,14 @@ import {
   Chip
 } from "@material-tailwind/react";
 import { CalendarDaysIcon } from "@heroicons/react/24/outline";
+import { existePostulacion } from "../apis/postulacion_Service";
+import { useAuth } from "../context/AuthContext";
 
-export default function ConvocatoriaDetalle({ actividad }) {
-  const navigate = useNavigate();
+export default function ConvocatoriaDetalle({ actividad, onPostular }) {
+  //const navigate = useNavigate();
+
+  const [yaPostulado, setYaPostulado] = useState(false);
+  const { user } = useAuth();
 
   const {
     titulo,
@@ -37,6 +42,31 @@ export default function ConvocatoriaDetalle({ actividad }) {
   // debug
   console.log("[ActDetalle] actividad:", actividad);
   console.log("[TallerDetalle] idActividad:", actividad.idActividad);
+
+   useEffect(() => {
+    if (!actividad?.idActividad) return;
+    if (actividad.infantil) return;
+    if (!user?.idUsuario) return;
+
+    console.log("🔍 Validando postulación:", {
+      actividad: actividad.idActividad,
+      usuario: user.idUsuario
+    });
+
+    console.log("USER DESDE CONTEXT:", user);
+
+
+    existePostulacion(user.idUsuario, actividad.idActividad)
+      .then((res) => {
+        console.log("✅ Existe postulación:", res);
+        setYaPostulado(res);
+      })
+      .catch((err) => {
+        console.error("❌ Error validando postulación", err);
+        setYaPostulado(false);
+      });
+  }, [user, actividad]);
+
 
   return (
     <div className="flex flex-col min-h-screen relative bg-gray-50 pb-0">
@@ -135,7 +165,12 @@ export default function ConvocatoriaDetalle({ actividad }) {
           
         </div>
 
-        <Button variant="gradient" size="lg" onClick={() => navigate(`/participar/${actividad.idActividad}`)}>
+        <Button
+          type="button"
+          variant="gradient"
+          size="lg"
+          onClick={onPostular}
+        >
           Participar
         </Button>
       </div>

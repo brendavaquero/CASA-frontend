@@ -1,5 +1,5 @@
 import { Home, Aprender, RondaUnoEvaluacion, PostulacionesEvaluar, Convocatorias, ConvocatoriaIndividual, TallerIndividual, PostulacionForm, PostulacionConvocatoriaForm, ProgramasUsuarioPage, PostulacionesPendientesPage } from "@/pages";
-import { Requisitar_Taller, RondaFinal, PerfilGanador, RegistroPostal} from "@/pages";
+import { Requisitar_Taller, RondaFinal, PerfilGanador, RegistroPostal, RegistroParticipante} from "@/pages";
 import HomeDocente from "./pages/docente/HomeDocente";
 import { element } from "prop-types";
 import HomeAlumno from "./pages/alumno/HomeAlumno";
@@ -30,6 +30,11 @@ export const routes = [
     name: "Evaluación 1",
     path: "/evaluar/ronda1/:idPostulacion",
     element: <RondaUnoEvaluacion />,
+  },
+  {
+    name: "Registro participante",
+    path: "/registro/participante",
+    element: <RegistroParticipante />,
   },
   {
     name: "Registro postal",
@@ -146,7 +151,7 @@ export const routes = [
       <ProtectedRoute roles={["ADMINISTRADOR"]}>
         <HomeAdmin />
       </ProtectedRoute>
-    ),
+    )
   },
   /*{
     name: "Aprobación Taller",

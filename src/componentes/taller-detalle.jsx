@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   Typography,
@@ -10,12 +9,16 @@ import {
 import { CalendarDaysIcon } from "@heroicons/react/24/outline";
 import { getSesionesByTaller } from "../apis/sesion_Service"; 
 import { getDocenteById } from "../apis/docente_Service";
+import { existePostulacion } from "../apis/postulacion_Service";
+import { useAuth } from "../context/AuthContext";
 
-export default function TallerDetalle({ actividad }) {
+export default function TallerDetalle({ actividad, onPostular }) {
 
   const [sesiones, setSesiones] = useState([]);
   const [docente, setDocente] = useState(null);
-  const navigate = useNavigate();
+  const [yaPostulado, setYaPostulado] = useState(false);
+
+  const { user } = useAuth();
 
   const {
     titulo,
@@ -47,17 +50,44 @@ export default function TallerDetalle({ actividad }) {
   const formatoHora = (hora) =>
     hora ? hora.substring(0, 5) : "";
 
+  useEffect(() => {
+  if (!actividad?.idActividad) return;
+  if (actividad.infantil) return;
+  if (!user?.idUsuario) return;
+
+  console.log("🔍 Validando postulación:", {
+    actividad: actividad.idActividad,
+    usuario: user.idUsuario
+  });
+
+  console.log("USER DESDE CONTEXT:", user);
+
+
+  existePostulacion(user.idUsuario, actividad.idActividad)
+    .then((res) => {
+      console.log("✅ Existe postulación:", res);
+      setYaPostulado(res);
+    })
+    .catch((err) => {
+      console.error("❌ Error validando postulación", err);
+      setYaPostulado(false);
+    });
+}, [user, actividad]); // 👈 CLAVE
+
+
+
   /* DOCENTE */
   
 
   useEffect(() => {
-    if (actividad && actividad.idUsuario) {
-      console.log("[TallerDetalle] idUsuario:", actividad.idUsuario);
+    if (actividad && actividad.idDocente) {
+      console.log("[TallerDetalle] idUsuario:", actividad.idDocente);
 
       // corregir
-      getDocenteById(actividad.idUsuario)
+      getDocenteById(actividad.idDocente)
         .then((data) => {
           console.log("[TallerDetalle] docente:", data);
+          //checar
           setDocente(data);
         })
         .catch((err) => console.error(err));
@@ -80,7 +110,6 @@ export default function TallerDetalle({ actividad }) {
       .catch((err) => console.error("[TallerDetalle] Error:", err));
   }, [actividad]);
 
-
   // debug
   console.log("[TallerDetalle] actividad:", actividad);
   console.log("[TallerDetalle] idActividad:", actividad.idActividad);
@@ -94,7 +123,8 @@ export default function TallerDetalle({ actividad }) {
         {/* Imagen */}
         <div className="w-full lg:w-1/2 rounded-xl overflow-hidden shadow-md h-96">
           <img
-            src={imagen}
+            src={imagen ? `http://localhost:8080${imagen}` :
+            "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1471&q=80"}
             alt={titulo}
             className="w-full h-full object-cover"
           />
@@ -246,13 +276,32 @@ export default function TallerDetalle({ actividad }) {
           <Typography variant="small">
             Postúlate antes del: <span className="font-semibold">{formatoFecha(fechaCierre)}</span>
           </Typography>
-        </div>
+        </div>       
 
-       
-
-        <Button variant="gradient" size="lg" onClick={() => navigate(`/postular/${actividad.idActividad}`)}>
+        {/* <Button
+          type="button"
+          variant="gradient"
+          size="lg"
+          onClick={onPostular}
+        >
           Postular
-        </Button>
+        </Button> */}
+
+        {!yaPostulado ? (
+          <Button
+            type="button"
+            variant="gradient"
+            size="lg"
+            onClick={onPostular}
+          >
+            Postular
+          </Button>
+        ) : (
+          <Typography color="0d47a1" className="font-semibold">
+            Ya te has postulado a esta actividad
+          </Typography>
+        )}
+
       </div>
     </div>
   );
