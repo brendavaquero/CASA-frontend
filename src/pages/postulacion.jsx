@@ -31,7 +31,7 @@ export function PostulacionForm() {
   const [aceptoFotos, setAceptoFotos] = useState(false);
 
   const { isAuthenticated } = useAuth();
-  //const [openAuthModal, setOpenAuthModal] = useState(false);
+  const [openAuthModal, setOpenAuthModal] = useState(false);
 
 
   const { user } = useAuth();
@@ -41,15 +41,6 @@ export function PostulacionForm() {
   }, [user]);
 
   console.log("PostulacionForm render");
-
-  useEffect(() => {
-  if (!isAuthenticated) {
-    navigate("/login", {
-      replace: true,
-      state: { from: `/postular/${idActividad}` },
-    });
-  }
-}, [isAuthenticated, navigate, idActividad]);
 
   useEffect(() => {
     const fetchActividad = async () => {
@@ -69,12 +60,19 @@ export function PostulacionForm() {
 
   const handleSubmit = async (e) => {
   e.preventDefault();
+
+  if (!isAuthenticated) {
+    setOpenAuthModal(true);
+    return;
+  }
+
   if (!aceptoAsistencia || !aceptoFotos) {
     alert("Debes aceptar los compromisos antes de enviar la postulación.");
     return;
   }
 
   try {
+    
     // 1. Crear la postulación
     const nueva = await crearPostulacion({
       idUsuario: user.idUsuario,
@@ -244,6 +242,11 @@ export function PostulacionForm() {
           />
         </div>
       </div>
+      <AuthRequiredModal
+        open={openAuthModal}
+        onClose={() => setOpenAuthModal(false)}
+      />
+
     </div>
   );
 }
