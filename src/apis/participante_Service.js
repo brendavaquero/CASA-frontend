@@ -32,3 +32,15 @@ export const crearParticipantePublico = async (participanteDto) => {
     throw error;
   }
 };
+
+export const validarCurp = async (curp) => {
+  try {
+    const response = await api.get(`/participantes/validar-curp`, {
+      params: { curp } // envía el parámetro en query string
+    });
+    return response.data.existe; // true si ya existe
+  } catch (error) {
+    console.error("Error validando CURP", error);
+    return false;
+  }
+};

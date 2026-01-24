@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+
 const GirdConvocatoria = ({ onConvocatoriaClick ,convocatorias: convocatoriasProp }) => {
   const [convocatorias, setConvocatorias] = useState([]);
+  const { user } = useAuth();
+  console.log("jurado: ", user)
 
   useEffect(() => {
     if (convocatoriasProp) {

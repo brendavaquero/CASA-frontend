@@ -22,7 +22,7 @@ export function AuthRequiredModal({ open, onClose }) {
       <DialogFooter className="flex gap-2">
         <Button
           variant="outlined"
-          onClick={() => navigate("/registro")}
+          onClick={() => navigate("/registro/participante")}
         >
           Registrarme
         </Button>

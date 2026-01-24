@@ -16,6 +16,15 @@ export function TallerIndividual() {
 
   const { isAuthenticated } = useAuth();
 
+  const handlePostular = () => {
+    if (!isAuthenticated) {
+      setOpenAuthModal(true);
+    } else {
+      navigate(`/postular/${actividad.idActividad}`);
+    }
+  };
+
+
   useEffect(() => {
     const obtenerTaller = async () => {
       try {
@@ -40,34 +49,22 @@ export function TallerIndividual() {
   if (cargando) return <div className="pt-24 p-6">Cargando información…</div>;
   if (error) return <div className="pt-24 p-6 text-red-600">{error}</div>;
   if (!actividad) return <div className="pt-24 p-6">No encontrado</div>;
+  console.log("isAuthenticated:", isAuthenticated);
+
 
   return (
-    <div className="pt-24 w-full min-h-screen">
-      <TallerDetalle actividad={actividad} />
+  <div className="pt-24 w-full min-h-screen">
+    <TallerDetalle
+      actividad={actividad}
+      onPostular={handlePostular}
+    />
 
-      {/* BOTÓN POSTULARME */}
-      <div className="flex justify-center mt-10">
-        <Button
-          onClick={() => {
-            if (!isAuthenticated) {
-              setOpenAuthModal(true);
-            } else {
-              navigate(`/postular/${actividad.idActividad}`);
-            }
-          }}
-        >
-          Postularme
-        </Button>
-      </div>
-
-      {/* MODAL SOLO AQUÍ */}
-      <AuthRequiredModal
-        open={openAuthModal}
-        onClose={() => setOpenAuthModal(false)}
-        actividadId={actividad.idActividad}
-      />
-    </div>
-  );
+    <AuthRequiredModal
+      open={openAuthModal}
+      onClose={() => setOpenAuthModal(false)}
+    />
+  </div>
+);
 }
 
 export default TallerIndividual;

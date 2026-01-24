@@ -3,12 +3,17 @@ import { Typography, Spinner } from "@material-tailwind/react";
 import PostulacionesJuradoTable from "../componentes/PostulacionesJuradoTable";
 import { getPendientesParaJurado } from "../apis/postulacion_Service";
 import { ChevronLeft } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function PostulacionesEvaluar({jurado, onVolver}) {
   const [postulaciones, setPostulaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const ronda = 1;
+
+  const { user } = useAuth();
+  console.log("jurado: ", user);
+  //const jurado = user;
 
   useEffect(() => {
     const cargarPostulaciones = async () => {

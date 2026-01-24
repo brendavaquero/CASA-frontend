@@ -21,6 +21,7 @@ const HomeJurado = () => {
   const [convocatoriaSeleccionada, setConvocatoriaSeleccionada] = useState(null);
   const [participantes, setParticipantes] = useState([]);
   const { user } = useAuth();
+  console.log("jurado: ", user);
   const jurado = user;
   const [openLogoutModal, setOpenLogoutModal] = useState(false);
   const { logout } = useAuth();
@@ -68,6 +69,8 @@ const HomeJurado = () => {
   const handleNavigateConvocatoria = (vista) => {
     setVistaActual(vista);
   };
+
+  
 
   return (
     <div className="flex flex-col h-screen bg-gray-100 pt-20">

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import SearchableSelect from "./SearchableSelect";
 import { Input, Button, Typography } from "@material-tailwind/react";
+import { Eye, EyeOff } from "lucide-react";
+import { IconButton } from "@material-tailwind/react";
 import {
     getLenguas,
     getPaises,
@@ -8,8 +10,21 @@ import {
     getEstados,
     getMunicipiosOaxaca
 } from "../apis/catalogo_Service";
+import { validarCurp } from "../apis/participante_Service";
+
+
 
 const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
+  // separación visual de apellidos
+  const [apellidoPaterno, setApellidoPaterno] = useState("");
+  const [apellidoMaterno, setApellidoMaterno] = useState("");
+
+  const [showPassword, setShowPassword] = useState(false);
+  const soloLetrasRegex = /^[A-Za-zÁÉÍÓÚÜáéíóúüÑñ\s]*$/;
+  const curpRegex =
+  /^[A-Z][AEIOU][A-Z]{2}\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])[HM][A-Z]{2}[B-DF-HJ-NP-TV-Z]{3}[A-Z\d]\d$/;
+  const curpCharsRegex = /^[A-Za-z0-9]*$/;
+
 
   const [form, setForm] = useState({
     nombre: "",
@@ -99,9 +114,116 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
     cargarMunicipios();
   }, [form.estado]);
 
+  useEffect(() => {
+    const apellidosConcatenados = `${apellidoPaterno} ${apellidoMaterno}`.trim();
+
+    setForm((prev) => ({
+      ...prev,
+      apellidos: apellidosConcatenados
+    }));
+  }, [apellidoPaterno, apellidoMaterno]);
+
+  const obtenerPrimerVocalInterna = (texto) => {
+    const match = texto.slice(1).match(/[AEIOUÁÉÍÓÚ]/i);
+    return match ? match[0] : "X";
+  };
+
+  /* useEffect(() => {
+    if (
+      form.nombre &&
+      apellidoPaterno &&
+      apellidoMaterno &&
+      form.fechaNacimiento
+    ) {
+      const nombre = form.nombre.toUpperCase().trim();
+      const paterno = apellidoPaterno.toUpperCase().trim();
+      const materno = apellidoMaterno.toUpperCase().trim();
+
+      const curpBase =
+        paterno[0] +
+        obtenerPrimerVocalInterna(paterno) +
+        materno[0] +
+        nombre[0];
+
+      setForm((prev) => ({
+        ...prev,
+        curp: curpBase + prev.curp.slice(4) // conserva lo demás si ya escribió
+      }));
+    }
+  }, [form.nombre, apellidoPaterno, apellidoMaterno, form.fechaNacimiento]); */
+
+  const obtenerFechaCurp = (fechaISO) => {
+    if (!fechaISO) return "";
+
+    const [year, month, day] = fechaISO.split("-");
+    return year.slice(2) + month + day;
+  };
+
+  useEffect(() => {
+    if (!form.nombre || !apellidoPaterno || !apellidoMaterno) return;
+
+    const nombre = form.nombre.toUpperCase().trim();
+    const paterno = apellidoPaterno.toUpperCase().trim();
+    const materno = apellidoMaterno.toUpperCase().trim();
+
+    const letrasIniciales =
+      paterno[0] +
+      obtenerPrimerVocalInterna(paterno) +
+      materno[0] +
+      nombre[0];
+
+    const fechaCurp = obtenerFechaCurp(form.fechaNacimiento); // AAMMDD
+    const sexoCurp = form.sexo ? form.sexo.toUpperCase() : "";
+
+    const curpAutogenerada = letrasIniciales + fechaCurp + sexoCurp;
+
+    setForm((prev) => ({
+      ...prev,
+      curp:
+        curpAutogenerada +
+        prev.curp.slice(curpAutogenerada.length)
+    }));
+  }, [
+    form.nombre,
+    apellidoPaterno,
+    apellidoMaterno,
+    form.fechaNacimiento,
+    form.sexo
+  ]);
+
+  
+  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     let error = "";
+
+    // Solo letras para nombre y apellidos
+    if ((name === "nombre" || name === "apellidos") && !soloLetrasRegex.test(value)) {
+      return; // no actualiza el estado
+    }
+
+    // 🔹 CURP: solo letras y números
+  if (name === "curp") {
+    if (!curpCharsRegex.test(value)) return;
+
+    const curpUpper = value.toUpperCase();
+
+    if (curpUpper.length === 18 && !curpRegex.test(curpUpper)) {
+      error = "CURP inválida";
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      curp: curpUpper
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      curp: error
+    }));
+
+    return; }
 
     if (name === "contrasenia") {
       const passwordRegex =
@@ -158,10 +280,29 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };*/
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    // 1️⃣ Validación CURP solo si tiene 18 caracteres
+    if (form.curp.length === 18) {
+      const existe = await validarCurp(form.curp); // llama a tu service con Axios
+      if (existe) {
+        setModalMessage("El CURP ya está registrado");
+        setModalOpen(true);
+        return; // ❌ Detiene el envío si ya existe
+      }
+    }
+
+    // 2️⃣ Si todo bien, envía el formulario al padre
     onSubmit(form);
-  };
+
+  } catch (error) {
+    console.error("Error en la validación de CURP", error);
+    setModalMessage("Ocurrió un error validando el CURP");
+    setModalOpen(true);
+  }
+};
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -180,13 +321,28 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
             onChange={handleChange}
             required
           />
-          <Input
-            label="Apellidos"
-            name="apellidos"
-            value={form.apellidos}
-            onChange={handleChange}
-            required
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              label="Apellido paterno"
+              value={apellidoPaterno}
+              onChange={(e) => {
+                if (!soloLetrasRegex.test(e.target.value)) return;
+                setApellidoPaterno(e.target.value);
+              }}
+              required
+            />
+
+            <Input
+              label="Apellido materno"
+              value={apellidoMaterno}
+              onChange={(e) => {
+                if (!soloLetrasRegex.test(e.target.value)) return;
+                setApellidoMaterno(e.target.value);
+              }}
+              //required
+            />
+          </div>
+
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
@@ -211,14 +367,20 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
                 <option value="H">Hombre</option>
             </select>
             </div>
-
+          
           <Input
             label="CURP"
             name="curp"
             value={form.curp}
             onChange={handleChange}
             required
-          />          
+          /> 
+          {errors.curp && (
+                  <Typography variant="small" color="red">
+                    {errors.curp}
+                  </Typography>
+                )}  
+
         </div>
       </div>
 
@@ -297,19 +459,31 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
             <div>
               <div className="grid gap-4">
                 <Input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   label="Contraseña"
                   name="contrasenia"
                   value={form.contrasenia}
                   onChange={handleChange}
                   error={!!errors.contrasenia}
                   required
+                  icon={
+                    <IconButton
+                      variant="text"
+                      size="sm"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="!absolute right-1 top-1/2 -translate-y-1/2"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </IconButton>
+                  }
                 />
+
                 {errors.contrasenia && (
                   <Typography variant="small" color="red">
                     {errors.contrasenia}
                   </Typography>
                 )}
+
               </div>
             </div>
           )}

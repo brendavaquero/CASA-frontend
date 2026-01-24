@@ -13,7 +13,6 @@ import { getTallerDiplomadoById } from "../apis/tallerDiplomado_Service";
 import FormFileUploadPostulacion from "../componentes/FormFileUploadPostulacion";
 import { uploadArchivoPostulacion } from "../apis/archivo_Service"; 
 import DialogDefault from "../componentes/DialogDefault"
-import { AuthRequiredModal } from "@/componentes/AuthRequiredModal";
 
 
 export function PostulacionForm() {
@@ -29,10 +28,6 @@ export function PostulacionForm() {
 
   const [aceptoAsistencia, setAceptoAsistencia] = useState(false);
   const [aceptoFotos, setAceptoFotos] = useState(false);
-
-  const { isAuthenticated } = useAuth();
-  const [openAuthModal, setOpenAuthModal] = useState(false);
-
 
   const { user } = useAuth();
 
@@ -60,11 +55,6 @@ export function PostulacionForm() {
 
   const handleSubmit = async (e) => {
   e.preventDefault();
-
-  if (!isAuthenticated) {
-    setOpenAuthModal(true);
-    return;
-  }
 
   if (!aceptoAsistencia || !aceptoFotos) {
     alert("Debes aceptar los compromisos antes de enviar la postulación.");
@@ -242,11 +232,6 @@ export function PostulacionForm() {
           />
         </div>
       </div>
-      <AuthRequiredModal
-        open={openAuthModal}
-        onClose={() => setOpenAuthModal(false)}
-      />
-
     </div>
   );
 }
