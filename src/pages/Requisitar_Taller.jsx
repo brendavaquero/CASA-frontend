@@ -2,10 +2,37 @@ import React, { useState, useEffect } from "react";
 import { Input, Textarea, Button, Radio } from "@material-tailwind/react";
 import { createTaller, updateActividad, updateTallerDiplo} from "@/apis/tallerDiplomado_Service";
 import { useNavigate } from "react-router-dom";
+import ModalMensaje from "@/componentes/ModalMensaje";
+import { enviarCorreo } from "@/apis/emailService";
+import { getDocenteById } from "@/apis/docente_Service";
 
 const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar,docente }) => {
   const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalTitle, setModalTitle] = useState("Mensaje");
+  const [docenteInfo, setDocenteInfo] = useState(null);
   console.log('docente',docente);
+
+  useEffect(() => {
+    const cargarDocente = async () => {
+      try {
+        if (
+          modo === "ADMINISTRADOR" &&
+          taller?.idDocente
+        ) {
+          const data = await getDocenteById(taller.idDocente);
+          setDocenteInfo(data);
+          console.log("d",data);
+        }
+      } catch (error) {
+        console.error("Error al cargar docente:", error);
+      }
+    };
+
+    cargarDocente();
+  }, [modo, taller]);
   const [formData, setFormData] = useState({
     titulo: "",
     cupo: "",
@@ -25,7 +52,6 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
     fechaCierre: "",
     fechaResultados: "",
     infantil: false,
-    idPrograma: "PRG2025-00002",
     idDocente: docente.idUsuario,
   });
 
@@ -38,63 +64,153 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
 
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    if (name === "cupo") {
+      const error = validarCupo(value);
+      setErrors(prev => ({
+        ...prev,
+        cupo: error
+      }));
+    }
+  };
+  const notificarDocente = async ({ estado }) => {
+    const info = modo === "ADMINISTRADOR" ? docenteInfo : docente;
+    if (!info?.correo) return;
+
+    const asunto =
+      estado === "AUTORIZADA"
+        ? "Tu taller ha sido aprobado – CaSa"
+        : "Tu taller ha sido rechazado – CaSa";
+
+    const mensaje =
+      estado === "AUTORIZADA"
+        ? `
+  Hola ${info.nombre} ${info.apellidos},
+
+  Nos complace informarte que tu taller "${taller.titulo}" ha sido APROBADO.
+
+  Ya puedes iniciar sesión para revisar los detalles y dar seguimiento.
+
+  ¡Gracias por formar parte del Centro de las Artes de San Agustín!
+        `
+        : `
+  Hola ${info.nombre} ${info.apellidos},
+
+  Te informamos que tu taller "${taller.titulo}" ha sido RECHAZADO.
+
+  Te solicitamos nos contactes directamente para más información.
+
+  Saludos cordiales,
+  Centro de las Artes de San Agustín
+        `;
+
+    await enviarCorreo({
+      correo: info.correo,
+      asunto,
+      mensaje,
     });
   };
 
+
   const onRechazar = async () => {
-    await updateActividad(taller.idActividad, "RECHAZDA");
-    alert("Taller rechazado");
+    await updateActividad(taller.idActividad, "RECHAZADA");
+    await notificarDocente({ estado: "RECHAZADA" });
+    setModalTitle("Advertencia");
+    setModalMessage("Taller rechazado");
+    setModalOpen(true);
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  try {
-    if (modo === "ADMINISTRADOR" && onAprobar === undefined) {
-      console.log("Actualizando taller:", taller.idActividad);
-
-      await updateTallerDiplo(taller.idActividad, formData);
-
-      alert("Cambios guardados correctamente ✔️");
+    e.preventDefault();
+    const cupoError = validarCupo(formData.cupo);
+    if (cupoError) {
+      setErrors({ cupo: cupoError });
       return;
     }
 
-    if (modo === "ADMINISTRADOR" && onAprobar) {
-      await updateActividad(taller.idActividad, "AUTORIZADA");
-      alert("Taller aprobado correctamente ✔️");
-      onAprobar();
-      return;
+    try {
+      if (modo === "ADMINISTRADOR" && onAprobar === undefined) {
+        console.log("Actualizando taller:", taller.idActividad);
+
+        await updateTallerDiplo(taller.idActividad, formData);
+        setModalTitle("Exito");
+        setModalMessage("Cambios guardados correctamente ✔️");
+        setModalOpen(true);
+        return;
+      }
+
+      if (modo === "ADMINISTRADOR" && onAprobar) {
+        await updateActividad(taller.idActividad, "AUTORIZADA");
+        await notificarDocente({ estado: "AUTORIZADA" });
+        setModalTitle("Exito");
+        setModalMessage("Taller aprobado correctamente ✔️");
+        setModalOpen(true);
+        onAprobar();
+        return;
+      }
+
+      console.log('form',formData);
+      await createTaller(formData);
+
+      setModalTitle("Exito");
+      setModalMessage("Taller registrado con éxito");
+      setModalOpen(true);
+
+      setFormData({
+        titulo: "",
+        cupo: "",
+        descripcion: "",
+        objetivoGeneral: "",
+        objetivosEspecificos: "",
+        temas: "",
+        requisitos: "",
+        materialSol: "",
+        criteriosSeleccion: "",
+        notas: "",
+        imagen: "",
+        requiereMuestraTrabajo: false,
+        infantil: false,
+      });
+
+    } catch (error) {
+      console.error(error);
+      const msg = error.response?.data?.message || "Error inesperado";
+      setModalTitle("Error");
+      setModalMessage(msg);
+      setModalOpen(true);
+    }
+  };
+  const mostrarModal = (titulo, mensaje) => {
+    setModalTitle(titulo);
+    setModalMessage(mensaje);
+    setModalOpen(true);
+  };
+  const validarCupo = (value) => {
+    const cupoNum = Number(value);
+
+    if (!value) {
+      return "El cupo es obligatorio";
     }
 
-    console.log('form',formData);
-    await createTaller(formData);
+    if (isNaN(cupoNum)) {
+      return "El cupo debe ser un número";
+    }
 
-    alert("Taller registrado con éxito 🎉");
+    if (cupoNum <= 0) {
+      return "El cupo debe ser mayor a 0";
+    }
 
-    setFormData({
-      titulo: "",
-      cupo: "",
-      descripcion: "",
-      objetivoGeneral: "",
-      objetivosEspecificos: "",
-      temas: "",
-      requisitos: "",
-      materialSol: "",
-      criteriosSeleccion: "",
-      notas: "",
-      imagen: "",
-      requiereMuestraTrabajo: false,
-      infantil: false,
-    });
+    if (cupoNum > 30) {
+      return "El cupo no puede ser mayor a 30";
+    }
 
-  } catch (error) {
-    console.error(error);
-    alert("Ocurrió un error 😢");
-  }
-};
+    return null;
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 requisitar-taller">
@@ -142,12 +258,19 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
                   required="true"
                   name="cupo"
                   value={formData.cupo}
+                  min={1}
+                  max={30}
                   onChange={handleChange}
                 />
+                {errors.cupo && (
+                  <p className="text-red-600 text-xs mt-1">
+                    {errors.cupo}
+                  </p>
+                )}
                 
                 <Textarea 
                   variant="static"
-                  label="Descripción *"
+                  label="Descripción"
                   placeholder="Describe brevemente el taller..."
                   rows={3}
                   className="text-black text-sm"
@@ -160,7 +283,7 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
                 
                 <Textarea 
                   variant="static"
-                  label="Objetivo General *"
+                  label="Objetivo General"
                   placeholder="Objetivo principal del taller..."
                   rows={3}
                   className="text-black text-sm"
@@ -306,11 +429,20 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
               <Button
                 type="button"
                 variant="gradient" size="md"
-                   onClick={() => {
-                    updateTallerDiplo(taller.idActividad, formData)
-                      .then(() => alert("Cambios guardados ✔️"))
-                      .catch(() => alert("Error al guardar cambios ❌"));
-                  }}
+                onClick={async () => {
+                  try {
+                    await updateTallerDiplo(taller.idActividad, formData);
+                    mostrarModal(
+                      "Éxito",
+                      "Los cambios del taller se guardaron correctamente"
+                    );
+                  } catch (error) {
+                    mostrarModal(
+                      "Error",
+                      "Ocurrió un error al guardar los cambios"
+                    );
+                  }
+                }}
               >
                 Guardar cambios
               </Button>
@@ -345,6 +477,14 @@ const Requisitar_Taller = ({ modo = "normal", taller = null, onVolver, onAprobar
 
           </form>
         </div>
+        <ModalMensaje
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          title={modalTitle}
+          message={modalMessage}
+          autoClose
+          autoCloseTime={10000}
+        />
     </div>
   );
 };

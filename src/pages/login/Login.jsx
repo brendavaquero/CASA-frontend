@@ -2,16 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { enviarCorreoRecuperacion } from "@/apis/passwordReset";
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Checkbox,
-  FormControlLabel,
-  InputAdornment,
-  IconButton,
-} from "@mui/material";
+import {Box,TextField, Button,Typography,Checkbox,FormControlLabel,InputAdornment, IconButton,} from "@mui/material";
 import { Eye, EyeOff } from "lucide-react";
 import bgImage from "../../assets/images/CASA_OAX.jpg";
 import { loginService } from "@/apis/authService";
@@ -53,7 +44,7 @@ const Login = () => {
       newErrors.contrasenia = "La contraseña es obligatoria";
     }
 
-    else if (contrasenia.length < 6) {
+    else if (contrasenia.length < 4) {
       newErrors.contrasenia = "Debe tener al menos 6 caracteres";
     }
 

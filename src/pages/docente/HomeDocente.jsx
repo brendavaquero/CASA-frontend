@@ -11,6 +11,7 @@ import { getTalleresDocentes } from "@/apis/tallerDiplomado_Service.js";
 import { useAuth } from "@/context/AuthContext";
 import ModalMensaje from "@/componentes/ModalMensaje.jsx";
 import { PostulacionesPendientesPage } from "../index.js";
+import Perfil from "../perfil/Perfil.jsx";
 
 const HomeDocente = () => {
   const [talleres, setTalleres] = useState([]);
@@ -96,10 +97,15 @@ useEffect(() => {
                 onVolver={() => setSeccion("TALLERES")}
               />
             )}
+            {seccion === "PERFIL" && (
+              <Perfil
+                usuario={docente}
+              />
+            )}
             </main>
           </div>
         <footer className="bg-gray-700 text-gray-200 text-sm text-center py-3 shrink-0">
-          CompanyName © 2025. All rights reserved.
+          
         </footer>
       <ModalMensaje
         open={openLogoutModal}

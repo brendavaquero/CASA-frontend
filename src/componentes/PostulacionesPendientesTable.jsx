@@ -4,8 +4,9 @@ import {
   getPostulacionesPendientesConParticipante,
   seleccionarPostulantes,
 } from "../apis/postulacion_Service";
-
+import { enviarCorreo } from "@/apis/emailService";
 import DialogDefault from "./DialogDefault";
+import ModalMensaje from "./ModalMensaje";
 
 const TABLE_HEAD = [
   "", // checkbox
@@ -25,6 +26,9 @@ export default function PostulacionesPendientesTable({taller}) {
   const [postulaciones, setPostulaciones] = useState([]);
   const [seleccionadas, setSeleccionadas] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalTitle, setModalTitle] = useState("Mensaje");
 
   //const idActividad = "ACT2025-00027"; // temporal
   useEffect(() => {
@@ -60,6 +64,16 @@ export default function PostulacionesPendientesTable({taller}) {
       const data = await getPostulacionesPendientesConParticipante(
         idActividad
       );
+      try {
+        await enviarCorreosResultados(data);
+        setModalTitle("Éxito");
+        setModalMessage("Se enviaron los correos exitosamente");
+        setModalOpen(true);
+      } catch (error) {
+        setModalTitle("Error");
+        setModalMessage("Ocurrio un error: ",error);
+        setModalOpen(true);
+      }
       setPostulaciones(data);
 
       // Limpiar seleccionados
@@ -70,6 +84,47 @@ export default function PostulacionesPendientesTable({taller}) {
       console.error("Error al seleccionar postulantes:", error);
     }
   };
+  const enviarCorreosResultados = async (postulacionesActualizadas) => {
+    for (const post of postulacionesActualizadas) {
+      const participante = post.participante;
+
+      const dataCorreo = {
+        to: participante.correo,
+        subject:
+          post.estadoPos === "APROBADA"
+            ? "Postulación aprobada"
+            : "Resultado de tu postulación",
+        body:
+          post.estadoPos === "APROBADA"
+            ? `Hola ${participante.nombre},
+
+  Nos complace informarte que has sido APROBADO para el taller "${taller.titulo}".
+
+  ¡Te esperamos!
+
+  Atentamente,
+  Equipo Casa`
+            : `Hola ${participante.nombre},
+
+  Te informamos que en esta ocasión tu postulación al taller "${taller.titulo}" no fue seleccionada.
+  No obstante tte invitamos a que consultes nuestras proximas convocatorias.
+
+  Gracias por tu interés.
+  `,
+      };
+
+      try {
+        await enviarCorreo(dataCorreo);
+      } catch (error) {
+        console.error(
+          "Error enviando correo a:",
+          participante.correo,
+          error
+        );
+      }
+    }
+  };
+
 
   return (
     <>
@@ -214,6 +269,14 @@ export default function PostulacionesPendientesTable({taller}) {
         title="Confirmar selección"
         message={`¿Confirmas aprobar ${seleccionadas.length} postulacion(es) y rechazar el resto automáticamente?`}
         onConfirm={handleConfirmar}
+      />
+      <ModalMensaje
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        message={modalMessage}
+        autoClose
+        autoCloseTime={10000}
       />
     </>
   );

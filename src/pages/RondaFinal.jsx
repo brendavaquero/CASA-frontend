@@ -13,6 +13,8 @@ import {
 import FinalistaCard from "../componentes/FinalistaCard";
 import { obtenerFinalistas } from "../apis/rondaUno_Service";
 import { confirmarGanador } from "../apis/ganador_Service";
+import { enviarCorreo } from "@/apis/emailService";
+import ModalMensaje from "@/componentes/ModalMensaje";
 
 
 
@@ -20,10 +22,60 @@ const RondaFinal = ({convocatoria, onVolver}) => {
   console.log('convo:',convocatoria.idActividad);
   const confirmar = async () => {
   console.log("Finalista enviado al backend:", finalistaSeleccionado);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalTitle, setModalTitle] = useState("Mensaje");
+
+  const enviarCorreoGanador = async (finalista) => {
+    if (!finalista?.correo) {
+      console.warn("El finalista no tiene correo registrado");
+      return;
+    }
+    const nombre = finalista.infantil
+      ? finalista.postulante
+      : `${finalista.nombre} ${finalista.apellidos}`;
+
+    const dataCorreo = {
+      to: finalista.correo,
+      subject: "¡Felicidades! Eres ganador de la convocatoria",
+      body: `
+  Hola ${nombre},
+
+  Nos complace informarte que has sido seleccionado como GANADOR de la convocatoria:
+
+  "${convocatoria.titulo}"
+
+  Obra ganadora:
+  "${finalista.nombreObra}"
+
+  ¡Felicidades por tu talento!
+
+  Pronto nos pondremos en contacto contigo para los siguientes pasos.
+
+  Atentamente,
+  Centro de las Artes de San Agustin
+  `,
+    };
+    try {
+      await enviarCorreo(dataCorreo);
+      setModalTitle("Éxito");
+      setModalMessage("Se envio el correo al ganador");
+      setModalOpen(true);
+    } catch (error) {
+      setModalTitle("Error");
+      setModalMessage("Ocurrio un error al mandar el correo, ",error);
+      setModalOpen(true);
+    }
+
+  };
+
 
   try {
     await confirmarGanador(finalistaSeleccionado);
-    alert("Ganador confirmado correctamente");
+    await enviarCorreoGanador(finalistaSeleccionado);
+    setModalTitle("Éxito");
+    setModalMessage("Ganador confirmado correctamente");
+    setModalOpen(true);
     cerrarModal();
   } catch (error) {
     alert("Error al confirmar ganador");
@@ -130,7 +182,14 @@ const cargarFinalistas = async () => {
           </Button>
         </DialogFooter>
       </Dialog>
-
+      <ModalMensaje
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        message={modalMessage}
+        autoClose
+        autoCloseTime={10000}
+      />
     </div>
   );
 };

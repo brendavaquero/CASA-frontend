@@ -23,10 +23,6 @@ const VistaTallerAlumno = ({ taller, onVolver}) => {
           console.error("Error al cargar archivos:", error);
         }
       };
-  useEffect(() => {
-    const hoy = new Date();
-    setFechaHoy(hoy.toISOString().slice(0, 10));
-  }, []);
 
   useEffect(() => {
     if (!taller?.idActividad) return;

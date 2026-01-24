@@ -16,6 +16,14 @@ export const createUsuario = async(data) =>{
   const res = await api.post("/usuarios",data);
   return res.data;
 };
+export const updateUsuario = async(idUsuario,data) =>{
+  const res = await api.put(`/usuarios/${idUsuario}`,data);
+  return res.data;
+};
+export const updateUsuarioGen = async(idUsuario,data) =>{
+  const res = await api.put(`/usuarios/general/${idUsuario}`,data);
+  return res.data;
+};
 
 export const deleteUsuario = async (idusuario)=>{
   const res = await api.delete(`/usuarios/${idusuario}`);

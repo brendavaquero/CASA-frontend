@@ -12,6 +12,7 @@ import EvidenciasTaller from "./EvidenciasTaller.jsx";
 import GirdConvocatoria from "@/componentes/GirdConvocatoria.jsx";
 import { getConvocatorias } from "@/apis/convocatoria_Service.js";
 import RegistroPostalAux from "@/componentes/RegistroPostAux.jsx";
+import Perfil from "../perfil/Perfil.jsx";
 
 
 const HomeAuxiliar = () => {
@@ -134,6 +135,12 @@ const HomeAuxiliar = () => {
                       />
                     </>)}
                   </>
+            )}
+            {seccion === "PERFIL" && (
+               <>
+              <Perfil
+               usuario={auxiliar}/>
+              </>
             )}
             </main>
         </div>

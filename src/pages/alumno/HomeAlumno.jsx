@@ -10,6 +10,7 @@ import { getTalleres } from "@/apis/tallerDiplomado_Service.js";
 import VistaTallerAlumno from "@/componentes/VistaTallerAlumno.jsx";
 import { useAuth } from "@/context/AuthContext";
 import ModalMensaje from "@/componentes/ModalMensaje.jsx";
+import Perfil from "../perfil/Perfil.jsx";
 
 const HomeAlumno = () => {
   const [talleres, setTalleres] = useState([]);
@@ -53,9 +54,8 @@ const HomeAlumno = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 pt-20">
-      <div className="flex-1 flex flex-col">
-        <header className="flex justify-between items-center bg-white px-6 py-4 border-b">
+    <div className="flex flex-col h-screen bg-gray-100 pt-20">
+        <header className="flex justify-between items-center bg-white px-6 py-4 border-b shrink-0">
             <img src={logoCaSa} alt="Logo CaSa" width={60} />
             <h1 className="text-lg font-medium text-gray-700">Centro de las Artes de San Agustín</h1> 
             <div className="flex items-center">
@@ -69,7 +69,7 @@ const HomeAlumno = () => {
             
         </header>
 
-        <div className="flex flex-1 pt-2">
+        <div className="flex flex-1 overflow-hidden">
             <Sidebar role={alumno.rol} open={sidebarOpen} activeSection={seccion}
               onToggle={() => setSidebarOpen(!sidebarOpen)} 
               onSelect={(key) => {
@@ -93,12 +93,17 @@ const HomeAlumno = () => {
                 onVolver={handleVolver}
               />
             )}
+            {seccion === "PERFIL" && (
+               <>
+              <Perfil
+               usuario={alumno}/>
+              </>
+            )}
             </main>
-        </div>
-        <footer className="bg-gray-700 text-gray-200 text-sm text-center py-3">
+          </div>
+        <footer className="bg-gray-700 text-gray-200 text-sm text-center py-3 shrink-0">
           CompanyName © 2025. All rights reserved.
         </footer>
-      </div>
       <ModalMensaje
         open={openLogoutModal}
         onClose={() => setOpenLogoutModal(false)}

@@ -20,9 +20,10 @@ import {
   IconButton,
   InputAdornment,
 } from "@mui/material";
-import { UserPlus, Trash2, Eye, EyeOff } from "lucide-react";
+import { UserPlus, Trash2, Eye, EyeOff,Pencil } from "lucide-react";
 import { createUsuario, getUsuarios, deleteUsuario } from "@/apis/usuarios";
 import ModalMensaje from "@/componentes/ModalMensaje";
+import EditarUsuario from "@/componentes/EditarUsuario";
 
 const roles = ["ADMINISTRADOR", "DOCENTE", "AUXILIAR", "JURADO","INVITADO"];
 
@@ -33,6 +34,8 @@ const UsuariosPage = () => {
   const [confirmarContrasenia, setConfirmarContrasenia] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [usuarioEditar, setUsuarioEditar] = useState(null);
 
   const [modalMsg, setModalMsg] = useState({
     open: false,
@@ -110,10 +113,10 @@ const UsuariosPage = () => {
     }));
   };
 
-  // 🔹 Crear usuario
-  const handleAgregarUsuario = async () => {
-    if (Object.values(errors).some((e) => e)) return;
+const handleAgregarUsuario = async () => {
+  if (Object.values(errors).some((e) => e)) return;
 
+  try {
     await createUsuario(form);
     await cargarUsuarios();
 
@@ -135,7 +138,26 @@ const UsuariosPage = () => {
       title: "Usuario creado",
       message: "El usuario se registró correctamente",
     });
-  };
+
+  } catch (error) {
+    const mensaje =
+      error.response?.data?.message ||
+      "No se pudo crear el usuario";
+
+    setErrors((prev) => ({
+      ...prev,
+      correo: mensaje,
+    }));
+
+    setModalMsg({
+      open: true,
+      type: "error",
+      title: "Error",
+      message: mensaje,
+    });
+  }
+};
+
 
   // 🔹 Eliminar usuario
   const handleEliminar = (id) => {
@@ -185,6 +207,13 @@ const UsuariosPage = () => {
                 <TableCell>{u.rol}</TableCell>
                 <TableCell>{u.activo ? "Sí" : "No"}</TableCell>
                 <TableCell align="center">
+                  <IconButton
+                    onClick={() => {
+                      setUsuarioEditar(u);
+                      setOpenEdit(true);
+                    }}>
+                    <Pencil size={18} />
+                  </IconButton>
                   <IconButton color="error" onClick={() => handleEliminar(u.idUsuario)}>
                     <Trash2 size={18} />
                   </IconButton>
@@ -195,7 +224,6 @@ const UsuariosPage = () => {
         </Table>
       </Paper>
 
-      {/* MODAL USUARIO */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)} fullWidth>
         <DialogTitle>Agregar nuevo usuario</DialogTitle>
         <DialogContent className="space-y-4 mt-2">
@@ -273,6 +301,12 @@ const UsuariosPage = () => {
       </Dialog>
 
       <ModalMensaje {...modalMsg} onClose={() => setModalMsg({ open: false })} />
+        <EditarUsuario
+          open={openEdit}
+          usuario={usuarioEditar}
+          onClose={() => setOpenEdit(false)}
+          onUpdated={cargarUsuarios}
+        />
     </Box>
   );
 };

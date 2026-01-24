@@ -1,64 +1,23 @@
 import React, { useState } from "react";
 import { Upload } from "lucide-react";
-import { uploadImagenActividad } from "@/apis/tallerDiplomado_Service";
-import ModalMensaje from "./ModalMensaje";
 
-const FormImageAct = ({idActividad,onUploadSuccess }) => {
+const FormImageAct = ({ onFileSelected }) => {
   const [file, setFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
-  const [modalTitle, setModalTitle] = useState("Mensaje");
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const selected = e.target.files[0];
+    setFile(selected);
+    if (onFileSelected) {
+      onFileSelected(selected);
+    }
   };
 
   const handleRemove = () => {
     setFile(null);
+    if (onFileSelected) {
+      onFileSelected(null);
+    }
   };
-
- const handleUpload = async () => {
-  if (!file) {
-    setModalTitle("Advertencia");
-    setModalMessage("Selecciona una imagen");
-    setModalOpen(true);
-    return;
-  }
-
-  if (!idActividad) {
-    setModalTitle("Error");
-    setModalMessage("No se encontro idActividad");
-    setModalOpen(true);
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("idActividad", idActividad);
-
-    const urlImagen = await uploadImagenActividad(formData);
-    setModalTitle("Éxito");
-    setModalMessage("Imagen subida correctamente");
-    setModalOpen(true);
-
-    if (onUploadSuccess) onUploadSuccess(urlImagen); // ENVÍA LA URL
-
-    setFile(null);
-
-  } catch (error) {
-    console.error(error);
-    setModalTitle("Error");
-    setModalMessage("Error al subir la imagen: ",error);
-    setModalOpen(true);
-  } finally {
-    setLoading(false);
-  }
-};
-
 
   return (
     <div className="flex items-center gap-2 border border-gray-300 rounded-full p-1 pl-3 w-full max-w-md bg-white shadow-sm">
@@ -83,24 +42,10 @@ const FormImageAct = ({idActividad,onUploadSuccess }) => {
         </div>
       )}
 
-      <button
-        disabled={loading}
-        onClick={handleUpload}
-        className="bg-gray-800 hover:bg-gray-900 text-white rounded-full p-2 transition"
-        title="Subir archivo"
-      >
-        <Upload size={18} />
-      </button>
-      <ModalMensaje
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title={modalTitle}
-        message={modalMessage}
-        autoClose
-        autoCloseTime={10000}
-      />
+      <Upload size={18} className="text-gray-500 mr-2" />
     </div>
   );
 };
 
 export default FormImageAct;
+

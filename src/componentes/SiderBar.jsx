@@ -2,6 +2,7 @@ import { NavLink,useNavigate } from "react-router-dom";
 import { Home, User, Users2Icon, FileText, LogOut, Menu, X,BookPlus, NotebookTabs,BookImage,ClipboardList,NotebookPen,Camera,ShieldUser,FolderPlus } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import DescargarReporteTrimestral from "./DescargarReporteTrimestral";
 
 const Sidebar = ({ role,open, onSelect, activeSection,onToggle,onLogoutClick  }) => {
   const linkClass =
@@ -67,9 +68,9 @@ const Sidebar = ({ role,open, onSelect, activeSection,onToggle,onLogoutClick  })
     },
     {
       label: "Perfil",
-      to: "/perfil",
+      key: "PERFIL",
       icon: User,
-      roles: ["DOCENTE", "AUXILIAR", "ADMINISTRADOR"],
+      roles: ["DOCENTE", "AUXILIAR", "ADMINISTRADOR","PARTICIPANTE","INVITADO","JURADO"],
     },
   ];
 
@@ -112,6 +113,11 @@ const Sidebar = ({ role,open, onSelect, activeSection,onToggle,onLogoutClick  })
               </NavLink>
             ))}
         </nav>
+        {role === "ADMINISTRADOR" && (
+          <div className="px-4 py-1">
+            <DescargarReporteTrimestral />
+          </div>
+        )}
 
         <div className="shrink-0 p-4">
           <button onClick={onLogoutClick} className="flex items-center justify-center w-full py-2 bg-black text-white rounded hover:bg-gray-700">
