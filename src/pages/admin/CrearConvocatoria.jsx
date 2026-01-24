@@ -3,9 +3,15 @@ import { Input, Textarea, Button, Radio } from "@material-tailwind/react";
 import FormImageConvocatoria from "@/componentes/FormImageConvocatoria";
 import FormBasesPdf from "@/componentes/FormBasesPdf";
 import { crearConvocatoria } from "@/apis/convocatorias.js";
+import ModalMensaje from "@/componentes/ModalMensaje";
+
 const CrearConvocatoria = ({ onConvocatoriaCreada }) => {
     const [imagen, setImagen] = useState(null);
     const [bases, setBases] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalTitle, setModalTitle] = useState("Mensaje");
+    const [modalMessage, setModalMessage] = useState("");
+
     const [formData, setFormData] = useState({
         titulo: "",
         descripcion: "",
@@ -21,9 +27,24 @@ const CrearConvocatoria = ({ onConvocatoriaCreada }) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (formData.fechaCierre < formData.fechaInicio) {
+            setModalTitle("Error");
+            setModalMessage("La fecha de cierre no puede ser menor a la fecha de inicio");
+            setModalOpen(true);
+            return;
+        }
+
+        if (formData.fechaResultados < formData.fechaCierre) {
+            setModalTitle("Error");
+            setModalMessage("La fecha de resultados no puede ser menor a la fecha de cierre");
+            setModalOpen(true);
+            return;
+        }
 
         const formDataToSend = new FormData();
 
@@ -45,11 +66,27 @@ const CrearConvocatoria = ({ onConvocatoriaCreada }) => {
         for (let pair of formDataToSend.entries()) {
             console.log(pair[0], pair[1]);
         }
+        try {
+            await crearConvocatoria(formDataToSend);
+            onConvocatoriaCreada();
+        } catch (error) {
+            if (error.response?.status === 409) {
+                setModalTitle("Convocatoria duplicada");
+                setModalMessage(error.response.data.message || "Esta convocatoria ya existe");
+                setModalOpen(true);
+                return;
+            }
 
-        await crearConvocatoria(formDataToSend);
-        onConvocatoriaCreada();
-        };
+            setModalTitle("Error");
+            setModalMessage("Ocurrió un error al crear la convocatoria");
+            setModalOpen(true);
+        }
+    };
+    
+    const hoy = new Date().toISOString().split("T")[0];
 
+    const minFechaCierre = formData.fechaInicio || hoy;
+    const minFechaResultados = formData.fechaCierre || minFechaCierre;
 
     return (
         <div>
@@ -94,6 +131,7 @@ const CrearConvocatoria = ({ onConvocatoriaCreada }) => {
                             required="true"
                             name="fechaInicio"
                             value={formData.fechaInicio}
+                            min={hoy}
                             onChange={handleChange}
                             />
                             <Input 
@@ -105,6 +143,7 @@ const CrearConvocatoria = ({ onConvocatoriaCreada }) => {
                             size="md"
                             required="true"
                             name="fechaCierre"
+                            min={minFechaCierre}
                             value={formData.fechaCierre}
                             onChange={handleChange}
                             />
@@ -117,6 +156,7 @@ const CrearConvocatoria = ({ onConvocatoriaCreada }) => {
                             size="md"
                             name="fechaResultados"
                             required="true"
+                            min={minFechaResultados}
                             value={formData.fechaResultados}
                             onChange={handleChange}
                             />
@@ -181,6 +221,14 @@ const CrearConvocatoria = ({ onConvocatoriaCreada }) => {
                     </form>
                 </div>
             </main>
+            <ModalMensaje
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+                title={modalTitle}
+                message={modalMessage}
+                autoClose
+                autoCloseTime={10000}
+            />
         </div>
     );
 };

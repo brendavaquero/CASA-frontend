@@ -1,5 +1,10 @@
 import api from "./axios";
 
+export const getParticipanteById = async (idusuario) =>{
+    const res = await api.get(`/participantes/${idusuario}`)
+    return res.data;
+};
+
 export const registrarParticipantePostal = async (data) => {
   try {
     const response = await api.post(
@@ -43,4 +48,8 @@ export const validarCurp = async (curp) => {
     console.error("Error validando CURP", error);
     return false;
   }
+};
+export const updateParticipante = async (idusuario,data) =>{
+    const res = await api.put(`/participantes/${idusuario}`,data)
+    return res.data;
 };

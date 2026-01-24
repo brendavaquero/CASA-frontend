@@ -1,8 +1,12 @@
 import { ChevronLeft } from "lucide-react";
 import { enviarCorreo } from "@/apis/emailService";
+import ModalMensaje from "@/componentes/ModalMensaje";
 
 const ListaParticipantes = ({participantes = [], convocatoria, onVolver }) => {
   console.log('partici',participantes);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalTitle, setModalTitle] = useState("Mensaje");
 
   const handleEnviarCorreos = async () => {
     try {
@@ -33,11 +37,14 @@ Casa de la Cultura
           mensaje
         });
       }
-
-      alert("Correos enviados correctamente");
+      setModalTitle("Éxito");
+      setModalMessage("Se enviaron los correos exitosamente");
+      setModalOpen(true);
     } catch (error) {
       console.error(error);
-      alert("Ocurrió un error al enviar los correos");
+      setModalTitle("Error");
+      setModalMessage("Ocurrió un error al enviar los correos,",error);
+      setModalOpen(true);
     }
   };
 
@@ -94,6 +101,14 @@ Casa de la Cultura
               </button>
         </div>
       </div>
+      <ModalMensaje
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        message={modalMessage}
+        autoClose
+        autoCloseTime={10000}
+      />
     </div>
   );
 };

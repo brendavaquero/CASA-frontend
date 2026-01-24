@@ -25,6 +25,7 @@ import UsuariosPage from "./UsuariosPage.jsx";
 import { RondaFinal } from "../index.js";
 import AsignarJurados from "./AsignarJurados.jsx";
 import CrearPrograma from "./CrearPrograma.jsx";
+import Perfil from "../perfil/Perfil.jsx";
 
 const HomeAdmin = () => {
   const [talleres, setTalleres] = useState([]);
@@ -47,8 +48,7 @@ const HomeAdmin = () => {
   useEffect(() => {
     const cargarDatos = async () => {
       try {
-        const dataTalleres = await getTalleres();
-        setTalleres(dataTalleres);
+        cargarTalleres();
         await cargarConvocatorias();
       } catch (error) {
         console.error("Error al cargar datos:", error);
@@ -58,6 +58,14 @@ const HomeAdmin = () => {
     cargarDatos();
   }, []);
 
+  const cargarTalleres = async () => {
+    try {
+      const data = await getTalleres();
+      setTalleres(data);
+    } catch (error) {
+      console.error("Error al cargar talleres", error);
+    }
+};
 
   const cargarConvocatorias = async () => {
     try {
@@ -68,37 +76,35 @@ const HomeAdmin = () => {
     }
   };
 
-   const handleTallerClick = (taller) => {
-    if (taller.estado === "FINALIZADA") {
-      setTallerSeleccionado(taller);
-      setVistaActual("tallerFinalizado");
-      return;
-    }else if(taller.estado === "AUTORIZADA"){
-      setTallerSeleccionado(taller);
-      setVistaActual("tallerAutorizado");
-      return;
-    }else if(taller.estado === "CONVOCATORIA_ABIERTA"){
-      setTallerSeleccionado(taller);
-      setVistaActual("tallerAbierto");
-      return;}
-
-    
+  const handleTallerClick = (taller) => {
     setTallerSeleccionado(taller);
-    setVistaActual("taller");
+
+    switch (taller.estado) {
+      case "FINALIZADA":
+        setVistaActual("tallerFinalizado");
+        break;
+
+      case "AUTORIZADA":
+        setVistaActual("tallerAutorizado");
+        break;
+
+      case "CONVOCATORIA_ABIERTA":
+        setVistaActual("tallerAbierto");
+        break;
+
+      default:
+        // PENDIENTE, RECHAZADA, etc.
+        setVistaActual("taller");
+        break;
+    }
   };
 
-  const handleConvocatoriaClick = (convocatoria) => {
-    /*
-    if (convocatoria.estado === "FINALIZADA") {
-      setConvocatoriaSeleccionada(convocatoria);
-      setVistaActual("convocatoriaFinalizada");
-      return;
-    }*/
-    console.log('selecciomada:',convocatoria);
-    setConvocatoriaSeleccionada(convocatoria);
+  
+  const handleConvocatoriaClick = async (convocatoria) => {
+    await recargarConvocatoriaSeleccionada(convocatoria.idActividad);
     setVistaActual("convocatoria");
-    console.log(vistaActual);
   };
+
    const handleConvocatoriaJurados = (convocatoria) => {
     console.log('selecciomada:',convocatoria);
     setConvocatoriaSeleccionada(convocatoria);
@@ -106,13 +112,19 @@ const HomeAdmin = () => {
     console.log(vistaActual);
   };
 
-  const recargarConvocatoriaSeleccionada = async () => {
-    if (!convocatoriaSeleccionada?.idActividad) return;
+  const recargarConvocatoriaSeleccionada = async (idActividad) => {
+    if (!idActividad) return;
 
-    const data = await getByIdConvocatoria(convocatoriaSeleccionada.idActividad);
-    setConvocatoriaSeleccionada(data);
+    try {
+      const data = await getByIdConvocatoria(idActividad);
+      setConvocatoriaSeleccionada(data);
+    } catch (error) {
+      console.error("Error al recargar convocatoria", error);
+    }
   };
-  const handleVolver = () => {
+
+  const handleVolver = async  () => {
+     await cargarTalleres();
     setVistaActual("grid");
   };
 
@@ -216,7 +228,10 @@ const HomeAdmin = () => {
                   {vistaActual === "crearTaller" && (
                     <CrearTaller
                       taller={tallerSeleccionado}
-                      onVolver={() => setVistaActual("grid")}
+                      onVolver={async () => {
+                        await cargarTalleres();
+                        setVistaActual("grid");
+                      }}
                     />
                   )}
 
@@ -286,6 +301,7 @@ const HomeAdmin = () => {
                           setEvaluaciones={setEvaluaciones}
                           setParticipantes={setParticipantes}
                           setGanadores={setGanadores}
+                          recargarConvocatoria={recargarConvocatoriaSeleccionada}
                         />
                       )}
                       {vistaActual === "jurados" && (
@@ -327,8 +343,8 @@ const HomeAdmin = () => {
                           convocatoria={convocatoriaSeleccionada}
                           onVolver={() => setVistaActual("convocatoria")}
                           onConvocatoriaActualizada={async () => {
-                            await cargarConvocatorias();             
-                            await recargarConvocatoriaSeleccionada(); 
+                            await cargarConvocatorias();
+                            await recargarConvocatoriaSeleccionada(convocatoriaSeleccionada.idActividad);
                             setVistaActual("convocatoria");
                           }}
                         />
@@ -371,6 +387,12 @@ const HomeAdmin = () => {
               {seccion === "USUARIOS" && (
                 <>
                   <UsuariosPage />
+                </>
+              )}
+              {seccion === "PERFIL" && (
+                <>
+                  <Perfil 
+                  usuario={administrador}/>
                 </>
               )}
             </main>

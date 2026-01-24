@@ -3,6 +3,11 @@ import api from "./axios";
 
 const API_URL = "http://localhost:8080/api/programas"; 
 
+export const getProgramas = async () => {
+  const response = await api.get("/programas");
+  return response.data;
+};
+
 export const getProgramasByUsuario = async (usuarioId) => {
   const response = await api.get(`/programas/usuario/${usuarioId}`);
   return response.data;

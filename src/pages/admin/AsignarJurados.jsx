@@ -1,23 +1,57 @@
 import { useState, useEffect } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Checkbox,
-  Paper,
-  Button,
-} from "@mui/material";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Checkbox, Paper, Button,} from "@mui/material";
 import { UserCheck, ChevronLeft } from "lucide-react";
 import { getUsuarios } from "@/apis/usuarios";
 import { createJurado } from "@/apis/jurado";
+import { enviarCorreo } from "@/apis/emailService";
+import ModalMensaje from "@/componentes/ModalMensaje";
 
 const AsignarJurados = ({ convocatoria,onVolver }) => {
   const [jurados, setJurados] = useState([]);
   const [seleccionados, setSeleccionados] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
+
+
+  const handleEnviarCorreos = async (juradosSeleccionados) => {
+    try {
+      for (const jurado of juradosSeleccionados) {
+        if (!jurado.correo) continue;
+
+        const mensaje = `
+  Hola ${jurado.nombre} ${jurado.apellidos},
+
+  Te notificamos que has sido asignado como jurado en la convocatoria:
+  "${convocatoria?.titulo}"
+
+  Tu participación es muy valiosa para nosotros.
+  Por favor inicia sesión en el sistema para revisar los detalles.
+
+  Saludos cordiales,
+  Centro de las Artes de San Agustín
+        `;
+
+        await enviarCorreo({
+          correo: jurado.correo,
+          asunto: "Asignación como Jurado – CaSa",
+          mensaje,
+        });
+      }
+
+      setModalTitle("Éxito");
+      setModalMessage("Jurados asignados y correos enviados correctamente");
+      setModalOpen(true);
+
+    } catch (error) {
+      console.error(error);
+      setModalTitle("Error");
+      setModalMessage("Ocurrió un error al enviar los correos");
+      setModalOpen(true);
+    }
+  };
+
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -61,13 +95,22 @@ const AsignarJurados = ({ convocatoria,onVolver }) => {
         });
       }
 
+      const juradosSeleccionados = jurados.filter(j =>
+        seleccionados.includes(j.idUsuario)
+      );
+
+      await handleEnviarCorreos(juradosSeleccionados);
+
       setSeleccionados([]);
 
     } catch (error) {
       console.error("Error al asignar jurados:", error);
-    } finally {
-      setLoading(false);
-    }
+        setModalTitle("Error");
+        setModalMessage("Error al asignar jurados");
+        setModalOpen(true);
+      } finally {
+        setLoading(false);
+      }
   };
 
   const todosSeleccionados =
@@ -131,6 +174,14 @@ const AsignarJurados = ({ convocatoria,onVolver }) => {
           {loading ? "Asignando..." : "Asignar Jurados"}
         </Button>
       </div>
+      <ModalMensaje
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        message={modalMessage}
+        confirmText="Aceptar"
+        onConfirm={() => setModalOpen(false)}
+      />
     </div>
   );
 };

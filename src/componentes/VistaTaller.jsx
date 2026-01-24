@@ -9,6 +9,7 @@ import {ChevronLeft} from "lucide-react";
 import ModalMensaje from "./ModalMensaje";
 import { Trash2,ClipboardList } from "lucide-react";
 import { PostulacionesPendientesPage } from "@/pages";
+import EditarTaller from "@/pages/admin/EditarTaller";
 
 const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
   const [alumnos, setAlumnos] = useState([]);
@@ -22,9 +23,15 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
   const [modalMessage, setModalMessage] = useState("");
   const [modalTitle, setModalTitle] = useState("Mensaje");
   const [verPostulaciones, setVerPostulaciones] = useState(false);
+  const [editarTaller, setEditar] = useState(false);
   const [archivoAEliminar, setArchivoAEliminar] = useState(null);
   const [modalType, setModalType] = useState("info");
-
+  const esDocente = modo === "DOCENTE";
+  const tallerPendiente = taller?.estado === "PENDIENTE";
+  const soloLecturaDocente = esDocente && tallerPendiente;
+  const esAdministrador = modo === "ADMINISTRADOR";
+  const tallerFinalizado = taller?.estado === "FINALIZADA";
+  const puedeGuardarAsistencia =  esDocente &&  sesiones.length > 0 &&  fechaHoy === sesiones[0].fechaInicio;
 
   useEffect(() => {
     if (modo === "ALUMNO") return;
@@ -161,6 +168,14 @@ const confirmarEliminarArchivo = async () => {
       />
     );
   }
+  if (editarTaller) {
+    return (
+      <EditarTaller
+        taller={taller}
+        onVolver={() => setEditar(false)}
+      />
+    );
+  }
 
   return (
     <div className="p-4">
@@ -184,15 +199,23 @@ const confirmarEliminarArchivo = async () => {
               className="object-cover w-full h-72"
             />
           </div>
-          {modo === "DOCENTE" && (
+          {esDocente && !soloLecturaDocente && (
+            <button
+              onClick={() => setVerPostulaciones(true)}
+              className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
+            >
+              Ver postulaciones
+            </button>
+          )}
+          {modo === "ADMINISTRADOR" && (
               <button
-                onClick={() => setVerPostulaciones(true)}
+                onClick={() => setEditar(true)}
                 className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
               >
-                Ver postulaciones
+                Editar Taller
               </button>
             )}
-          {(modo === "DOCENTE" || modo === "ALUMNO" || modo === "ADMINISTRADOR") && (
+          {!soloLecturaDocente && (modo === "DOCENTE" || modo === "ALUMNO" || modo === "ADMINISTRADOR") && (
             <div className="border p-5 rounded bg-white shadow-sm">
               <h2 className="text-lg font-semibold mb-3 text-gray-800">
                 📚 Recursos
@@ -215,7 +238,7 @@ const confirmarEliminarArchivo = async () => {
                         {a.nombre}
                       </a>
 
-                      {modo === "DOCENTE" && (
+                      {esDocente && !soloLecturaDocente && (
                         <button
                           onClick={() => solicitarEliminarArchivo(a)}
                           className="text-red-600 hover:text-red-800 ml-3"
@@ -231,8 +254,56 @@ const confirmarEliminarArchivo = async () => {
             </div>
           )}
 
+          {(modo === "auxiliar" || (esDocente && !soloLecturaDocente)) && (
+            <FormElementFileUpload
+              idActividad={taller.idActividad}
+              onUploadSuccess={reloadArchivos}
+              categoria={modo === "auxiliar" ? "EVIDENCIA" : "RECURSO"}
+            />
+          )}
+
+          {/**ALUMNOS */}
+          {!soloLecturaDocente && (modo === "DOCENTE" || modo === "ADMINISTRADOR") && (
+            <div className="border p-5 rounded bg-white shadow-sm">
+              <h2 className="text-lg font-semibold mb-3 text-gray-800">
+                {modo === "ADMINISTRADOR" ? "👥 Lista de alumnos" : `🗓️ Asistencias ${fechaHoy}`}
+              </h2>
+
+              {alumnos.length === 0 ? (
+                <p className="text-gray-500">No hay alumnos registrados.</p>
+              ) : (
+                alumnos.map((alumno) => (
+                  <div key={alumno.idAlumno} className="flex items-center gap-3">
+                    {modo === "DOCENTE" && (
+                      <input
+                        type="checkbox"
+                        checked={asistencias[alumno.idAlumno] || false}
+                        onChange={(e) =>
+                          setAsistencias({
+                            ...asistencias,
+                            [alumno.idAlumno]: e.target.checked,
+                          })
+                        }
+                      />
+                    )}
+
+                    <span>{alumno.nombre} {alumno.apellidos}</span>
+                  </div>
+                ))
+              )}
+
+              {puedeGuardarAsistencia && (
+                <button
+                  onClick={handleGuardarAsistencia}
+                  className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800"
+                >
+                  Guardar Asistencia
+                </button>
+              )}
+            </div>
+          )}
           
-          {modo === "ADMINISTRADOR" && (
+          {esAdministrador && tallerFinalizado && (
           <button
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-800 w-full"
             onClick={() =>
@@ -276,14 +347,6 @@ const confirmarEliminarArchivo = async () => {
               </div>
             )
           }
-
-          {(modo === "DOCENTE" || modo === "auxiliar") && (
-            <FormElementFileUpload
-              idActividad={taller.idActividad}
-              onUploadSuccess={reloadArchivos}
-              categoria={modo === "auxiliar" ? "EVIDENCIA" : "RECURSO"}
-            />
-          )}
         </div>
 
         <div className="space-y-6">
@@ -305,9 +368,10 @@ const confirmarEliminarArchivo = async () => {
               <p><strong>Número de sesiones:</strong> {taller?.numSesiones}</p>
               <p><strong>Objetivo general:</strong> {taller?.objetivoGeneral}</p>
               <p><strong>Objetivos específicos:</strong> {taller?.objetivosEspecificos}</p>
-              {modo === "DOCENTE" && (
+              {(modo === "DOCENTE" || modo === "ADMINISTRADOR" )&& (
                 <>
-                  <p><strong>Fecha de inicio:</strong> {taller?.fechaInicio}</p>
+                  <p><strong>Fecha de inicio inscripciones:</strong> {taller?.fechaInicio}</p>
+                  <p><strong>Fecha de Cierre inscripciones:</strong> {taller?.fechaCierre}</p>
                   <p><strong>Cupo:</strong> {taller?.cupo}</p>
                   <p><strong>Estado:</strong> {taller?.estado}</p>
                 </>
@@ -315,48 +379,8 @@ const confirmarEliminarArchivo = async () => {
             </div>
           </div>
 
-          {(modo === "DOCENTE" || modo === "ADMINISTRADOR") && (
-  <div className="border p-5 rounded bg-white shadow-sm">
-    <h2 className="text-lg font-semibold mb-3 text-gray-800">
-      {modo === "ADMINISTRADOR" ? "👥 Lista de alumnos" : `🗓️ Asistencias ${fechaHoy}`}
-    </h2>
-
-    {alumnos.length === 0 ? (
-      <p className="text-gray-500">No hay alumnos registrados.</p>
-    ) : (
-      alumnos.map((alumno) => (
-        <div key={alumno.idAlumno} className="flex items-center gap-3">
-          {modo === "DOCENTE" && (
-            <input
-              type="checkbox"
-              checked={asistencias[alumno.idAlumno] || false}
-              onChange={(e) =>
-                setAsistencias({
-                  ...asistencias,
-                  [alumno.idAlumno]: e.target.checked,
-                })
-              }
-            />
-          )}
-
-          <span>{alumno.nombre} {alumno.apellidos}</span>
-        </div>
-      ))
-    )}
-
-    {modo === "DOCENTE" && (
-      <button
-        onClick={handleGuardarAsistencia}
-        className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800"
-      >
-        Guardar Asistencia
-      </button>
-    )}
-  </div>
-)}
-
           {/*sesiones*/}
-          {(modo === "DOCENTE" || modo === "auxiliar" || modo === "ALUMNO" || modo === "ADMINISTRADOR") && (
+          {!soloLecturaDocente && (modo === "DOCENTE" || modo === "auxiliar" || modo === "ALUMNO" || modo === "ADMINISTRADOR") && (
           <div className="border p-5 rounded bg-white shadow-sm mt-4">
             <h2 className="text-lg font-semibold mb-3 text-gray-800">🗓️ Sesiones del taller</h2>
 

@@ -15,3 +15,13 @@ export const getSesionesByTaller = async(idTaller) => {
   const res = await api.get(`/sesiones/tallerdiplomado/${idTaller}`);
   return res.data;
 };
+
+export const updateSesion = async(idSesion,data) => {
+  const res = await api.put(`/sesiones/${idSesion}`,data);
+  return res.data;
+};
+
+export const deleteSesion = async (idSesion)=>{
+  const res = await api.delete(`/sesiones/${idSesion}`);
+  return res.data;
+};

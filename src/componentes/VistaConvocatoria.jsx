@@ -4,11 +4,11 @@ import { Button} from "@material-tailwind/react";
 import { getJuradosByConvocatoria } from '@/apis/jurado';
 import { participantesByIdActivdad } from "@/apis/postulacion_Service";
 import { getEvaluacionByConvocatoria } from "@/apis/evaluacion";
-import { updateConvocatoriaRondas } from "@/apis/convocatorias";
+import { updateConvocatoriaRondas,getByIdConvocatoria } from "@/apis/convocatorias";
 import { getGanadoresByConvocatoria } from "@/apis/ganador_Service";
 import ModalMensaje from "./ModalMensaje";
 
-const VistaConvocatoria = ({convocatoria,jurados = [],evaluaciones = [],participantes = [], ganadores=[], onVolver,onNavigate,setJurados, setEvaluaciones, setParticipantes, setGanadores}) => {
+const VistaConvocatoria = ({convocatoria,jurados = [], evaluaciones = [], participantes = [], ganadores = [], onVolver, onNavigate, setJurados,setEvaluaciones,setParticipantes, setGanadores, recargarConvocatoria}) => {
   const [form, setForm] = useState({
     fechaInicioR1: '',
     fechaLimiteR1: '',
@@ -16,6 +16,7 @@ const VistaConvocatoria = ({convocatoria,jurados = [],evaluaciones = [],particip
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [modalTitle, setModalTitle] = useState("Mensaje");
+  const toDate = (value) => new Date(value + "T00:00:00");
   useEffect(() => {
     if (!convocatoria?.idActividad) return;
 
@@ -38,6 +39,12 @@ const VistaConvocatoria = ({convocatoria,jurados = [],evaluaciones = [],particip
     console.log('act',convocatoria.idActividad);
 
   }, [convocatoria, setEvaluaciones]);
+
+  useEffect(() => {
+    if (!convocatoria?.idActividad) return;
+
+    recargarConvocatoria(convocatoria.idActividad);
+  }, []);
 
   useEffect(() => {
     if (!convocatoria?.idActividad) return;
@@ -99,19 +106,74 @@ const VistaConvocatoria = ({convocatoria,jurados = [],evaluaciones = [],particip
     }));
   };
 
+  const validarFechasEvaluacion = () => {
+    const { fechaInicioR1, fechaLimiteR1 } = form;
+
+    if (!fechaInicioR1 || !fechaLimiteR1) {
+      setModalTitle("Error");
+      setModalMessage("Debes completar ambas fechas de evaluación");
+      setModalOpen(true);
+      return false;
+    }
+
+    const inicioEval = toDate(fechaInicioR1);
+    const finEval = toDate(fechaLimiteR1);
+    const cierre = toDate(convocatoria.fechaCierre);
+    const resultados = toDate(convocatoria.fechaResultados);
+
+    if (inicioEval < cierre) {
+      setModalTitle("Error");
+      setModalMessage(
+        "La fecha de inicio de evaluación no puede ser anterior a la fecha de cierre de la convocatoria"
+      );
+      setModalOpen(true);
+      return false;
+    }
+
+    if (finEval < inicioEval) {
+      setModalTitle("Error");
+      setModalMessage(
+        "La fecha límite de evaluación no puede ser menor a la fecha de inicio"
+      );
+      setModalOpen(true);
+      return false;
+    }
+
+    if (finEval > resultados) {
+      setModalTitle("Error");
+      setModalMessage(
+        "La fecha límite de evaluación no puede ser posterior a la fecha de resultados"
+      );
+      setModalOpen(true);
+      return false;
+    }
+
+    return true;
+  };
+
   const handleGuardar = async () => {
+    if (!validarFechasEvaluacion()) return;
+
     try {
       await updateConvocatoriaRondas(convocatoria.idActividad, form);
+      await recargarConvocatoria(convocatoria.idActividad);
+      /*
+      const convocatoriaActualizada = await getByIdConvocatoria(
+        convocatoria.idActividad
+      );
+      onConvocatoriaActualizada(convocatoriaActualizada);*/
+
       setModalTitle("Éxito");
       setModalMessage("Fechas guardadas correctamente");
       setModalOpen(true);
     } catch (err) {
       console.error(err);
       setModalTitle("Error");
-      setModalMessage("Fechas no registradas: ", err);
+      setModalMessage("Fechas no registradas");
       setModalOpen(true);
     }
   };
+
   return (
     <div className="p-6 space-y-6">
       <button
@@ -197,6 +259,8 @@ const VistaConvocatoria = ({convocatoria,jurados = [],evaluaciones = [],particip
                     value={form.fechaInicioR1}
                     onChange={handleChange}
                     className="border rounded-lg px-3 py-2"
+                    min={convocatoria.fechaCierre}
+                    max={convocatoria.fechaResultados}
                   />
                 )}
 
@@ -215,6 +279,8 @@ const VistaConvocatoria = ({convocatoria,jurados = [],evaluaciones = [],particip
                   value={form.fechaLimiteR1}
                   onChange={handleChange}
                   className="border rounded-lg px-3 py-2"
+                  min={form.fechaInicioR1}
+                  max={convocatoria.fechaResultados}
                 />
                 )}
             </div>

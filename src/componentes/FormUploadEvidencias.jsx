@@ -26,12 +26,34 @@ const FormUploadEvidencias = ({ idActividad, categoria, onUploadSuccess }) => {
   const [modalTitle, setModalTitle] = useState("Mensaje");
   const [modalMessage, setModalMessage] = useState("");
 
+  const ALLOWED_IMAGE_TYPES = [
+    "image/jpeg",
+    "image/png",
+  ];
 
   const handleFileChange = (event) => {
     const selectedFiles = Array.from(event.target.files);
 
-    setFiles((prev) => [...prev, ...selectedFiles]);
+    const validFiles = [];
+    let rejected = 0;
 
+    for (const file of selectedFiles) {
+      if (ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        validFiles.push(file);
+      } else {
+        rejected++;
+      }
+    }
+
+    if (rejected > 0) {
+      setModalTitle("Archivos no permitidos");
+      setModalMessage(
+        "Solo se permiten imágenes JPG o PNG."
+      );
+      setModalOpen(true);
+    }
+
+    setFiles(prev => [...prev, ...validFiles]);
     event.target.value = "";
   };
 
@@ -103,6 +125,7 @@ const FormUploadEvidencias = ({ idActividad, categoria, onUploadSuccess }) => {
         <VisuallyHiddenInput
           type="file"
           multiple
+          accept=".jpg,.jpeg,.png"
           onChange={handleFileChange}
         />
       </Button>

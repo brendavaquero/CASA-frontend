@@ -43,7 +43,7 @@ export const updateEstadoPostulacion = async (idPostulacion, estado) => {
 export const registrarPostulacionPostal = async (data) => {
   try {
     const response = await api.post(
-      "/postulaciones/convocatoria/registro-postal",
+      `/postulaciones/convocatoria/registro-postal`,
       data
     );
     return response.data;
