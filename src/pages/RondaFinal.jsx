@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+//import { useParams, useNavigate,useLocation  } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import {
   Typography,
@@ -16,16 +17,13 @@ import { confirmarGanador } from "../apis/ganador_Service";
 import { enviarCorreo } from "@/apis/emailService";
 import ModalMensaje from "@/componentes/ModalMensaje";
 
-
-
-const RondaFinal = ({convocatoria, onVolver}) => {
-  console.log('convo:',convocatoria.idActividad);
-  const confirmar = async () => {
-  console.log("Finalista enviado al backend:", finalistaSeleccionado);
+const RondaFinal = ({convocatoria,onVolver}) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [modalTitle, setModalTitle] = useState("Mensaje");
-
+  console.log('convoFinal:',convocatoria);
+  const confirmar = async () => {
+  console.log("Finalista enviado al backend:", finalistaSeleccionado);
   const enviarCorreoGanador = async (finalista) => {
     if (!finalista?.correo) {
       console.warn("El finalista no tiene correo registrado");
@@ -96,6 +94,8 @@ const RondaFinal = ({convocatoria, onVolver}) => {
 const cargarFinalistas = async () => {
   try {
     const data = await obtenerFinalistas(convocatoria.idActividad);
+    console.log('idAct',convocatoria.idActividad);
+    console.log('data',data);
     setFinalistas(data);
   } catch (error) {
   console.error("Error al confirmar ganador");

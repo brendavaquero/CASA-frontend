@@ -23,6 +23,8 @@ export function PostulacionConvocatoriaForm() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+  const usuario = user;
 
   useEffect(() => {
     const fetchActividad = async () => {
@@ -59,7 +61,7 @@ export function PostulacionConvocatoriaForm() {
 
       // 1. Crear postulación
       const nueva = await crearPostulacion({
-        idUsuario: "USU2025-00011",
+        idUsuario: usuario.idUsuario,
         idActividad: actividad.idActividad,
         postulante,
         nombreObra

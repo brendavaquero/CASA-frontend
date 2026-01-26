@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate  } from "react-router-dom";
+import { useParams, useNavigate,useLocation  } from "react-router-dom";
 
 import FileViewer from "../componentes/FileViewer";
 import EvaluacionForm from "../componentes/EvaluacionForm";
@@ -11,7 +11,9 @@ import {
 } from "../apis/evaluacion_Service";
 
 export default function RondaUnoEvaluacion() {
+  const { state } = useLocation();
   const { idPostulacion } = useParams();
+  const convocatoria = state?.convocatoria;
 
   const [obra, setObra] = useState(null);
   const navigate = useNavigate();
@@ -45,8 +47,9 @@ export default function RondaUnoEvaluacion() {
 
     cargarDatos();
   }, [idPostulacion]);
-
-  const ID_JURADO_ESTATICO = "JUR2026-00005";
+console.log('convocaRon',convocatoria);
+ const ID_JURADO_ESTATICO = convocatoria.idJurado;
+  console.log('Idjurado',ID_JURADO_ESTATICO);
   const confirmarEnvio = async () => {
     try {
       setCargando(true);
@@ -60,7 +63,7 @@ export default function RondaUnoEvaluacion() {
       });
       
       setMostrarModal(false);
-      navigate("/evaluar");
+      navigate("/homeJurado");
     } finally {
       setCargando(false);
     }
