@@ -71,6 +71,9 @@ const PerfilGanador = ({onVolver,ganadores = []}) => {
     </button>
     <div className="max-w-5xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6 py-10">
       {/* IZQUIERDA */}
+      <div>
+        {ganador.nombreAutor}
+      </div>
       <div className="flex flex-col items-center gap-4">
         <img
           src={ganador.foto ? `http://localhost:8080${ganador.foto}` : "/placeholder-user.png"}

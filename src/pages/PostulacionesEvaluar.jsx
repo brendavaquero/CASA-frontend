@@ -5,7 +5,7 @@ import { getPendientesParaJurado } from "../apis/postulacion_Service";
 import { ChevronLeft } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
-export default function PostulacionesEvaluar({jurado, onVolver}) {
+export default function PostulacionesEvaluar({convocatoria,jurado, onVolver}) {
   const [postulaciones, setPostulaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,11 +14,14 @@ export default function PostulacionesEvaluar({jurado, onVolver}) {
   const { user } = useAuth();
   console.log("jurado: ", user);
   //const jurado = user;
+  console.log('ju',jurado);
+  console.log('convoc',convocatoria);
 
   useEffect(() => {
     const cargarPostulaciones = async () => {
       try {
-        const data = await getPendientesParaJurado(jurado.idUsuario, ronda);
+        const data = await getPendientesParaJurado(convocatoria.idJurado, ronda);
+        console.log("d",data);
         setPostulaciones(data);
       } catch (err) {
         setError("No se pudieron cargar las postulaciones");
@@ -58,7 +61,7 @@ export default function PostulacionesEvaluar({jurado, onVolver}) {
       )}
 
       {!loading && !error && (
-        <PostulacionesJuradoTable postulaciones={postulaciones} />
+        <PostulacionesJuradoTable postulaciones={postulaciones} convocatoria={convocatoria}/>
       )}
     </div>
   );

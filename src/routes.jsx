@@ -1,5 +1,5 @@
 import { Home, Aprender, RondaUnoEvaluacion, PostulacionesEvaluar, Convocatorias, ConvocatoriaIndividual, TallerIndividual, PostulacionForm, PostulacionConvocatoriaForm, ProgramasUsuarioPage, PostulacionesPendientesPage } from "@/pages";
-import { Requisitar_Taller, RondaFinal, PerfilGanador, RegistroPostal, RegistroParticipante} from "@/pages";
+import { DashboardTrimestral, Requisitar_Taller, RondaFinal, PerfilGanador, RegistroPostal, RegistroParticipante} from "@/pages";
 import HomeDocente from "./pages/docente/HomeDocente";
 import { element } from "prop-types";
 import HomeAlumno from "./pages/alumno/HomeAlumno";
@@ -41,17 +41,11 @@ export const routes = [
     path: "/convocatoria/registropostal",
     element: <RegistroPostal />,
   },
-  /*
   {
-    name: "Por evaluar",
-    path: "/evaluar",
-    element: <PostulacionesEvaluar />,
+    name: "Dashboard Trimestral",
+    path: "/estadisticas/trimestrales",
+    element: <DashboardTrimestral />,
   },
-  {
-    name: "Ronda final",
-    path: "/evaluar/ronda-final",
-    element: <RondaFinal />,
-  },*/
   {
     path: "/reset-password",
     element: <ResetPassword />
@@ -69,7 +63,7 @@ export const routes = [
   },
   {
     name: "convocatorias",
-    path: "/convocatorias",
+    path: "/convocatoriasyresidencias",
     element: <Convocatorias />,
     showInNavbar: true,
   },
@@ -78,12 +72,6 @@ export const routes = [
     path: "/convocatoriasyresidencias/:id",
     element: <ConvocatoriaIndividual/>,
   },
-
-  /* {
-    name: "prueba-taller",
-    path: "/taller-prueba",
-    element: <PaginaPruebaTaller />,
-  }, */
   {
     name: "postulacion",
     path: "/postular/:idActividad",
@@ -102,12 +90,6 @@ export const routes = [
       </ProtectedRoute>
     ),
   },
-  /*
-  {
-    name: "PostulacionesPendientesPage",
-    path: "/postulaciones/pendientes",
-    element: <PostulacionesPendientesPage />
-  },*/
   {
     name: "login",
     path: "/login",

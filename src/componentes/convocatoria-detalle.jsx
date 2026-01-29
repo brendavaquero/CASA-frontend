@@ -1,16 +1,14 @@
-//import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   Typography,
   Button,
   Chip
 } from "@material-tailwind/react";
-import { CalendarDaysIcon } from "@heroicons/react/24/outline";
-import { existePostulacion } from "../apis/postulacion_Service";
+import { existePostulacion } from "../apis/postulacionConvocatoria_Service";
 import { useAuth } from "../context/AuthContext";
 
 export default function ConvocatoriaDetalle({ actividad, onPostular }) {
-  //const navigate = useNavigate();
+  console.log("ConvocatoriaDetalle onPostular:", onPostular);
 
   const [yaPostulado, setYaPostulado] = useState(false);
   const { user } = useAuth();
@@ -41,14 +39,14 @@ export default function ConvocatoriaDetalle({ actividad, onPostular }) {
 
   // debug
   console.log("[ActDetalle] actividad:", actividad);
-  console.log("[TallerDetalle] idActividad:", actividad.idActividad);
+  console.log("[ConvDetalle] idActividad:", actividad.idActividad);
 
    useEffect(() => {
     if (!actividad?.idActividad) return;
     if (actividad.infantil) return;
     if (!user?.idUsuario) return;
 
-    console.log("🔍 Validando postulación:", {
+    console.log("Validando postulación:", {
       actividad: actividad.idActividad,
       usuario: user.idUsuario
     });
@@ -58,11 +56,11 @@ export default function ConvocatoriaDetalle({ actividad, onPostular }) {
 
     existePostulacion(user.idUsuario, actividad.idActividad)
       .then((res) => {
-        console.log("✅ Existe postulación:", res);
+        console.log("Existe postulación:", res);
         setYaPostulado(res);
       })
       .catch((err) => {
-        console.error("❌ Error validando postulación", err);
+        console.error("Error validando postulación", err);
         setYaPostulado(false);
       });
   }, [user, actividad]);
@@ -161,18 +159,22 @@ export default function ConvocatoriaDetalle({ actividad, onPostular }) {
 
       {/* Barra inferior fija */}
       <div className="fixed bottom-0 left-0 w-full bg-white shadow-2xl border-t p-4 flex justify-between items-center">
-        <div className="flex items-center gap-2 text-gray-700">
-          
-        </div>
+        <div className="flex items-center gap-2 text-gray-700"></div>
 
-        <Button
-          type="button"
-          variant="gradient"
-          size="lg"
-          onClick={onPostular}
-        >
-          Participar
-        </Button>
+        {!yaPostulado ? (
+          <Button
+            type="button"
+            variant="gradient"
+            size="lg"
+            onClick={onPostular}
+          >
+            Participar
+          </Button>
+        ) : (
+          <Typography color="0d47a1" className="font-semibold">
+            Ya estás participando en esta actividad
+          </Typography>
+        )}
       </div>
     </div>
   );

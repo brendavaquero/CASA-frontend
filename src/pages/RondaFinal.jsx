@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+//import { useParams, useNavigate,useLocation  } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import {
   Typography,
@@ -11,27 +12,24 @@ import {
 } from "@material-tailwind/react";
 
 import FinalistaCard from "../componentes/FinalistaCard";
-import { obtenerFinalistas } from "../apis/rondaUno_Service";
+import { entrarRondaFinal  } from "../apis/rondaUno_Service";
 import { confirmarGanador } from "../apis/ganador_Service";
 import { enviarCorreo } from "@/apis/emailService";
 import ModalMensaje from "@/componentes/ModalMensaje";
 
-
-
-const RondaFinal = ({convocatoria, onVolver}) => {
-  console.log('convo:',convocatoria.idActividad);
-  const confirmar = async () => {
-  console.log("Finalista enviado al backend:", finalistaSeleccionado);
+const RondaFinal = ({convocatoria,onVolver}) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [modalTitle, setModalTitle] = useState("Mensaje");
-
+  console.log('convoFinal:',convocatoria);
+  const confirmar = async () => {
+  console.log("Finalista enviado al backend:", finalistaSeleccionado);
   const enviarCorreoGanador = async (finalista) => {
     if (!finalista?.correo) {
       console.warn("El finalista no tiene correo registrado");
       return;
     }
-    const nombre = finalista.infantil
+    /* const nombre = finalista.infantil
       ? finalista.postulante
       : `${finalista.nombre} ${finalista.apellidos}`;
 
@@ -39,23 +37,22 @@ const RondaFinal = ({convocatoria, onVolver}) => {
       to: finalista.correo,
       subject: "¡Felicidades! Eres ganador de la convocatoria",
       body: `
-  Hola ${nombre},
+      Hola ${nombre},
 
-  Nos complace informarte que has sido seleccionado como GANADOR de la convocatoria:
+      Nos complace informarte que has sido seleccionado como GANADOR de la convocatoria:
 
-  "${convocatoria.titulo}"
+      "${convocatoria.titulo}"
 
-  Obra ganadora:
-  "${finalista.nombreObra}"
+      Obra ganadora:
+      "${finalista.nombreObra}"
 
-  ¡Felicidades por tu talento!
+      ¡Felicidades por tu talento!
 
-  Pronto nos pondremos en contacto contigo para los siguientes pasos.
+      Pronto nos pondremos en contacto contigo para los siguientes pasos.
 
-  Atentamente,
-  Centro de las Artes de San Agustin
-  `,
-    };
+      Atentamente,
+      Centro de las Artes de San Agustin`,
+    }; */
     try {
       await enviarCorreo(dataCorreo);
       setModalTitle("Éxito");
@@ -87,15 +84,18 @@ const RondaFinal = ({convocatoria, onVolver}) => {
   const [open, setOpen] = useState(false);
   const [finalistaSeleccionado, setFinalistaSeleccionado] = useState(null);
 
-  const idConvocatoria = "ACT2025-00027"; // luego vendrá de params o contexto
-
   useEffect(() => {
-  cargarFinalistas();
-}, []);
+    if (convocatoria?.idActividad) {
+      cargarFinalistas();
+    }
+  }, [convocatoria]);
+
 
 const cargarFinalistas = async () => {
   try {
-    const data = await obtenerFinalistas(convocatoria.idActividad);
+    const data = await entrarRondaFinal (convocatoria.idActividad);
+    console.log('idAct',convocatoria.idActividad);
+    console.log('data',data);
     setFinalistas(data);
   } catch (error) {
   console.error("Error al confirmar ganador");
@@ -179,6 +179,7 @@ const cargarFinalistas = async () => {
           </Button>
           <Button  onClick={confirmar}>
             Confirmar ganador
+            {/* correo */}
           </Button>
         </DialogFooter>
       </Dialog>

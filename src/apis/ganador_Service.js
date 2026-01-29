@@ -55,3 +55,13 @@ export const getGanadoresByConvocatoria = async (idConvocatoria) =>{
     const res = await api.get(`/ganador/convocatoria/${idConvocatoria}`)
     return res.data;
 };
+
+export const existeGanador = async (idConvocatoria) => {
+  try {
+    const response = await api.get(`/ganador/existe/${idConvocatoria}`);
+    return response.data; // boolean
+  } catch (error) {
+    console.error("Error al verificar existencia de ganador:", error);
+    throw error;
+  }
+};

@@ -16,7 +16,7 @@ export function AuthRequiredModal({ open, onClose }) {
       <DialogHeader>Inicia sesión</DialogHeader>
 
       <DialogBody>
-        Para postularte a este taller necesitas una cuenta.
+        Para participar en esta actividad necesitas una cuenta.
       </DialogBody>
 
       <DialogFooter className="flex gap-2">

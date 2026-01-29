@@ -6,7 +6,6 @@ import GirdConvocatoria from "@/componentes/GirdConvocatoria.jsx";
 import IconButton from '@mui/material/IconButton';
 import IconDocente from '../../assets/images/docenteicon.png';
 import { getConvocatorias, getByIdConvocatoria } from "@/apis/convocatorias.js";
-import VistaConvocatoria from "@/componentes/VistaConvocatoria.jsx";
 import { getConvocatoriasByJurado } from "@/apis/jurado.js";
 import { useAuth } from "@/context/AuthContext";
 import ModalMensaje from "@/componentes/ModalMensaje.jsx";
@@ -111,6 +110,7 @@ const HomeJurado = () => {
 
                       {vistaActual === "convocatoria" && (
                         <PostulacionesEvaluar
+                        convocatoria={convocatoriaSeleccionada}
                         jurado={jurado}
                         onVolver={() => setVistaActual("grid")}
                         />

@@ -8,7 +8,7 @@ import {
   Button,
 } from "@material-tailwind/react";
 
-export default function PostulacionesJuradoTable({ postulaciones }) {
+export default function PostulacionesJuradoTable({ postulaciones,convocatoria }) {
   const navigate = useNavigate();
 
   const obtenerNombreParticipante = (p) => {
@@ -116,7 +116,12 @@ export default function PostulacionesJuradoTable({ postulaciones }) {
                     <Button
                       size="sm"
                       variant="gradient"
-                      onClick={() => navigate(`/evaluar/ronda1/${p.idPostulacion}`)}
+                      onClick={() => navigate(`/evaluar/ronda1/${p.idPostulacion}`,{
+                        state: {
+                                postulacion: p,
+                                convocatoria
+                              },
+                      })}
                     >
                       Evaluar
                     </Button>
