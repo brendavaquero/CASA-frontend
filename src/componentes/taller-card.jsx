@@ -42,7 +42,7 @@ export function TallerCard({
       >
         <img
           src={
-             `http://localhost:8080${imagen}`
+            `http://localhost:8080${imagen}`
           }
           alt={titulo}
           className="object-cover h-56 w-full"

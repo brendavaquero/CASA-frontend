@@ -93,7 +93,7 @@ const RondaFinal = ({convocatoria,onVolver}) => {
 
 const cargarFinalistas = async () => {
   try {
-    const data = await entrarRondaFinal (convocatoria.idActividad);
+    const data = await obtenerFinalistas(convocatoria.idActividad);
     console.log('idAct',convocatoria.idActividad);
     console.log('data',data);
     setFinalistas(data);
