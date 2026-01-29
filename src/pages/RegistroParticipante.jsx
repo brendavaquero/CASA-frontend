@@ -19,10 +19,8 @@ const RegistroParticipante = ({ onVolver }) => {
       alert(
         "Registro realizado correctamente. Revisa tu correo para acceder a tu cuenta."
       );
-
-      // aquí podrías redirigir a login más adelante
-      // navigate("/login");
-
+// Redirige a login
+navigate("/login");
     } catch (error) {
       console.error(error);
       alert("Error al registrar participante");

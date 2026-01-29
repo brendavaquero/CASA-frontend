@@ -53,4 +53,19 @@ export const registrarPostulacionPostal = async (data) => {
   }
 };
 
+export const existePostulacion = async (idUsuario, idActividad) => {
+  try {
+    const response = await api.get("/postulaciones/existe", {
+      params: {        
+        idUsuario,
+        idActividad
+      },
+    });
+    return response.data; // boolean
+  } catch (error) {
+    console.error("Error al verificar existencia de postulación:", error);
+    throw error;
+  }
+};
+
 

@@ -15,7 +15,7 @@ const AsignarJurados = ({ convocatoria,onVolver }) => {
   const [modalMessage, setModalMessage] = useState("");
 
 
-  const handleEnviarCorreos = async (juradosSeleccionados) => {
+/*   const handleEnviarCorreos = async (juradosSeleccionados) => {
     try {
       for (const jurado of juradosSeleccionados) {
         if (!jurado.correo) continue;
@@ -50,7 +50,7 @@ const AsignarJurados = ({ convocatoria,onVolver }) => {
       setModalMessage("Ocurrió un error al enviar los correos");
       setModalOpen(true);
     }
-  };
+  }; */
 
 
   useEffect(() => {

@@ -31,3 +31,13 @@ export const EvaluacionService = {
     return response.data;
   }
 };
+
+export const entrarRondaFinal = async (idConvocatoria) => {
+  try {
+    const response = await api.get(`/ronda/final/${idConvocatoria}`);
+    return response.data; // List<FinalistaDto>
+  } catch (error) {
+    console.error("Error al entrar a la ronda final:", error);
+    throw error;
+  }
+};

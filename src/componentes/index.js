@@ -18,3 +18,5 @@ export * from "@/componentes/PasoParticipante";
 export * from "@/componentes/PasoPostulacion";
 export * from "@/componentes/DescargarReporteTrimestral";
 export * from "@/componentes/BotonDescargarActa";
+export * from "@/componentes/MetricCard";
+export * from "@/componentes/PieChartBlock";

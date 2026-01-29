@@ -12,7 +12,7 @@ import {
 } from "@material-tailwind/react";
 
 import FinalistaCard from "../componentes/FinalistaCard";
-import { obtenerFinalistas } from "../apis/rondaUno_Service";
+import { entrarRondaFinal  } from "../apis/rondaUno_Service";
 import { confirmarGanador } from "../apis/ganador_Service";
 import { enviarCorreo } from "@/apis/emailService";
 import ModalMensaje from "@/componentes/ModalMensaje";
@@ -29,7 +29,7 @@ const RondaFinal = ({convocatoria,onVolver}) => {
       console.warn("El finalista no tiene correo registrado");
       return;
     }
-    const nombre = finalista.infantil
+    /* const nombre = finalista.infantil
       ? finalista.postulante
       : `${finalista.nombre} ${finalista.apellidos}`;
 
@@ -37,23 +37,22 @@ const RondaFinal = ({convocatoria,onVolver}) => {
       to: finalista.correo,
       subject: "¡Felicidades! Eres ganador de la convocatoria",
       body: `
-  Hola ${nombre},
+      Hola ${nombre},
 
-  Nos complace informarte que has sido seleccionado como GANADOR de la convocatoria:
+      Nos complace informarte que has sido seleccionado como GANADOR de la convocatoria:
 
-  "${convocatoria.titulo}"
+      "${convocatoria.titulo}"
 
-  Obra ganadora:
-  "${finalista.nombreObra}"
+      Obra ganadora:
+      "${finalista.nombreObra}"
 
-  ¡Felicidades por tu talento!
+      ¡Felicidades por tu talento!
 
-  Pronto nos pondremos en contacto contigo para los siguientes pasos.
+      Pronto nos pondremos en contacto contigo para los siguientes pasos.
 
-  Atentamente,
-  Centro de las Artes de San Agustin
-  `,
-    };
+      Atentamente,
+      Centro de las Artes de San Agustin`,
+    }; */
     try {
       await enviarCorreo(dataCorreo);
       setModalTitle("Éxito");
@@ -85,11 +84,12 @@ const RondaFinal = ({convocatoria,onVolver}) => {
   const [open, setOpen] = useState(false);
   const [finalistaSeleccionado, setFinalistaSeleccionado] = useState(null);
 
-  const idConvocatoria = "ACT2025-00027"; // luego vendrá de params o contexto
-
   useEffect(() => {
-  cargarFinalistas();
-}, []);
+    if (convocatoria?.idActividad) {
+      cargarFinalistas();
+    }
+  }, [convocatoria]);
+
 
 const cargarFinalistas = async () => {
   try {
@@ -179,6 +179,7 @@ const cargarFinalistas = async () => {
           </Button>
           <Button  onClick={confirmar}>
             Confirmar ganador
+            {/* correo */}
           </Button>
         </DialogFooter>
       </Dialog>

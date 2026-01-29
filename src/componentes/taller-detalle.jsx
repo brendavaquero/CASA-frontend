@@ -55,7 +55,7 @@ export default function TallerDetalle({ actividad, onPostular }) {
   if (actividad.infantil) return;
   if (!user?.idUsuario) return;
 
-  console.log("🔍 Validando postulación:", {
+  console.log("Validando postulación:", {
     actividad: actividad.idActividad,
     usuario: user.idUsuario
   });
@@ -65,11 +65,11 @@ export default function TallerDetalle({ actividad, onPostular }) {
 
   existePostulacion(user.idUsuario, actividad.idActividad)
     .then((res) => {
-      console.log("✅ Existe postulación:", res);
+      console.log("Existe postulación:", res);
       setYaPostulado(res);
     })
     .catch((err) => {
-      console.error("❌ Error validando postulación", err);
+      console.error("ERROR validando postulación", err);
       setYaPostulado(false);
     });
 }, [user, actividad]); // 👈 CLAVE

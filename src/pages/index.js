@@ -20,3 +20,4 @@ export * from "@/pages/convocatorias";
 export { default as PerfilGanador } from "./PerfilGanador";
 export { default as RegistroPostal } from "./RegistroPostal";
 export { default as RegistroParticipante } from "./RegistroParticipante";
+export { default as DashboardTrimestral } from "./DashboardTrimestral";
