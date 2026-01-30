@@ -71,13 +71,13 @@ const Sidebar = ({ role,open, onSelect, activeSection,onToggle,onLogoutClick  })
       key: "USUARIOS",
       icon: Users2Icon,
       roles: ["ADMINISTRADOR"],
-    },
+    },/*
     {
       label: "Perfil",
       key: "PERFIL",
       icon: User,
       roles: ["DOCENTE", "AUXILIAR", "ADMINISTRADOR","PARTICIPANTE","INVITADO","JURADO"],
-    },
+    },*/
   ];
 
   return (

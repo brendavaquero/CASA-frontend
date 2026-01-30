@@ -53,33 +53,33 @@ const CrearPrograma = ({ onSuccess }) => {
     }
   };
 
-  /* 3️⃣ Crear programa */
-  const handleCrearPrograma = async () => {
-    if (!nombre.trim()) return;
+const handleCrearPrograma = async () => {
+  if (!nombre.trim()) return;
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const payload = {
-        nombre,
-        descripcion,
-        responsables: seleccionados.map(id => ({ idUsuario: id })),
-      };
+    const payload = {
+      nombre,
+      descripcion,
+      responsablesIds: seleccionados, // ← cambio aquí
+    };
 
-      await createPrograma(payload);
+    await createPrograma(payload);
 
-      setNombre("");
-      setDescripcion("");
-      setSeleccionados([]);
+    setNombre("");
+    setDescripcion("");
+    setSeleccionados([]);
 
-      if (onSuccess) onSuccess();
+    if (onSuccess) onSuccess();
 
-    } catch (error) {
-      console.error("Error al crear programa:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (error) {
+    console.error("Error al crear programa:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const todosSeleccionados =
     usuarios.length > 0 && seleccionados.length === usuarios.length;
