@@ -1,6 +1,6 @@
  import React from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Navbar as MTNavbar,
   MobileNav,
@@ -12,6 +12,35 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 
 export function Navbar({brandName, routes, action }) {
   const [openNav, setOpenNav] = React.useState(false);
+  const navigate = useNavigate();
+
+  const handleLogoClick = () => {
+  const rol = localStorage.getItem("rol");
+
+  switch (rol) {
+    case "PARTICIPANTE":
+      navigate("/homeAlumno");
+      break;
+    case "ADMINISTRADOR":
+      navigate("/homeAdministrador");
+      break;
+    case "JURADO":
+      navigate("/homeJurado");
+      break;
+    case "DOCENTE":
+      navigate("/homeDocente");
+      break;
+    case "AUXILIAR":
+      navigate("/homeAuxiliar");
+      break;
+    case "INVITADO":
+      navigate("/programas");
+      break;
+    default:
+      navigate("/home");
+  }
+};
+
 
   React.useEffect(() => {
     window.addEventListener(
@@ -65,11 +94,14 @@ export function Navbar({brandName, routes, action }) {
 
 
       <div className="container mx-auto flex items-center justify-between text-white">
-        <Link to="/">
-          <Typography className="mr-4 ml-2 cursor-pointer py-1.5 font-bold">
+        <div
+          onClick={handleLogoClick}
+          className="cursor-pointer"
+        >
+          <Typography className="mr-4 ml-2 py-1.5 font-bold">
             {brandName}
           </Typography>
-        </Link>
+        </div>
         <div className="hidden lg:block">{navList}</div>
         <div className="hidden gap-2 lg:flex">
           <Link to="/registro/participante">

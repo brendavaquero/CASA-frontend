@@ -133,76 +133,112 @@ const cargarFinalistas = async () => {
     );
   }
   const generarPDF = (acta) => {
-      const doc = new jsPDF("p", "mm", "a4");
-      let y = 20;
-  
-      // Título
-      doc.setFont("times", "bold");
-      doc.setFontSize(14);
-      doc.text("ACTA DE DICTAMEN", 105, y, { align: "center" });
-  
-      y += 10;
-      doc.setFont("times", "normal");
-      doc.setFontSize(11);
-      doc.text(
-        `${acta.lugar}, a ${acta.fecha}`,
-        105,
-        y,
-        { align: "center" }
-      );
-  
-      y += 15;
-  
-      // Texto principal
-      const texto = `
-  En la presente acta se hace constar que, tras el proceso de evaluación
-  correspondiente a la convocatoria "${acta.nombreConvocatoria}", convocada por
-  ${acta.convocantes}, el jurado designado determinó como ganador(a) a:
-  
-  ${acta.nombreGanador}
-  
-  con la obra titulada "${acta.nombreObra}", la cual obtuvo una calificación final
-  de ${acta.calificacionFinal} puntos.
-  
-  El premio otorgado consiste en: ${acta.premio}.
-      `;
-  
-      doc.text(texto.trim(), 20, y, { maxWidth: 170 });
-  
-      y += 60;
-  
-      // Jurado
-      doc.setFont("times", "bold");
-      doc.text("Jurado:", 20, y);
-  
-      y += 8;
-      doc.setFont("times", "normal");
-  
-      acta.jurados.forEach((jurado) => {
-        doc.text(`• ${jurado}`, 25, y);
-        y += 6;
-      });
-  
-      y += 20;
-  
-      // Firmas
-      doc.setFont("times", "bold");
-      doc.text("Firmas:", 20, y);
-  
-      y += 20;
-      doc.setFont("times", "normal");
-  
-      // Director
-      doc.line(20, y, 90, y);
-      doc.text("Daniel Efrén Brena Wilson", 20, y + 6);
-      doc.text("Director", 20, y + 12);
-  
-      // Jurado
-      doc.line(120, y, 190, y);
-      doc.text("Jurado", 120, y + 6);
-  
-      doc.save(`Acta_${acta.nombreConvocatoria}.pdf`);
-    };
+  const doc = new jsPDF("p", "mm", "a4");
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  let y = 20;
+
+  /* ======================
+     ENCABEZADO CON LOGO
+  ====================== */
+
+  const logoUrl = "public/img/LOGO-CASA-01-b.png"; // public/img/logo.png
+  const logoWidth = 30;
+  const logoHeight = 20;
+
+  doc.addImage(logoUrl, "PNG", (pageWidth - logoWidth) / 2, y, logoWidth, logoHeight);
+
+  y += 30;
+
+  doc.setFont("times", "bold");
+  doc.setFontSize(14);
+  doc.text("ACTA DE DICTAMEN", pageWidth / 2, y, { align: "center" });
+
+  y += 8;
+  doc.setFont("times", "normal");
+  doc.setFontSize(11);
+  doc.text(`${acta.lugar}, a ${acta.fecha}`, pageWidth / 2, y, {
+    align: "center",
+  });
+
+  y += 15;
+
+  /* ======================
+     TEXTO PRINCIPAL
+  ====================== */
+
+  const texto = `
+En la presente acta se hace constar que, tras el proceso de evaluación
+correspondiente a la convocatoria "${acta.nombreConvocatoria}", convocada por
+${acta.convocantes}, el jurado designado determinó como ganador(a) a:
+
+${acta.nombreGanador}
+
+con la obra titulada "${acta.nombreObra}", la cual obtuvo una calificación final
+de ${acta.calificacionFinal} puntos.
+
+El premio otorgado consiste en: ${acta.premio}.
+  `;
+
+  doc.text(texto.trim(), 20, y, {
+    maxWidth: 170,
+    lineHeightFactor: 1.5,
+  });
+
+  y += 95;
+
+  /* ======================
+     FIRMAS DEL JURADO
+  ====================== */
+
+  doc.setFont("times", "bold");
+  doc.text("Firmas del Jurado", 20, y);
+
+  y += 15;
+  doc.setFont("times", "normal");
+
+  const col1X = 20;
+  const col2X = 110;
+  const lineWidth = 70;
+  let currentY = y;
+
+  acta.jurados.forEach((jurado, index) => {
+    const x = index % 2 === 0 ? col1X : col2X;
+
+    if (index % 2 === 0 && index !== 0) {
+      currentY += 25;
+    }
+
+    // Línea de firma
+    doc.line(x, currentY, x + lineWidth, currentY);
+
+    // Nombre del jurado
+    doc.text(jurado, x, currentY + 6);
+
+    // Rol
+    doc.setFontSize(9);
+    doc.text("Jurado", x, currentY + 11);
+    doc.setFontSize(11);
+  });
+
+  /* ======================
+     FIRMA DIRECTOR (OPCIONAL)
+  ====================== */
+
+  currentY += 40;
+
+  doc.setFont("times", "bold");
+  doc.text("Dirección", 20, currentY);
+
+  currentY += 15;
+  doc.setFont("times", "normal");
+  doc.line(20, currentY, 90, currentY);
+  doc.text("Daniel Efrén Brena Wilson", 20, currentY + 6);
+  doc.text("Director General del Centro de las Artes de San Agustín", 20, currentY + 11);
+
+  doc.save(`Acta_${acta.nombreConvocatoria}.pdf`);
+};
+
 
 const descargarActa = async () => {
   try {

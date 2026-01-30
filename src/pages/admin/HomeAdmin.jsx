@@ -27,6 +27,7 @@ import AsignarJurados from "./AsignarJurados.jsx";
 import CrearPrograma from "./CrearPrograma.jsx";
 import Perfil from "../perfil/Perfil.jsx";
 import { DashboardTrimestral } from "../index.js";
+import { Footer } from "@/widgets/layout/index.js";
 
 const HomeAdmin = () => {
   const [talleres, setTalleres] = useState([]);
@@ -152,14 +153,10 @@ const HomeAdmin = () => {
   return (
     <div className="flex flex-col h-screen bg-gray-100 pt-20">
         <header className="flex justify-between items-center bg-white px-6 py-4 border-b shrink-0">
-            <img src={logoCaSa} alt="Logo CaSa" width={60} />
-            <h1 className="text-lg font-medium text-gray-700">Centro de las Artes de San Agustín</h1> 
-            <div className="flex items-center">
+                        <div className="flex items-center">
                 <h2 className="text-lg font-medium text-gray-700 mr-5">{administrador? `${administrador.nombre} ${administrador.apellidos}` : "Cargando..."}</h2>
                 <div className="w-15 h-15 text-white flex items-center justify-center font-semibold">
-                    <IconButton aria-label="delete">
-                        <img src={IconDocente} alt="Icono Docente" className="w-8 h-8 object-cover"/>
-                    </IconButton>
+                    
                 </div>
             </div>
             
@@ -409,9 +406,7 @@ const HomeAdmin = () => {
               )}
             </main>
         </div>
-        <footer className="bg-gray-700 text-gray-200 text-sm text-center py-3 shrink-0">
-          CompanyName © 2025. All rights reserved.
-        </footer>
+        <Footer/>
       <ModalMensaje
         open={openLogoutModal}
         onClose={() => setOpenLogoutModal(false)}

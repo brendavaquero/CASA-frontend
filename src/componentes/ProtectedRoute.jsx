@@ -1,15 +1,27 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
+console.log("PROTECTED ROUTE FILE LOADED");
+
 const ProtectedRoute = ({ roles, children }) => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const location = useLocation();
 
-  if (!user) return <Navigate to="/login" />;
+  console.log("🛡️ ProtectedRoute");
+  console.log("📍 Ruta:", location.pathname);
+  console.log("👤 User:", user);
 
-  if (roles && !roles.includes(user.rol)) {
-    return <Navigate to="/home" />;
+  if (!isAuthenticated) {
+    console.log("⛔ No autenticado");
+    return <Navigate to="/login" replace />;
   }
 
+  if (roles && !roles.includes(user.rol)) {
+    console.log("⛔ Rol no autorizado");
+    return <Navigate to="/home" replace />;
+  }
+
+  console.log("✅ Acceso permitido");
   return children;
 };
 
