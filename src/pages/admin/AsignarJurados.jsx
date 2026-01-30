@@ -121,7 +121,7 @@ const AsignarJurados = ({ convocatoria,onVolver }) => {
     } catch (error) {
       console.error("Error al asignar jurados:", error);
         setModalTitle("Error");
-        setModalMessage("Error al asignar jurados");
+        setModalMessage("Error al asignar jurados. Limite alcanzado.");
         setModalOpen(true);
       } finally {
         setLoading(false);

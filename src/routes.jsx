@@ -1,13 +1,9 @@
 import { Home, Aprender, RondaUnoEvaluacion, PostulacionesEvaluar, Convocatorias, ConvocatoriaIndividual, TallerIndividual, PostulacionForm, PostulacionConvocatoriaForm, ProgramasUsuarioPage, PostulacionesPendientesPage } from "@/pages";
 import { DashboardTrimestral, Requisitar_Taller, RondaFinal, PerfilGanador, RegistroPostal, RegistroParticipante} from "@/pages";
 import HomeDocente from "./pages/docente/HomeDocente";
-import { element } from "prop-types";
 import HomeAlumno from "./pages/alumno/HomeAlumno";
 import HomeAuxiliar from "./pages/auxiliar/HomeAuxiliar";
 import HomeAdmin from "./pages/admin/HomeAdmin";
-import CrearTaller from "./pages/admin/CrearTaller";
-import CrearConvocatoria from "./pages/admin/CrearConvocatoria";
-import ListaJurados from "./pages/admin/ListaJurados";
 import HomeJurado from "./pages/jurado/HomeJurado";
 import Login from "./pages/login/Login";
 import ProtectedRoute from "./componentes/ProtectedRoute";
@@ -50,12 +46,6 @@ export const routes = [
     path: "/reset-password",
     element: <ResetPassword />
   },
-  /*
-  {
-    name: "Ganador",
-    path: "/ganador/:id",
-    element: <PerfilGanador />,
-  },*/
   {
     name: "Taller individual",
     path: "/talleresydiplomados/:id",
@@ -135,22 +125,6 @@ export const routes = [
       </ProtectedRoute>
     )
   },
-  /*{
-    name: "Aprobación Taller",
-    path: "/vista-aprobacion",
-    element: <CrearTaller />,
-  },
-  {
-    name: "Crear convocatoria",
-    path: "/crearConvocatoria",
-    element: <CrearConvocatoria />,
-  },*/
-  /*
-  {
-    name: "Jurados",
-    path: "/jurados",
-    element: <ListaJurados />,
-  },*/
   {
     path: "/homeJurado",
     element: (
