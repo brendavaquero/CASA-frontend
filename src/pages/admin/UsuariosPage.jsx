@@ -21,7 +21,7 @@ import {
   InputAdornment,
 } from "@mui/material";
 import { UserPlus, Trash2, Eye, EyeOff,Pencil } from "lucide-react";
-import { createUsuario, getUsuarios, deleteUsuario } from "@/apis/usuarios";
+import { createUsuario, getUsuarios, deleteUsuario,updateActivo } from "@/apis/usuarios";
 import ModalMensaje from "@/componentes/ModalMensaje";
 import EditarUsuario from "@/componentes/EditarUsuario";
 import { enviarCorreoRecuperacion } from "@/apis/passwordReset";
@@ -154,6 +154,7 @@ const handleAgregarUsuario = async () => {
 
 
   // 🔹 Eliminar usuario
+  /*
   const handleEliminar = (id) => {
     setModalMsg({
       open: true,
@@ -166,7 +167,36 @@ const handleAgregarUsuario = async () => {
         setModalMsg({ open: false });
       },
     });
-  };
+  };*/
+  const handleEliminar = (id) => {
+  setModalMsg({
+    open: true,
+    type: "confirm",
+    title: "Desactivar usuario",
+    message: "¿Deseas desactivar este usuario?",
+    onConfirm: async () => {
+      try {
+        await updateActivo(id, false);
+        await cargarUsuarios();
+
+        setModalMsg({
+          open: true,
+          type: "info",
+          title: "Usuario desactivado",
+          message: "El usuario fue desactivado correctamente",
+        });
+      } catch (error) {
+        setModalMsg({
+          open: true,
+          type: "error",
+          title: "Error",
+          message: "No se pudo desactivar el usuario",
+        });
+      }
+    },
+  });
+};
+
 
   return (
     <Box p={4}>
