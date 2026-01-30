@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, Typography } from "@material-tailwind/react";
-import PasoParticipante from "../componentes/PasoParticipante";
+import PasoParticipante from "./PasoParticipante";
 import { crearParticipante } from "../apis/participante_Service";
 import { ChevronLeft } from "lucide-react";
 
 //const { user } = useAuth();
 
-const RegistroParticipante = ({ onVolver }) => {
+const RegistroParticipante2 = ({ onVolver }) => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleParticipanteSubmit = async (data) => {
+    if (loading) return;
     try {
       setLoading(true);
 
@@ -52,6 +53,7 @@ const RegistroParticipante = ({ onVolver }) => {
           <PasoParticipante
             onSubmit={handleParticipanteSubmit}
             pedirContrasenia={true}
+            loading={loading}
           />
 
           {loading && (
@@ -65,4 +67,4 @@ const RegistroParticipante = ({ onVolver }) => {
   );
 };
 
-export default RegistroParticipante;
+export default RegistroParticipante2;

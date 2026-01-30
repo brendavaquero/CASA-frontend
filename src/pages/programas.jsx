@@ -1,13 +1,16 @@
 
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SimpleCard from "../componentes/programa-card";
 import { getProgramasByUsuario, getById, descargarZipEvidencias } from "../apis/programa_Service";
 import { useAuth } from "@/context/AuthContext";
+import { Button } from "@material-tailwind/react";
 
 export function ProgramasUsuarioPage() {
   const [programas, setProgramas] = useState([]);
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user,logout } = useAuth();
   const invitado = user;
   //const usuarioId = "USU2025-00007"; // prueba
 
@@ -23,7 +26,10 @@ export function ProgramasUsuarioPage() {
 
     fetchData();
   }, []);
-
+  const handleLogout = () => {
+    logout();              
+    navigate("/login");  
+  };
   const handleDescargar = async () => {
     const response = await axios.get(
       `http://localhost:8080/api/programas/${idPrograma}/evidencias/zip`,
@@ -44,6 +50,15 @@ export function ProgramasUsuarioPage() {
 
   return (
     <div className="px-6 py-10 pt-24 bg-gray-50">
+      <div className="flex justify-end mb-4">
+        <Button
+          color="black"
+          variant="outlined"
+          onClick={handleLogout}
+        >
+          Cerrar sesión
+        </Button>
+      </div>
       <h1 className="text-3xl font-bold text-blue-gray-800 mb-8 text-center">
         Programas
       </h1>
