@@ -24,6 +24,7 @@ import { UserPlus, Trash2, Eye, EyeOff,Pencil } from "lucide-react";
 import { createUsuario, getUsuarios, deleteUsuario } from "@/apis/usuarios";
 import ModalMensaje from "@/componentes/ModalMensaje";
 import EditarUsuario from "@/componentes/EditarUsuario";
+import { enviarCorreoRecuperacion } from "@/apis/passwordReset";
 
 const roles = ["ADMINISTRADOR", "DOCENTE", "AUXILIAR", "JURADO","INVITADO"];
 
@@ -102,7 +103,6 @@ const UsuariosPage = () => {
     setForm({ ...form, [name]: newValue });
     validarCampo(name, newValue);
   };
-
   const handleConfirmarPassword = (value) => {
     setConfirmarContrasenia(value);
 
@@ -125,29 +125,22 @@ const handleAgregarUsuario = async () => {
       nombre: "",
       apellidos: "",
       correo: "",
-      contrasenia: "",
       rol: "",
       activo: true,
     });
-    setConfirmarContrasenia("");
     setErrors({});
 
     setModalMsg({
       open: true,
       type: "info",
       title: "Usuario creado",
-      message: "El usuario se registró correctamente",
+      message:
+        "El usuario fue creado y se le envió un correo para que configure su contraseña",
     });
 
   } catch (error) {
     const mensaje =
-      error.response?.data?.message ||
-      "No se pudo crear el usuario";
-
-    setErrors((prev) => ({
-      ...prev,
-      correo: mensaje,
-    }));
+      error.response?.data?.message || "No se pudo crear el usuario";
 
     setModalMsg({
       open: true,
@@ -157,6 +150,7 @@ const handleAgregarUsuario = async () => {
     });
   }
 };
+
 
 
   // 🔹 Eliminar usuario
@@ -275,7 +269,6 @@ const handleAgregarUsuario = async () => {
               ),
             }}
           />
-
           <TextField select label="Rol" name="rol" fullWidth value={form.rol}
             onChange={handleChange} error={!!errors.rol} helperText={errors.rol}>
             {roles.map((r) => <MenuItem key={r} value={r}>{r}</MenuItem>)}
