@@ -16,7 +16,7 @@ export const crearPostulacion = async (postulacionData) => {
 export const getPostulacionById = async (id) => {
   try {
     const response = await api.get(
-      `/postulaciones/convocatoria/${id}`
+      `/postulaciones/${id}`
     );
     return response.data;
   } catch (error) {

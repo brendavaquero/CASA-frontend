@@ -10,6 +10,7 @@ import {
 
 export default function PostulacionesJuradoTable({ postulaciones,convocatoria }) {
   const navigate = useNavigate();
+  console.log('postuCo',convocatoria);
 
   const obtenerNombreParticipante = (p) => {
     return p.infantil
@@ -28,6 +29,25 @@ export default function PostulacionesJuradoTable({ postulaciones,convocatoria })
       </Card>
     );
   }
+  const parseFechaLocal = (fechaStr) => {
+  const [year, month, day] = fechaStr.split("-");
+  return new Date(year, month - 1, day); // 👈 fecha local real
+};
+
+const estaEnRangoR1 = (fechaInicio, fechaFin) => {
+  if (!fechaInicio || !fechaFin) return false;
+
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  const inicio = parseFechaLocal(fechaInicio);
+  const fin = parseFechaLocal(fechaFin);
+  fin.setHours(23, 59, 59, 999);
+
+  return hoy >= inicio && hoy <= fin;
+};
+
+
 
   return (
     <Card className="w-full shadow-sm">
@@ -79,6 +99,10 @@ export default function PostulacionesJuradoTable({ postulaciones,convocatoria })
               const rowClass = isLast
                 ? "p-4"
                 : "p-4 border-b border-blue-gray-50";
+              const puedeEvaluarR1 = estaEnRangoR1(
+                convocatoria?.fechaInicioR1,
+                convocatoria?.fechaLimiteR1
+              );
 
               return (
                 <tr
@@ -116,6 +140,7 @@ export default function PostulacionesJuradoTable({ postulaciones,convocatoria })
                     <Button
                       size="sm"
                       variant="gradient"
+                      disabled={!puedeEvaluarR1}
                       onClick={() => navigate(`/evaluar/ronda1/${p.idPostulacion}`,{
                         state: {
                                 postulacion: p,

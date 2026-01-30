@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 //import { useParams, useNavigate,useLocation  } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
+import jsPDF from "jspdf";
+import { obtenerActaPorConvocatoria } from "@/apis/convocatorias";
 import {
   Typography,
   Dialog,
@@ -16,6 +18,7 @@ import { entrarRondaFinal  } from "../apis/rondaUno_Service";
 import { confirmarGanador } from "../apis/ganador_Service";
 import { enviarCorreo } from "@/apis/emailService";
 import ModalMensaje from "@/componentes/ModalMensaje";
+import { obtenerFinalistas } from "../apis/rondaUno_Service";
 
 const RondaFinal = ({convocatoria,onVolver}) => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -29,7 +32,7 @@ const RondaFinal = ({convocatoria,onVolver}) => {
       console.warn("El finalista no tiene correo registrado");
       return;
     }
-    /* const nombre = finalista.infantil
+     const nombre = finalista.infantil
       ? finalista.postulante
       : `${finalista.nombre} ${finalista.apellidos}`;
 
@@ -52,7 +55,7 @@ const RondaFinal = ({convocatoria,onVolver}) => {
 
       Atentamente,
       Centro de las Artes de San Agustin`,
-    }; */
+    }; 
     try {
       await enviarCorreo(dataCorreo);
       setModalTitle("Éxito");
@@ -69,6 +72,7 @@ const RondaFinal = ({convocatoria,onVolver}) => {
 
   try {
     await confirmarGanador(finalistaSeleccionado);
+    await descargarActa();
     await enviarCorreoGanador(finalistaSeleccionado);
     setModalTitle("Éxito");
     setModalMessage("Ganador confirmado correctamente");
@@ -128,6 +132,89 @@ const cargarFinalistas = async () => {
       </div>
     );
   }
+  const generarPDF = (acta) => {
+      const doc = new jsPDF("p", "mm", "a4");
+      let y = 20;
+  
+      // Título
+      doc.setFont("times", "bold");
+      doc.setFontSize(14);
+      doc.text("ACTA DE DICTAMEN", 105, y, { align: "center" });
+  
+      y += 10;
+      doc.setFont("times", "normal");
+      doc.setFontSize(11);
+      doc.text(
+        `${acta.lugar}, a ${acta.fecha}`,
+        105,
+        y,
+        { align: "center" }
+      );
+  
+      y += 15;
+  
+      // Texto principal
+      const texto = `
+  En la presente acta se hace constar que, tras el proceso de evaluación
+  correspondiente a la convocatoria "${acta.nombreConvocatoria}", convocada por
+  ${acta.convocantes}, el jurado designado determinó como ganador(a) a:
+  
+  ${acta.nombreGanador}
+  
+  con la obra titulada "${acta.nombreObra}", la cual obtuvo una calificación final
+  de ${acta.calificacionFinal} puntos.
+  
+  El premio otorgado consiste en: ${acta.premio}.
+      `;
+  
+      doc.text(texto.trim(), 20, y, { maxWidth: 170 });
+  
+      y += 60;
+  
+      // Jurado
+      doc.setFont("times", "bold");
+      doc.text("Jurado:", 20, y);
+  
+      y += 8;
+      doc.setFont("times", "normal");
+  
+      acta.jurados.forEach((jurado) => {
+        doc.text(`• ${jurado}`, 25, y);
+        y += 6;
+      });
+  
+      y += 20;
+  
+      // Firmas
+      doc.setFont("times", "bold");
+      doc.text("Firmas:", 20, y);
+  
+      y += 20;
+      doc.setFont("times", "normal");
+  
+      // Director
+      doc.line(20, y, 90, y);
+      doc.text("Daniel Efrén Brena Wilson", 20, y + 6);
+      doc.text("Director", 20, y + 12);
+  
+      // Jurado
+      doc.line(120, y, 190, y);
+      doc.text("Jurado", 120, y + 6);
+  
+      doc.save(`Acta_${acta.nombreConvocatoria}.pdf`);
+    };
+
+const descargarActa = async () => {
+  try {
+    const acta = await obtenerActaPorConvocatoria(convocatoria.idActividad);
+    generarPDF(acta);
+  } catch (error) {
+    console.error(error);
+    setModalTitle("Error");
+    setModalMessage("No fue posible generar el acta PDF");
+    setModalOpen(true);
+  }
+};
 
   return (
     <div className="p-6">

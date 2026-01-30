@@ -39,7 +39,7 @@ const GirdTallerD = ({ onTallerClick,talleres: talleresProp }) => {
                 <p className="text-sm text-gray-500 mb-2">
                   {taller.titulo || "Sin categoría"}
                 </p>
-                <h2 className="font-semibold text-gray-700 mb-3">
+                <h2 className="font-semibold text-gray-700 mb-3 text-justify">
                   {taller.descripcion || "Sin descripción"}
                 </h2>
                 <div className="flex justify-between items-center text-gray-500 text-sm">

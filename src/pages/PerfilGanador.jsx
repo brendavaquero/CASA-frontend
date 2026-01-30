@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { getGanadorById, actualizarGanador } from "@/apis/ganador_Service";
 import FormImageGanador from "../componentes/FormImageGanador";
 import { ChevronLeft } from "lucide-react";
+import { getPostulacionById } from "@/apis/postulacionConvocatoria_Service";
+import { getUsuarioById } from "@/apis/usuarios";
 
 //const ID_GANADOR = "GAN2026-00003";
 
@@ -10,6 +12,7 @@ const PerfilGanador = ({onVolver,ganadores = []}) => {
   const [ganador, setGanador] = useState(null);
   const [semblanza, setSemblanza] = useState("");
   const [guardando, setGuardando] = useState(false);
+  const [usuario, setUsuario] = useState(null);
 
   useEffect(() => {
     cargarGanador();
@@ -20,27 +23,48 @@ const PerfilGanador = ({onVolver,ganadores = []}) => {
       const data = await getGanadorById(ganadores[0].idGanador);
       setGanador(data);
       setSemblanza(data.semblanza || "");
+       const idPostulacion =
+      ganadores[0].idPostulacion;
+
+    if (idPostulacion) {
+      await cargarUsuarioGanador(idPostulacion);
+    }
       console.log('gandor', data);
     } catch (error) {
       console.error("Error al cargar ganador", error);
     }
   };
 
+  const cargarUsuarioGanador = async (idPostulacion) => {
+  try {
+    const postulacion = await getPostulacionById(idPostulacion);
+
+    const idUsuario = postulacion.idUsuario;
+
+    if (!idUsuario) return;
+
+    const user = await getUsuarioById(idUsuario);
+
+    setUsuario(user);
+  } catch (error) {
+    console.error("Error cargando usuario del ganador", error);
+  }
+};
+
   const guardarCambios = async () => {
     try {
       setGuardando(true);
 
-      const ganadorActualizado = {
-        ...ganador,
-        semblanza,
-      };
-
       const actualizado = await actualizarGanador(
         ganador.idGanador,
-        ganadorActualizado
+        { semblanza }
       );
 
-      setGanador(actualizado);
+      setGanador(prev => ({
+        ...prev,
+        ...actualizado,
+      }));
+
       alert("Perfil actualizado correctamente ✨");
     } catch (error) {
       console.error(error);
@@ -49,6 +73,10 @@ const PerfilGanador = ({onVolver,ganadores = []}) => {
       setGuardando(false);
     }
   };
+console.log({
+  ganador,
+  usuario
+});
 
   const onFotoActualizada = async (urlFoto) => {
     const actualizado = await actualizarGanador(ganador.idGanador, {
@@ -73,8 +101,14 @@ const PerfilGanador = ({onVolver,ganadores = []}) => {
       {/* IZQUIERDA */}
       <div>
         {ganador.nombreAutor}
+        <h1 className="text-2xl font-semibold">GANADOR/A:</h1>
       </div>
       <div className="flex flex-col items-center gap-4">
+        <h1 className="text-2xl font-semibold">
+          {usuario
+            ? `${usuario.nombre} ${usuario.apellidos}`
+            : "Cargando autor..."}
+        </h1>
         <img
           src={ganador.foto ? `http://localhost:8080${ganador.foto}` : "/placeholder-user.png"}
           alt="Foto ganador"

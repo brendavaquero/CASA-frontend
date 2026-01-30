@@ -37,6 +37,7 @@ export default function PostulacionesPendientesTable({taller}) {
         const data = await getPostulacionesPendientesConParticipante(
           taller.idActividad
         );
+        console.log(taller.idActividad);
         setPostulaciones(data);
       } catch (error) {
         console.error("Error obteniendo postulaciones pendientes:", error);
@@ -58,11 +59,10 @@ export default function PostulacionesPendientesTable({taller}) {
   // Ejecutar selección final
   const handleConfirmar = async () => {
     try {
-      await seleccionarPostulantes(idActividad, seleccionadas);
+      await seleccionarPostulantes(taller.idActividad, seleccionadas);
 
       // Recargar tabla
-      const data = await getPostulacionesPendientesConParticipante(
-        idActividad
+      const data = await getPostulacionesPendientesConParticipante(taller.idActividad
       );
       try {
         await enviarCorreosResultados(data);

@@ -9,7 +9,7 @@ import {
 } from "@/apis/sesiones";
 import { updatedActividad, uploadImagenActividad } from "@/apis/tallerDiplomado_Service";
 import ModalMensaje from "@/componentes/ModalMensaje";
-import { Trash2 } from "lucide-react";
+import { Trash2,ChevronLeft } from "lucide-react";
 
 const EditarTaller = ({ taller, onVolver }) => {
   const [form, setForm] = useState({
@@ -242,7 +242,6 @@ const EditarTaller = ({ taller, onVolver }) => {
         await uploadImagenActividad(fd);
       }
 
-      // 🔥 RECARGAR SESIONES PARA VER CAMBIOS INMEDIATOS
       const actualizadas = await getSesionesByTaller(taller.idActividad);
       setSesionesData(actualizadas);
       setErrorsSesiones(Array(actualizadas.length).fill({}));
@@ -265,6 +264,12 @@ const EditarTaller = ({ taller, onVolver }) => {
   const minFechaResultados = form.cierre || minFechaCierre;
   return (
     <div className="p-8 bg-white min-h-screen">
+      <button
+              onClick={onVolver}
+              className="text-black px-4 py-2"
+            >
+              <ChevronLeft size={30} />
+            </button>
       <h1 className="text-2xl font-semibold mb-8">
         Editar taller – {taller?.titulo}
       </h1>
@@ -504,24 +509,14 @@ const EditarTaller = ({ taller, onVolver }) => {
         open={modalOpen}
         title={modalTitle}
         message={modalMessage}
+        type={modalType}                 
         autoClose={modalType === "info"}
         onClose={() => {
           setModalOpen(false);
           setOnConfirmAction(null);
-          onVolver();
         }}
-        actions={
-          modalType === "confirm" && (
-            <div className="flex justify-end gap-4">
-              <Button variant="text" onClick={() => setModalOpen(false)}>
-                Cancelar
-              </Button>
-              <Button color="red" onClick={() => onConfirmAction?.()}>
-                Confirmar
-              </Button>
-            </div>
-          )
-        }
+        onConfirm={onConfirmAction}     
+        onCancel={() => setModalOpen(false)}
       />
     </div>
   );

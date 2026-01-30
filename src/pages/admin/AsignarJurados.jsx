@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Checkbox, Paper, Button,} from "@mui/material";
 import { UserCheck, ChevronLeft } from "lucide-react";
 import { getUsuarios } from "@/apis/usuarios";
-import { createJurado } from "@/apis/jurado";
+import { createJurado,getJuradosByConvocatoria } from "@/apis/jurado";
 import { enviarCorreo } from "@/apis/emailService";
 import ModalMensaje from "@/componentes/ModalMensaje";
 
@@ -13,9 +13,9 @@ const AsignarJurados = ({ convocatoria,onVolver }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
+  console.log('convocatorias',convocatoria);
 
-
-/*   const handleEnviarCorreos = async (juradosSeleccionados) => {
+   const handleEnviarCorreos = async (juradosSeleccionados) => {
     try {
       for (const jurado of juradosSeleccionados) {
         if (!jurado.correo) continue;
@@ -50,21 +50,35 @@ const AsignarJurados = ({ convocatoria,onVolver }) => {
       setModalMessage("Ocurrió un error al enviar los correos");
       setModalOpen(true);
     }
-  }; */
+  }; 
 
+
+  const cargarDatos = async () => {
+    try {
+      const usuarios = await getUsuarios();
+      const soloJurados = usuarios.filter(u => u.rol === "JURADO");
+
+      const asignados = await getJuradosByConvocatoria(convocatoria.idActividad);
+
+      const idsAsignados = asignados.map(j => j.idUsuario);
+
+      const disponibles = soloJurados.filter(
+        j => !idsAsignados.includes(j.idUsuario)
+      );
+
+      setJurados(disponibles);
+
+    } catch (error) {
+      console.error("Error al cargar jurados:", error);
+    }
+  };
 
   useEffect(() => {
-    const cargarDatos = async () => {
-      try {
-        const data = await getUsuarios();
-        const soloJurados = data.filter(u => u.rol === "JURADO");
-        setJurados(soloJurados);
-      } catch (error) {
-        console.error("Error al cargar jurados:", error);
-      }
-    };
-    cargarDatos();
-  }, []);
+    if (convocatoria?.idActividad) {
+      cargarDatos();
+    }
+    }, [convocatoria]);
+
 
   const handleToggle = (idUsuario) => {
     setSeleccionados(prev =>
@@ -100,6 +114,7 @@ const AsignarJurados = ({ convocatoria,onVolver }) => {
       );
 
       await handleEnviarCorreos(juradosSeleccionados);
+      await cargarDatos();
 
       setSeleccionados([]);
 

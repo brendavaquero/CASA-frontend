@@ -13,7 +13,7 @@ export default function DashboardTrimestral() {
   useEffect(() => {
     const fetchReporte = async () => {
       try {
-        const reporte = await obtenerReporteTrimestralActual(2026, 1); // puedes usar variables dinámicas
+        const reporte = await obtenerReporteTrimestralActual(2026, 1); 
         setData(reporte);
       } catch (err) {
         console.error(err);

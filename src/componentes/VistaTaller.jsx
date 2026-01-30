@@ -10,9 +10,11 @@ import ModalMensaje from "./ModalMensaje";
 import { Trash2,ClipboardList } from "lucide-react";
 import { PostulacionesPendientesPage } from "@/pages";
 import EditarTaller from "@/pages/admin/EditarTaller";
+import { getUsuarioById } from "@/apis/usuarios";
 
 const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
   const [alumnos, setAlumnos] = useState([]);
+  const [docente, setDocente] = useState([]);
   const [fechaHoy, setFechaHoy] = useState("");
   const [asistencias, setAsistencias] = useState({});
   const [archivos, setArchivos] = useState([]);
@@ -32,6 +34,8 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
   const esAdministrador = modo === "ADMINISTRADOR";
   const tallerFinalizado = taller?.estado === "FINALIZADA";
   const puedeGuardarAsistencia =  esDocente &&  sesiones.length > 0 &&  fechaHoy === sesiones[0].fechaInicio;
+  const [asistenciaRegistrada, setAsistenciaRegistrada] = useState(false);
+
 
   useEffect(() => {
     if (modo === "ALUMNO") return;
@@ -57,6 +61,18 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
     if (!taller?.idActividad) return;
     reloadArchivos();
   }, [taller]);
+  
+  useEffect(() => {
+    const fetchDocenteTaller = async () => {
+      try {
+        const data = await getUsuarioById(taller.idDocente);
+        setDocente(data);
+      } catch (error) {
+        console.error("Error al obtener docente:", error);
+      }
+    };
+    fetchDocenteTaller();
+  }, [taller, modo]);
 
   useEffect(() => {
   if (modo !== "ADMINISTRADOR") return;
@@ -74,6 +90,7 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
   fetchAprobados();
 }, [taller, modo]);
 
+console.log('taller',taller);
 
 useEffect(() => {
   if (!taller?.idActividad) return;
@@ -120,6 +137,8 @@ useEffect(() => {
           presente: asistencias[idAlumno],
         });
       }
+      setAsistencias({});
+      setAsistenciaRegistrada(true);
       setModalTitle("Éxito");
       setModalMessage("Asistencia registrada correctamente");
       setModalOpen(true);
@@ -131,6 +150,17 @@ useEffect(() => {
   };
   const fechaInicioTaller = sesiones.length > 0 ? sesiones[0].fechaInicio : taller.fechaInicio;
   const fechaCierreTaller = sesiones.length > 0 ? sesiones[sesiones.length - 1].fechaFin : taller.fechaCierre;
+
+  const yaPuedeVerPostulaciones = (() => {
+    if (!taller?.fechaCierre) return false;
+
+    const hoy = new Date(fechaHoy);
+    const cierre = new Date(taller.fechaCierre);
+
+    cierre.setDate(cierre.getDate() + 1);
+
+    return hoy >= cierre;
+  })();
 
 const solicitarEliminarArchivo = (archivo) => {
   setArchivoAEliminar(archivo);
@@ -160,6 +190,7 @@ const confirmarEliminarArchivo = async () => {
     setArchivoAEliminar(null);
   }
 };
+const editarBloqueado =  taller.estado === "EN_CURSO" ||  taller.estado === "FINALIZADA" || taller.estado === "CONVOCATORIA_ABIERTA" || taller.estado === "CONVOCATORIA_CERRADA";
   if (verPostulaciones) {
     return (
       <PostulacionesPendientesPage
@@ -202,15 +233,29 @@ const confirmarEliminarArchivo = async () => {
           {esDocente && !soloLecturaDocente && (
             <button
               onClick={() => setVerPostulaciones(true)}
-              className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
+              className={`px-4 py-2 rounded text-white 
+                ${yaPuedeVerPostulaciones 
+                  ? "bg-black hover:bg-gray-800" 
+                  : "bg-gray-400 cursor-not-allowed"}
+              `}
             >
               Ver postulaciones
             </button>
           )}
           {modo === "ADMINISTRADOR" && (
               <button
-                onClick={() => setEditar(true)}
-                className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
+                onClick={() => !editarBloqueado && setEditar(true)}
+                disabled={editarBloqueado}
+                title={
+                  editarBloqueado
+                    ? "No se puede editar un taller en este estado"
+                    : ""
+                }
+                className={`px-4 py-2 rounded text-white
+                  ${editarBloqueado
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-black hover:bg-gray-800"}
+                `}
               >
                 Editar Taller
               </button>
@@ -277,6 +322,7 @@ const confirmarEliminarArchivo = async () => {
                     {modo === "DOCENTE" && (
                       <input
                         type="checkbox"
+                        disabled={asistenciaRegistrada}
                         checked={asistencias[alumno.idAlumno] || false}
                         onChange={(e) =>
                           setAsistencias({
@@ -291,8 +337,13 @@ const confirmarEliminarArchivo = async () => {
                   </div>
                 ))
               )}
+              {asistenciaRegistrada && (
+                <p className="text-sm text-green-600 mt-2">
+                  ✔️ La asistencia del día ya fue registrada
+                </p>
+              )}
 
-              {puedeGuardarAsistencia && (
+              {puedeGuardarAsistencia && !asistenciaRegistrada && (
                 <button
                   onClick={handleGuardarAsistencia}
                   className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800"
@@ -314,8 +365,8 @@ const confirmarEliminarArchivo = async () => {
                     fechaInicioTaller,
                     fechaCierreTaller
                   },
-                  administrador,
-                  al
+                  docente,
+                  al,
                 )
               )
             }
@@ -368,6 +419,7 @@ const confirmarEliminarArchivo = async () => {
               <p><strong>Número de sesiones:</strong> {taller?.numSesiones}</p>
               <p><strong>Objetivo general:</strong> {taller?.objetivoGeneral}</p>
               <p><strong>Objetivos específicos:</strong> {taller?.objetivosEspecificos}</p>
+              <p><strong>Docente:</strong> {docente.nombre} {docente.apellidos}</p>
               {(modo === "DOCENTE" || modo === "ADMINISTRADOR" )&& (
                 <>
                   <p><strong>Fecha de inicio inscripciones:</strong> {taller?.fechaInicio}</p>

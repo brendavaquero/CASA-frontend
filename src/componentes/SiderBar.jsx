@@ -1,5 +1,5 @@
 import { NavLink,useNavigate } from "react-router-dom";
-import { Home, User, Users2Icon, FileText, LogOut, Menu, X,BookPlus, NotebookTabs,BookImage,ClipboardList,NotebookPen,Camera,ShieldUser,FolderPlus } from "lucide-react";
+import { Home, User, Users2Icon, FileText, LogOut, Menu, X,BookPlus, NotebookTabs,BookImage,ClipboardList,NotebookPen,Camera,ShieldUser,FolderPlus,LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import DescargarReporteTrimestral from "./DescargarReporteTrimestral";
@@ -12,6 +12,12 @@ const Sidebar = ({ role,open, onSelect, activeSection,onToggle,onLogoutClick  })
 
   const menuItems = [
     //Para admin
+    {
+      label: "Dashboard",
+      key:"DASHBOARD",
+      icon: LayoutDashboard,
+      roles: ["ADMINISTRADOR"],
+    },
     {
       label: "Talleres y Diplomados",
       key:"TALLERES_DIPLO",

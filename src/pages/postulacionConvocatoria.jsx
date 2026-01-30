@@ -6,7 +6,7 @@ import {
 } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import { crearPostulacion } from "../apis/postulacionConvocatoria_Service";
-import { useParams } from "react-router-dom";
+import { useParams,useNavigate } from "react-router-dom";
 import { getConvocatoriaById } from "../apis/convocatoria_Service";
 import FormFileUploadPostulacion from "../componentes/FormFileUploadPostulacion";
 import { uploadArchivoPostulacion } from "../apis/archivo_Service"; 
@@ -20,7 +20,7 @@ export function PostulacionConvocatoriaForm() {
   const [archivo, setArchivo] = useState(null);
   const [nombreObra, setNombreObra] = useState("");
   const [postulante, setPostulante] = useState("");
-
+  const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
@@ -88,7 +88,9 @@ export function PostulacionConvocatoriaForm() {
     setPostulante("");
     setNombreObra("");
     setArchivo(null);
-
+    setTimeout(() => {
+      navigate("/homeAlumno");
+    }, 3000);
     } catch (error) {
       console.error("Error al enviar participación:", error);
 

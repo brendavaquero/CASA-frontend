@@ -26,16 +26,17 @@ import { RondaFinal } from "../index.js";
 import AsignarJurados from "./AsignarJurados.jsx";
 import CrearPrograma from "./CrearPrograma.jsx";
 import Perfil from "../perfil/Perfil.jsx";
+import { DashboardTrimestral } from "../index.js";
 
 const HomeAdmin = () => {
   const [talleres, setTalleres] = useState([]);
-  const [vistaActual, setVistaActual] = useState("grid");
+  const [vistaActual, setVistaActual] = useState("dashboard");
   const [tallerSeleccionado, setTallerSeleccionado] = useState(null);
   const { user } = useAuth();
   const administrador = user;
   const [filtroEstado, setFiltroEstado] = useState("TODOS");
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [seccion, setSeccion] = useState("TALLERES");
+  const [seccion, setSeccion] = useState("DASHBOARD");
   const [convocatorias, setConvocatorias] = useState([]);
   const [convocatoriaSeleccionada, setConvocatoriaSeleccionada] = useState(null);
   const [jurados, setJurados] = useState([]);
@@ -79,25 +80,28 @@ const HomeAdmin = () => {
   const handleTallerClick = (taller) => {
     setTallerSeleccionado(taller);
 
-    switch (taller.estado) {
-      case "FINALIZADA":
-        setVistaActual("tallerFinalizado");
-        break;
+    const estadosVistaTaller = [
+      "AUTORIZADA",
+      "CONVOCATORIA_ABIERTA",
+      "CONVOCATORIA_CERRADA",
+      "EN_CURSO",
+      "FINALIZADA"
+    ];
 
-      case "AUTORIZADA":
-        setVistaActual("tallerAutorizado");
-        break;
-
-      case "CONVOCATORIA_ABIERTA":
-        setVistaActual("tallerAbierto");
-        break;
-
-      default:
-        // PENDIENTE, RECHAZADA, etc.
-        setVistaActual("taller");
-        break;
+    if (taller.estado === "PENDIENTE") {
+      setVistaActual("revisionTaller");
+      return;
     }
+
+    if (estadosVistaTaller.includes(taller.estado)) {
+      setVistaActual("vistaTaller");
+      return;
+    }
+
+    // fallback
+    setVistaActual("revisionTaller");
   };
+
 
   
   const handleConvocatoriaClick = async (convocatoria) => {
@@ -105,7 +109,7 @@ const HomeAdmin = () => {
     setVistaActual("convocatoria");
   };
 
-   const handleConvocatoriaJurados = (convocatoria) => {
+  const handleConvocatoriaJurados = (convocatoria) => {
     console.log('selecciomada:',convocatoria);
     setConvocatoriaSeleccionada(convocatoria);
     setVistaActual("asignar");
@@ -166,12 +170,20 @@ const HomeAdmin = () => {
               onToggle={() => setSidebarOpen(!sidebarOpen)} 
               onSelect={(key) => {
                 setSeccion(key);
-                setVistaActual("grid");
+
+                if (key === "DASHBOARD") {
+                  setVistaActual("dashboard");
+                } else {
+                  setVistaActual("grid");
+                }
               }}
               onLogoutClick={() => setOpenLogoutModal(true)}
             />
 
             <main className="flex-1 overflow-y-auto p-8">
+              {seccion === "DASHBOARD" && (
+                  <DashboardTrimestral />
+                )}
                {seccion === "TALLERES_DIPLO" && (
                 <>
                   {vistaActual === "grid" && (
@@ -215,7 +227,7 @@ const HomeAdmin = () => {
                     </>
                   )}
 
-                  {vistaActual === "taller" && (
+                  {vistaActual === "revisionTaller" && (
                     <Requisitar_Taller
                       modo="ADMINISTRADOR"
                       taller={tallerSeleccionado}
@@ -235,7 +247,7 @@ const HomeAdmin = () => {
                     />
                   )}
 
-                  {(vistaActual === "tallerFinalizado" || vistaActual === "tallerAutorizado" || vistaActual === "tallerAbierto") && (
+                  {vistaActual === "vistaTaller" && (
                     <VistaTaller
                       modo={administrador.rol}
                       taller={tallerSeleccionado}
