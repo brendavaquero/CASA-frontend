@@ -236,17 +236,15 @@ const buscarDirectorPorFecha = (directores, fechaReferencia) => {
 
       const inicio = parseFechaLatina(d.fechaInicio);
 
-      // 🔥 SI NO TIENE FECHA FIN → DIRECTOR ACTIVO
+
       const fin = d.fechaFin
         ? parseFechaLatina(d.fechaFin)
-        : hoy; // se considera vigente hasta hoy
+        : hoy;
 
-      // Caso 1: validar contra fecha del taller
       if (fechaRef) {
         return fechaRef >= inicio && fechaRef <= fin;
       }
 
-      // Caso 2: validar solo con la fecha actual
       return hoy >= inicio && hoy <= fin;
     }) || null
   );
