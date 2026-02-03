@@ -97,3 +97,4 @@ export const deleteInstitucion = async (id) => {
     throw error;
   }
 };
+

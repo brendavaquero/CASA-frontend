@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
-//import { useParams, useNavigate,useLocation  } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import jsPDF from "jspdf";
-import { obtenerActaPorConvocatoria } from "@/apis/convocatorias";
 import {
   Typography,
   Dialog,
@@ -13,106 +11,72 @@ import {
   Spinner,
 } from "@material-tailwind/react";
 
-import FinalistaCard from "../componentes/FinalistaCard";
-import { entrarRondaFinal  } from "../apis/rondaUno_Service";
+import { obtenerActaPorConvocatoria, getInstitucionesByActividad } from "@/apis/convocatorias";
+import { obtenerFinalistas, entrarRondaFinal } from "../apis/rondaUno_Service";
 import { confirmarGanador } from "../apis/ganador_Service";
 import { enviarCorreo } from "@/apis/emailService";
+import FinalistaCard from "../componentes/FinalistaCard";
 import ModalMensaje from "@/componentes/ModalMensaje";
-import { obtenerFinalistas } from "../apis/rondaUno_Service";
+import { getDirectores } from "@/apis/director";
 
-const RondaFinal = ({convocatoria,onVolver}) => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
-  const [modalTitle, setModalTitle] = useState("Mensaje");
-  console.log('convoFinal:',convocatoria);
-  const confirmar = async () => {
-  console.log("Finalista enviado al backend:", finalistaSeleccionado);
-  const enviarCorreoGanador = async (finalista) => {
-    if (!finalista?.correo) {
-      console.warn("El finalista no tiene correo registrado");
-      return;
-    }
-     const nombre = finalista.infantil
-      ? finalista.postulante
-      : `${finalista.nombre} ${finalista.apellidos}`;
+/* =========================
+   HELPER PARA CARGAR IMÁGENES
+========================= */
+const loadImage = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("No se pudo cargar imagen");
 
-    const dataCorreo = {
-      to: finalista.correo,
-      subject: "¡Felicidades! Eres ganador de la convocatoria",
-      body: `
-      Hola ${nombre},
+  const blob = await response.blob();
 
-      Nos complace informarte que has sido seleccionado como GANADOR de la convocatoria:
-
-      "${convocatoria.titulo}"
-
-      Obra ganadora:
-      "${finalista.nombreObra}"
-
-      ¡Felicidades por tu talento!
-
-      Pronto nos pondremos en contacto contigo para los siguientes pasos.
-
-      Atentamente,
-      Centro de las Artes de San Agustin`,
-    }; 
-    try {
-      await enviarCorreo(dataCorreo);
-      setModalTitle("Éxito");
-      setModalMessage("Se envio el correo al ganador");
-      setModalOpen(true);
-    } catch (error) {
-      setModalTitle("Error");
-      setModalMessage("Ocurrio un error al mandar el correo, ",error);
-      setModalOpen(true);
-    }
-
-  };
-
-
-  try {
-    await confirmarGanador(finalistaSeleccionado);
-    await descargarActa();
-    await enviarCorreoGanador(finalistaSeleccionado);
-    setModalTitle("Éxito");
-    setModalMessage("Ganador confirmado correctamente");
-    setModalOpen(true);
-    cerrarModal();
-  } catch (error) {
-    alert("Error al confirmar ganador");
-  }
+  return await new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
 };
+
+const RondaFinal = ({ convocatoria, onVolver }) => {
   const [finalistas, setFinalistas] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [open, setOpen] = useState(false);
   const [finalistaSeleccionado, setFinalistaSeleccionado] = useState(null);
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalTitle, setModalTitle] = useState("Mensaje");
+  const [director, setDirector] = useState(null);
+
+  /* =========================
+     CARGAR FINALISTAS
+  ========================= */
   useEffect(() => {
     if (convocatoria?.idActividad) {
       cargarFinalistas();
     }
   }, [convocatoria]);
 
+  const cargarFinalistas = async () => {
+    try {
+      const data = await obtenerFinalistas(convocatoria.idActividad);
+      setFinalistas(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+  const fetchDirector = async () => {
+    try {
+      const data = await getDirectores();
+      setDirector(data[0]);
+    } catch (error) {
+      console.error("Error al cargar director", error);
+    }
+  };
 
-const cargarFinalistas = async () => {
-  try {
-    const data = await obtenerFinalistas(convocatoria.idActividad);
-    console.log('idAct',convocatoria.idActividad);
-    console.log('data',data);
-    setFinalistas(data);
-  } catch (error) {
-  console.error("Error al confirmar ganador");
-  console.error("Status:", error.response?.status);
-  console.error("Data:", error.response?.data);
-  console.error("Message:", error.message);
-  throw error;
-}
- finally {
-    setLoading(false); // 
-  }
-};
-
+  fetchDirector();
+}, []);
 
   const abrirModal = (finalista) => {
     setFinalistaSeleccionado(finalista);
@@ -124,50 +88,118 @@ const cargarFinalistas = async () => {
     setFinalistaSeleccionado(null);
   };
 
+  /* =========================
+     CONFIRMAR GANADOR + CORREO
+  ========================= */
+  const confirmar = async () => {
+    console.log("Finalista enviado al backend:", finalistaSeleccionado);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center mt-10">
-        <Spinner />
-      </div>
-    );
-  }
-  const generarPDF = (acta) => {
-  const doc = new jsPDF("p", "mm", "a4");
-  const pageWidth = doc.internal.pageSize.getWidth();
+    const enviarCorreoGanador = async (finalista) => {
+      if (!finalista?.correo) {
+        console.warn("El finalista no tiene correo registrado");
+        return;
+      }
 
-  let y = 20;
+      const nombre = finalista.infantil
+        ? finalista.postulante
+        : `${finalista.nombre} ${finalista.apellidos}`;
 
-  /* ======================
-     ENCABEZADO CON LOGO
-  ====================== */
+      const dataCorreo = {
+        to: finalista.correo,
+        subject: "¡Felicidades! Eres ganador de la convocatoria",
+        body: `
+Hola ${nombre},
 
-  const logoUrl = "public/img/LOGO-CASA-01-b.png"; // public/img/logo.png
-  const logoWidth = 30;
-  const logoHeight = 20;
+Nos complace informarte que has sido seleccionado como GANADOR de la convocatoria:
 
-  doc.addImage(logoUrl, "PNG", (pageWidth - logoWidth) / 2, y, logoWidth, logoHeight);
+"${convocatoria.titulo}"
 
-  y += 30;
+Obra ganadora:
+"${finalista.nombreObra}"
 
-  doc.setFont("times", "bold");
-  doc.setFontSize(14);
-  doc.text("ACTA DE DICTAMEN", pageWidth / 2, y, { align: "center" });
+¡Felicidades por tu talento!
 
-  y += 8;
-  doc.setFont("times", "normal");
-  doc.setFontSize(11);
-  doc.text(`${acta.lugar}, a ${acta.fecha}`, pageWidth / 2, y, {
-    align: "center",
-  });
+Pronto nos pondremos en contacto contigo para los siguientes pasos.
 
-  y += 15;
+Atentamente,
+Centro de las Artes de San Agustín
+        `,
+      };
 
-  /* ======================
-     TEXTO PRINCIPAL
-  ====================== */
+      try {
+        await enviarCorreo(dataCorreo);
+        setModalTitle("Éxito");
+        setModalMessage("Se envió el correo al ganador");
+        setModalOpen(true);
+      } catch (error) {
+        setModalTitle("Error");
+        setModalMessage("Ocurrió un error al mandar el correo");
+        setModalOpen(true);
+      }
+    };
 
-  const texto = `
+    try {
+      await confirmarGanador(finalistaSeleccionado);
+      await descargarActa();
+      await enviarCorreoGanador(finalistaSeleccionado);
+
+      setModalTitle("Éxito");
+      setModalMessage("Ganador confirmado correctamente");
+      setModalOpen(true);
+
+      cerrarModal();
+    } catch (error) {
+      alert("Error al confirmar ganador");
+    }
+  };
+
+
+  const generarPDF = async (acta, instituciones = [],director) => {
+    const doc = new jsPDF("p", "mm", "a4");
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+
+    if (instituciones.length > 0) {
+      const logoSize = 18;
+      const gap = 8;
+      const totalWidth =
+        instituciones.length * logoSize +
+        (instituciones.length - 1) * gap;
+
+      let startX = (pageWidth - totalWidth) / 2;
+      const logosY = 10;
+
+      for (const inst of instituciones) {
+        if (!inst.logoUrl) continue;
+
+        try {
+          const logoUrl = inst.logoUrl.startsWith("http")
+            ? inst.logoUrl
+            : `http://localhost:8080${inst.logoUrl}`;
+
+          const logo = await loadImage(logoUrl);
+          doc.addImage(logo, "PNG", startX, logosY, logoSize, logoSize);
+          startX += logoSize + gap;
+        } catch {
+          console.warn("No se pudo cargar logo:", inst.nombre);
+        }
+      }
+    }
+
+    let y = 40;
+
+    doc.setFont("times", "bold");
+    doc.setFontSize(14);
+    doc.text("ACTA DE DICTAMEN", pageWidth / 2, y, { align: "center" });
+
+    y += 8;
+    doc.setFont("times", "normal");
+    doc.setFontSize(11);
+    doc.text(`${acta.lugar}, a ${acta.fecha}`, pageWidth / 2, y, { align: "center" });
+
+    y += 15;
+
+    const texto = `
 En la presente acta se hace constar que, tras el proceso de evaluación
 correspondiente a la convocatoria "${acta.nombreConvocatoria}", convocada por
 ${acta.convocantes}, el jurado designado determinó como ganador(a) a:
@@ -178,85 +210,92 @@ con la obra titulada "${acta.nombreObra}", la cual obtuvo una calificación fina
 de ${acta.calificacionFinal} puntos.
 
 El premio otorgado consiste en: ${acta.premio}.
-  `;
+    `;
 
-  doc.text(texto.trim(), 20, y, {
-    maxWidth: 170,
-    lineHeightFactor: 1.5,
-  });
+    doc.text(texto.trim(), 20, y, {
+      maxWidth: 170,
+      lineHeightFactor: 1.5,
+    });
 
-  y += 95;
+    y += 95;
+    
+    doc.setFont("times", "bold");
+    doc.text("Firmas del Jurado", 20, y);
 
-  /* ======================
-     FIRMAS DEL JURADO
-  ====================== */
+    y += 15;
+    doc.setFont("times", "normal");
 
-  doc.setFont("times", "bold");
-  doc.text("Firmas del Jurado", 20, y);
+    const col1X = 20;
+    const col2X = 110;
+    const lineWidth = 70;
+    let currentY = y;
 
-  y += 15;
-  doc.setFont("times", "normal");
+    acta.jurados.forEach((jurado, index) => {
+      const x = index % 2 === 0 ? col1X : col2X;
 
-  const col1X = 20;
-  const col2X = 110;
-  const lineWidth = 70;
-  let currentY = y;
+      if (index % 2 === 0 && index !== 0) currentY += 25;
 
-  acta.jurados.forEach((jurado, index) => {
-    const x = index % 2 === 0 ? col1X : col2X;
+      doc.line(x, currentY, x + lineWidth, currentY);
+      doc.text(jurado, x, currentY + 6);
+      doc.setFontSize(9);
+      doc.text("Jurado", x, currentY + 11);
+      doc.setFontSize(11);
+    });
 
-    if (index % 2 === 0 && index !== 0) {
-      currentY += 25;
-    }
+    currentY += 40;
 
-    // Línea de firma
-    doc.line(x, currentY, x + lineWidth, currentY);
+    doc.setFont("times", "bold");
+    doc.text("Dirección", 20, currentY);
 
-    // Nombre del jurado
-    doc.text(jurado, x, currentY + 6);
+    currentY += 15;
+    doc.setFont("times", "normal");
+    doc.line(20, currentY, 90, currentY);
 
-    // Rol
+    doc.text(
+      director?.nombre || "Director del Centro de las Artes",
+      20,
+      currentY + 6
+    );
+
     doc.setFontSize(9);
-    doc.text("Jurado", x, currentY + 11);
+    doc.text(
+      "Director General del Centro de las Artes de San Agustín",
+      20,
+      currentY + 11
+    );
     doc.setFontSize(11);
-  });
-
-  /* ======================
-     FIRMA DIRECTOR (OPCIONAL)
-  ====================== */
-
-  currentY += 40;
-
-  doc.setFont("times", "bold");
-  doc.text("Dirección", 20, currentY);
-
-  currentY += 15;
-  doc.setFont("times", "normal");
-  doc.line(20, currentY, 90, currentY);
-  doc.text("Daniel Efrén Brena Wilson", 20, currentY + 6);
-  doc.text("Director General del Centro de las Artes de San Agustín", 20, currentY + 11);
-
-  doc.save(`Acta_${acta.nombreConvocatoria}.pdf`);
-};
 
 
-const descargarActa = async () => {
-  try {
-    const acta = await obtenerActaPorConvocatoria(convocatoria.idActividad);
-    generarPDF(acta);
-  } catch (error) {
-    console.error(error);
-    setModalTitle("Error");
-    setModalMessage("No fue posible generar el acta PDF");
-    setModalOpen(true);
+    doc.save(`Acta_${acta.nombreConvocatoria}.pdf`);
+  };
+
+  const descargarActa = async () => {
+    try {
+      const acta = await obtenerActaPorConvocatoria(convocatoria.idActividad);
+      const instituciones = await getInstitucionesByActividad(convocatoria.idActividad);
+      await generarPDF(acta, instituciones,director);
+    } catch (error) {
+      console.error(error);
+      setModalTitle("Error");
+      setModalMessage("No fue posible generar el acta PDF");
+      setModalOpen(true);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center mt-10">
+        <Spinner />
+      </div>
+    );
   }
-};
 
   return (
     <div className="p-6">
       <button onClick={onVolver}>
-              <ChevronLeft size={28} />
-            </button>
+        <ChevronLeft size={28} />
+      </button>
+
       <Typography variant="h4" className="mb-6">
         Ronda Final – Selección de Ganador
       </Typography>
@@ -271,25 +310,21 @@ const descargarActa = async () => {
         ))}
       </div>
 
-      {/* MODAL */}
       <Dialog open={open} handler={cerrarModal} size="sm">
-        <DialogHeader className="text-center justify-center">Confirmar ganador</DialogHeader>
+        <DialogHeader className="text-center">Confirmar ganador</DialogHeader>
 
         <DialogBody>
           {finalistaSeleccionado && (
             <>
-              <Typography color="gray" className="mt-2 font-medium text-center">
+              <Typography className="text-center font-medium">
                 {finalistaSeleccionado.infantil
                   ? finalistaSeleccionado.postulante
                   : `${finalistaSeleccionado.nombre} ${finalistaSeleccionado.apellidos}`}
               </Typography>
-              <Typography color="gray" className="mt-2 text-center">
-                Obra: <span className="font-medium">
-                  {finalistaSeleccionado.nombreObra}
-                </span>
+              <Typography className="text-center mt-2">
+                Obra: <strong>{finalistaSeleccionado.nombreObra}</strong>
               </Typography>
-
-              <Typography color="gray" className="mt-2 text-center">
+              <Typography className="text-center mt-2">
                 Promedio final: {finalistaSeleccionado.promedio}
               </Typography>
             </>
@@ -300,12 +335,12 @@ const descargarActa = async () => {
           <Button variant="text" onClick={cerrarModal}>
             Cancelar
           </Button>
-          <Button  onClick={confirmar}>
+          <Button onClick={confirmar}>
             Confirmar ganador
-            {/* correo */}
           </Button>
         </DialogFooter>
       </Dialog>
+
       <ModalMensaje
         open={modalOpen}
         onClose={() => setModalOpen(false)}

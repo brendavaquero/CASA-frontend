@@ -11,6 +11,8 @@ import { Trash2,ClipboardList } from "lucide-react";
 import { PostulacionesPendientesPage } from "@/pages";
 import EditarTaller from "@/pages/admin/EditarTaller";
 import { getUsuarioById } from "@/apis/usuarios";
+import { getInstitucionesByActividadTaller } from "@/apis/tallerDiplomado_Service";
+import { getDirectores } from "@/apis/director";
 
 const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
   const [alumnos, setAlumnos] = useState([]);
@@ -35,6 +37,8 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
   const tallerFinalizado = taller?.estado === "FINALIZADA";
   const puedeGuardarAsistencia =  esDocente &&  sesiones.length > 0 &&  fechaHoy === sesiones[0].fechaInicio;
   const [asistenciaRegistrada, setAsistenciaRegistrada] = useState(false);
+  const [instituciones, setInstituciones] = useState([]);
+  const [director, setDirector] = useState(null);
 
 
   useEffect(() => {
@@ -93,6 +97,22 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
 console.log('taller',taller);
 
 useEffect(() => {
+  if (modo !== "ADMINISTRADOR") return;
+
+  const fetchDirector = async () => {
+    try {
+      const data = await getDirectores();
+      setDirector(data[0]);
+    } catch (error) {
+      console.error("Error al cargar director", error);
+    }
+  };
+
+  fetchDirector();
+}, [modo]);
+console.log('director',director);
+
+useEffect(() => {
   if (!taller?.idActividad) return;
 
   const fetchSesiones = async () => {
@@ -110,6 +130,25 @@ useEffect(() => {
 
   fetchSesiones();
 }, [taller]);
+ useEffect(() => {
+    if (
+      !taller?.idActividad ||
+      !(modo === "ADMINISTRADOR" || modo === "DOCENTE")
+    ) return;
+
+    const fetchInstituciones = async () => {
+      try {
+        const data = await getInstitucionesByActividadTaller(
+          taller.idActividad
+        );
+        setInstituciones(data);
+      } catch (error) {
+        console.error("Error al cargar instituciones", error);
+      }
+    };
+
+    fetchInstituciones();
+  }, [taller, modo]);
 
   const reloadArchivos = async () => {
    try {
@@ -355,25 +394,35 @@ const editarBloqueado =  taller.estado === "EN_CURSO" ||  taller.estado === "FIN
           )}
           
           {esAdministrador && tallerFinalizado && (
-          <button
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-800 w-full"
-            onClick={() =>
-              alumnosAprobados.forEach(al =>
-                generarConstancia(
-                  { 
-                    ...taller,
-                    fechaInicioTaller,
-                    fechaCierreTaller
-                  },
-                  docente,
-                  al,
-                )
-              )
-            }
-          >
-            Generar constancias
-          </button>
-        )}
+            <button
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-800 w-full"
+              onClick={async () => {
+                try {
+                  const instituciones = await getInstitucionesByActividadTaller(
+                    taller.idActividad
+                  );
+
+                  for (const al of alumnosAprobados) {
+                    await generarConstancia(
+                      {
+                        ...taller,
+                        fechaInicioTaller,
+                        fechaCierreTaller,
+                      },
+                      docente,
+                      al,
+                      instituciones,
+                      director 
+                    );
+                  }
+                } catch (error) {
+                  console.error("Error al generar constancias", error);
+                }
+              }}
+            >
+              Generar constancias
+            </button>
+          )}
 
           {modo === "auxiliar" &&(
               <div className="border p-5 rounded bg-white shadow-sm">
@@ -466,6 +515,35 @@ const editarBloqueado =  taller.estado === "EN_CURSO" ||  taller.estado === "FIN
             )}
           </div>
         )}
+                {(modo === "ADMINISTRADOR" || modo === "DOCENTE") &&
+          instituciones.length > 0 && (
+            <div className="bg-white p-4 rounded shadow">
+              <h2 className="text-md font-semibold mb-4">
+                Instituciones participantes
+              </h2>
+
+              <div className="flex flex-wrap gap-6 items-center">
+                {instituciones.map((inst) => (
+                  <div
+                    key={inst.idInstitucion}
+                    className="flex flex-col items-center text-center"
+                  >
+                    <img
+                      src={`http://localhost:8080${inst.logoUrl}`}
+                      alt={inst.nombre}
+                      className="h-20 object-contain"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                      }}
+                    />
+                    <span className="text-xs mt-2 text-gray-600">
+                      {inst.nombre}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
         </div>
       </div>

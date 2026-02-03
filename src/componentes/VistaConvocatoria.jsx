@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import { Image, Users, UserCheck, ClipboardCheck, Trophy,Download,ChevronLeft } from 'lucide-react';
+import { Image, Users, UserCheck, ClipboardCheck, Trophy,Download,ChevronLeft,Landmark } from 'lucide-react';
 import { Button} from "@material-tailwind/react";
 import { getJuradosByConvocatoria } from '@/apis/jurado';
 import { participantesByIdActivdad } from "@/apis/postulacion_Service";
 import { getEvaluacionByConvocatoria } from "@/apis/evaluacion";
-import { updateConvocatoriaRondas,getByIdConvocatoria } from "@/apis/convocatorias";
+import { updateConvocatoriaRondas,getByIdConvocatoria,getInstitucionesByActividad } from "@/apis/convocatorias";
 import { getGanadoresByConvocatoria } from "@/apis/ganador_Service";
 import ModalMensaje from "./ModalMensaje";
 
-const VistaConvocatoria = ({convocatoria,jurados = [], evaluaciones = [], participantes = [], ganadores = [], onVolver, onNavigate, setJurados,setEvaluaciones,setParticipantes, setGanadores, recargarConvocatoria}) => {
+const VistaConvocatoria = ({convocatoria,jurados = [], evaluaciones = [], participantes = [], ganadores = [],instituciones=[], onVolver, onNavigate, setJurados,setEvaluaciones,setParticipantes, setGanadores,setInstituciones, recargarConvocatoria}) => {
   const [form, setForm] = useState({
     fechaInicioR1: '',
     fechaLimiteR1: '',
@@ -71,6 +71,16 @@ const VistaConvocatoria = ({convocatoria,jurados = [], evaluaciones = [], partic
 
   }, [convocatoria, setGanadores]);
 
+  useEffect(() => {
+    if (!convocatoria?.idActividad) return;
+
+     getInstitucionesByActividad(convocatoria.idActividad)
+      .then(setInstituciones)
+      .catch(err =>
+        console.error("Error al obtener las instituciones:", err)
+      );
+  }, [convocatoria, setInstituciones]);
+
   const cards = [
     {
       key: 'participantes',
@@ -95,6 +105,12 @@ const VistaConvocatoria = ({convocatoria,jurados = [], evaluaciones = [], partic
       label: 'Ganador',
       value: ganadores.length ?? 'Sin asignar',
       icon: Trophy,
+    },
+    {
+      key: 'instituciones',
+      label: 'instituciones',
+      value: instituciones.length ?? 'Sin asignar',
+      icon: Landmark,
     },
   ];
 

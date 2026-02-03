@@ -1,5 +1,5 @@
 import { NavLink,useNavigate } from "react-router-dom";
-import { Home, User, Users2Icon, FileText, LogOut, Menu, X,BookPlus, NotebookTabs,BookImage,ClipboardList,NotebookPen,Camera,ShieldUser,FolderPlus,LayoutDashboard } from "lucide-react";
+import { Home, User, Users2Icon, BookUser, LogOut, Menu, X,BookPlus, NotebookTabs,BookImage,Landmark,NotebookPen,Camera,ShieldUser,FolderPlus,LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import DescargarReporteTrimestral from "./DescargarReporteTrimestral";
@@ -51,7 +51,7 @@ const Sidebar = ({ role,open, onSelect, activeSection,onToggle,onLogoutClick  })
     {
       label: "Asignar Jurados",
       key: "ASIGNAR_JURADOS",
-      icon: ShieldUser,
+      icon: BookUser,
       roles: ["ADMINISTRADOR"],
     },
     {
@@ -70,6 +70,24 @@ const Sidebar = ({ role,open, onSelect, activeSection,onToggle,onLogoutClick  })
       label: "Usuarios",
       key: "USUARIOS",
       icon: Users2Icon,
+      roles: ["ADMINISTRADOR"],
+    },
+    {
+      label: "Instituciones",
+      key: "INSTITUCIONES",
+      icon: Landmark,
+      roles: ["ADMINISTRADOR"],
+    },
+    {
+      label: "Asignar instituciones",
+      key: "ASIGNAR_INSTITUCIONES",
+      icon: Landmark,
+      roles: ["ADMINISTRADOR"],
+    },
+    {
+      label: "Director CaSa",
+      key: "DIRECTOR",
+      icon: ShieldUser,
       roles: ["ADMINISTRADOR"],
     },/*
     {

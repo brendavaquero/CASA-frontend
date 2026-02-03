@@ -116,6 +116,19 @@ export const listTalleresDiplomados = async () => {
     return [];
   }
 };
+export const getInstitucionesByActividadTaller = async (idTaller) => {
+  try {
+    const response = await api.get(`/talleresydiplomados/${idTaller}/instituciones`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener institución:", error);
+    throw error;
+  }
+};
+export const asignarInstitucionesTaller = async(idTaller, instituciones) => {
+  const rest = await api.put(`/talleresydiplomados/${idTaller}/instituciones`,instituciones);
+  return rest.data;
+}; 
 
 /*export async function getDocenteByTaller(idActividad) {
   const url = `${API_URL}/${idActividad}/docente`;

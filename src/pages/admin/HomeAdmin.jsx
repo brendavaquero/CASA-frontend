@@ -28,6 +28,10 @@ import CrearPrograma from "./CrearPrograma.jsx";
 import Perfil from "../perfil/Perfil.jsx";
 import { DashboardTrimestral } from "../index.js";
 import { Footer } from "@/widgets/layout/index.js";
+import { InstitucionesPage } from "../index.js";
+import AsignarInstituciones from "./AsignarInstituciones.jsx";
+import ListInstituciones from "./ListInstituciones.jsx";
+import Director from "./Director.jsx";
 
 const HomeAdmin = () => {
   const [talleres, setTalleres] = useState([]);
@@ -44,7 +48,10 @@ const HomeAdmin = () => {
   const [evaluaciones, setEvaluaciones] = useState([]);
   const [participantes, setParticipantes] = useState([]);
   const [ganadores, setGanadores] = useState([]);
+  const [instituciones, setinstituciones] = useState([]);
   const [openLogoutModal, setOpenLogoutModal] = useState(false);
+  const [tipoActividad, setTipoActividad] = useState("CONVOCATORIA");
+  const [actividadSeleccionada, setActividadSeleccionada] = useState(null);
   const { logout } = useAuth();
   const navigate = useNavigate();
   useEffect(() => {
@@ -126,6 +133,11 @@ const HomeAdmin = () => {
     } catch (error) {
       console.error("Error al recargar convocatoria", error);
     }
+  };
+  const handleActividadClick = (actividad) => {
+    setActividadSeleccionada(actividad);
+    setConvocatoriaSeleccionada(actividad); 
+    setVistaActual("asignar");
   };
 
   const handleVolver = async  () => {
@@ -304,12 +316,14 @@ const HomeAdmin = () => {
                           evaluaciones={evaluaciones}
                           participantes={participantes}
                           ganadores={ganadores}
+                          instituciones={instituciones}
                           onVolver={() => setVistaActual("grid")}
                           onNavigate={handleNavigateConvocatoria}
                           setJurados={setJurados} 
                           setEvaluaciones={setEvaluaciones}
                           setParticipantes={setParticipantes}
                           setGanadores={setGanadores}
+                          setInstituciones={setinstituciones}
                           recargarConvocatoria={recargarConvocatoriaSeleccionada}
                         />
                       )}
@@ -338,6 +352,12 @@ const HomeAdmin = () => {
                         <ListaParticipantes
                           convocatoria={convocatoriaSeleccionada}
                           participantes={participantes}
+                          onVolver={() => setVistaActual("convocatoria")}
+                        />
+                      )}
+                      {vistaActual === "instituciones" && (
+                        <ListInstituciones
+                          convocatoria={convocatoriaSeleccionada}
                           onVolver={() => setVistaActual("convocatoria")}
                         />
                       )}
@@ -404,6 +424,60 @@ const HomeAdmin = () => {
                   usuario={administrador}/>
                 </>
               )}
+              {seccion === "INSTITUCIONES" && (
+                <>
+                  <InstitucionesPage />
+                </>
+              )}
+              {seccion === "ASIGNAR_INSTITUCIONES" && (
+                <>
+                  {vistaActual === "grid" && (
+                    <>
+                      {/* FILTRO TIPO ACTIVIDAD */}
+                      <div className="flex items-center gap-4 mb-4">
+                        <span>Tipo de actividad:</span>
+                        <FormControl size="small" sx={{ minWidth: 220 }}>
+                          <Select
+                            value={tipoActividad}
+                            onChange={(e) => setTipoActividad(e.target.value)}
+                          >
+                            <MenuItem value="CONVOCATORIA">Convocatoria</MenuItem>
+                            <MenuItem value="TALLER">Taller</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </div>
+
+                      {/* GRID SEGÚN TIPO */}
+                      {tipoActividad === "CONVOCATORIA" && (
+                        <GirdConvocatoria
+                          convocatorias={convocatorias}
+                          onConvocatoriaClick={handleActividadClick}
+                        />
+                      )}
+
+                      {tipoActividad === "TALLER" && (
+                        <GridTallerD
+                          talleres={talleresFiltrados}
+                          onTallerClick={handleActividadClick}
+                        />
+                      )}
+                    </>
+                  )}
+
+                  {vistaActual === "asignar" && (
+                    <AsignarInstituciones
+                      actividad={actividadSeleccionada}
+                      tipoActividad={tipoActividad}
+                      onVolver={() => setVistaActual("grid")}
+                    />
+                  )}
+                </>
+              )}
+              {seccion === "DIRECTOR" && (
+                    <>
+                      <Director />
+                    </>
+                  )}
             </main>
         </div>
         <Footer/>

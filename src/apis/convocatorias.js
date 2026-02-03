@@ -36,3 +36,17 @@ export const obtenerActaPorConvocatoria = async (idConvocatoria) => {
     throw error;
   }
 };
+
+export const getInstitucionesByActividad= async (idConvocatoria) => {
+  try {
+    const response = await api.get(`/convocatoriasyresidencias/${idConvocatoria}/instituciones`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener institución:", error);
+    throw error;
+  }
+};
+export const asignarInstitucionesConvocatorias = async(idConvocatoria, instituciones) => {
+  const rest = await api.put(`/convocatoriasyresidencias/${idConvocatoria}/instituciones`,instituciones);
+  return rest.data;
+}; 

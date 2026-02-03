@@ -5,9 +5,9 @@ const year = new Date().getFullYear();
 
 export function Footer({ copyright }) {
   return (
-    <footer className="relative px-4 pt-8 pb-6">
+    <footer className="relative px-4 pb-3">
       <div className="container mx-auto">
-        <hr className="my-6 border-gray-300" />
+        <hr className="my-2 border-gray-300" />
         <div className="flex flex-wrap items-center justify-center md:justify-between">
           <div className="mx-auto w-full px-4 text-center">
             <Typography
