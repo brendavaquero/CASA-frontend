@@ -20,3 +20,4 @@ export * from "@/componentes/DescargarReporteTrimestral";
 export * from "@/componentes/BotonDescargarActa";
 export * from "@/componentes/MetricCard";
 export * from "@/componentes/PieChartBlock";
+export * from "@/componentes/InstitucionForm";

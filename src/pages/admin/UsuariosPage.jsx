@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Box,
   Button,
@@ -54,6 +54,27 @@ const UsuariosPage = () => {
     rol: "",
     activo: true,
   });
+
+  const [search, setSearch] = useState("");
+
+  const usuariosFiltrados = useMemo(() => {
+  const filtrados = search
+    ? usuarios.filter((u) =>
+        `${u.nombre} ${u.apellidos} ${u.correo} ${u.rol}`
+          .toLowerCase()
+          .includes(search.toLowerCase())
+      )
+    : usuarios;
+
+  // DIRECTOR siempre arriba
+  return [...filtrados].sort((a, b) => {
+    if (a.rol === "DIRECTOR") return -1;
+    if (b.rol === "DIRECTOR") return 1;
+    return 0;
+  });
+}, [search, usuarios]);
+
+
 
   // 🔹 Cargar usuarios
   const cargarUsuarios = async () => {
@@ -199,18 +220,38 @@ const handleAgregarUsuario = async () => {
 
 
   return (
+    
     <Box p={4}>
-      <Box display="flex" justifyContent="space-between" mb={3}>
+      <Box
+        display="flex"
+        flexDirection={{ xs: "column", md: "row" }}
+        gap={2}
+        mb={3}
+        justifyContent="space-between"
+        alignItems={{ md: "center" }}
+      >
         <h2 className="text-xl font-semibold">👥 Usuarios</h2>
-        <Button
-          variant="contained"
-          startIcon={<UserPlus size={18} />}
-          sx={{ bgcolor: "black" }}
-          onClick={() => setOpenModal(true)}
-        >
-          Agregar usuario
-        </Button>
+
+        <Box display="flex" gap={2}>
+          <TextField
+            size="small"
+            placeholder="Buscar usuario"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            
+          />
+
+          <Button
+            variant="contained"
+            startIcon={<UserPlus size={18} />}
+            sx={{ bgcolor: "black" }}
+            onClick={() => setOpenModal(true)}
+          >
+            Agregar usuario
+          </Button>
+        </Box>
       </Box>
+
 
       <Paper>
         <Table>
@@ -224,27 +265,49 @@ const handleAgregarUsuario = async () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {usuarios.map((u) => (
-              <TableRow key={u.idUsuario}>
-                <TableCell>{u.nombre} {u.apellidos}</TableCell>
-                <TableCell>{u.correo}</TableCell>
-                <TableCell>{u.rol}</TableCell>
-                <TableCell>{u.activo ? "Sí" : "No"}</TableCell>
-                <TableCell align="center">
-                  <IconButton
-                    onClick={() => {
-                      setUsuarioEditar(u);
-                      setOpenEdit(true);
-                    }}>
-                    <Pencil size={18} />
-                  </IconButton>
-                  <IconButton color="error" onClick={() => handleEliminar(u.idUsuario)}>
-                    <Trash2 size={18} />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+  {usuariosFiltrados.length > 0 ? (
+    usuariosFiltrados.map((u) => (
+      <TableRow key={u.idUsuario}>
+        <TableCell>
+          {u.nombre} {u.apellidos}
+        </TableCell>
+
+        <TableCell>{u.correo}</TableCell>
+
+        <TableCell>{u.rol}</TableCell>
+
+        <TableCell>{u.activo ? "Sí" : "No"}</TableCell>
+
+        <TableCell align="center">
+          <IconButton
+            onClick={() => {
+              setUsuarioEditar(u);
+              setOpenEdit(true);
+            }}
+          >
+            <Pencil size={18} />
+          </IconButton>
+
+          <IconButton
+            color="error"
+            onClick={() => handleEliminar(u.idUsuario)}
+          >
+            <Trash2 size={18} />
+          </IconButton>
+        </TableCell>
+      </TableRow>
+    ))
+  ) : (
+    <TableRow>
+      <TableCell colSpan={5} align="center">
+        <Alert severity="info">
+          No hay usuarios que coincidan con la búsqueda
+        </Alert>
+      </TableCell>
+    </TableRow>
+  )}
+</TableBody>
+
         </Table>
       </Paper>
 
