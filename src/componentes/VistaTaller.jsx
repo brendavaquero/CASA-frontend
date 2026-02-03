@@ -56,6 +56,20 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
     fetchAlumnosTaller();
   }, [taller, modo]);
 
+  // Convierte "DD/MM/YYYY" → Date
+const parseFechaLatina = (fechaStr) => {
+  if (!fechaStr) return null;
+
+  const [day, month, year] = fechaStr.split("/");
+  return new Date(year, month - 1, day);
+};
+
+// Convierte "YYYY-MM-DD" → Date
+const parseFechaISO = (fechaStr) => {
+  if (!fechaStr) return null;
+  return new Date(fechaStr + "T00:00:00");
+};
+
   useEffect(() => {
     const hoy = new Date();
     setFechaHoy(hoy.toISOString().slice(0, 10));
@@ -95,22 +109,6 @@ const VistaTaller = ({ taller, onVolver, modo = " ",administrador  }) => {
 }, [taller, modo]);
 
 console.log('taller',taller);
-
-useEffect(() => {
-  if (modo !== "ADMINISTRADOR") return;
-
-  const fetchDirector = async () => {
-    try {
-      const data = await getDirectores();
-      setDirector(data[0]);
-    } catch (error) {
-      console.error("Error al cargar director", error);
-    }
-  };
-
-  fetchDirector();
-}, [modo]);
-console.log('director',director);
 
 useEffect(() => {
   if (!taller?.idActividad) return;
@@ -187,8 +185,74 @@ useEffect(() => {
       setModalOpen(true);
     }
   };
-  const fechaInicioTaller = sesiones.length > 0 ? sesiones[0].fechaInicio : taller.fechaInicio;
+
+   const fechaInicioTaller = sesiones.length > 0 ? sesiones[0].fechaInicio : taller.fechaInicio;
   const fechaCierreTaller = sesiones.length > 0 ? sesiones[sesiones.length - 1].fechaFin : taller.fechaCierre;
+
+  
+useEffect(() => {
+  if (modo !== "ADMINISTRADOR") return;
+  if (!fechaCierreTaller) return;
+
+  const fetchDirector = async () => {
+    try {
+      const data = await getDirectores();
+
+      const directorEncontrado = buscarDirectorPorFecha(
+        data,
+        fechaCierreTaller
+      );
+
+      if (!directorEncontrado) {
+        console.warn(
+          "⚠️ No se encontró director para la fecha:",
+          fechaCierreTaller
+        );
+      }
+
+      setDirector(directorEncontrado);
+    } catch (error) {
+      console.error("❌ Error al cargar director", error);
+    }
+  };
+
+  fetchDirector();
+}, [modo, fechaCierreTaller]);
+
+
+const buscarDirectorPorFecha = (directores, fechaReferencia) => {
+  if (!Array.isArray(directores)) return null;
+
+  const fechaRef = fechaReferencia
+    ? parseFechaISO(fechaReferencia)
+    : null;
+
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  return (
+    directores.find((d) => {
+      if (!d.fechaInicio) return false;
+
+      const inicio = parseFechaLatina(d.fechaInicio);
+
+      // 🔥 SI NO TIENE FECHA FIN → DIRECTOR ACTIVO
+      const fin = d.fechaFin
+        ? parseFechaLatina(d.fechaFin)
+        : hoy; // se considera vigente hasta hoy
+
+      // Caso 1: validar contra fecha del taller
+      if (fechaRef) {
+        return fechaRef >= inicio && fechaRef <= fin;
+      }
+
+      // Caso 2: validar solo con la fecha actual
+      return hoy >= inicio && hoy <= fin;
+    }) || null
+  );
+};
+
+
 
   const yaPuedeVerPostulaciones = (() => {
     if (!taller?.fechaCierre) return false;
@@ -403,6 +467,14 @@ const editarBloqueado =  taller.estado === "EN_CURSO" ||  taller.estado === "FIN
                   );
 
                   for (const al of alumnosAprobados) {
+                    if (!director) {
+                      setModalTitle("Error");
+                      setModalMessage(
+                        "No existe un director asignado para el periodo del taller"
+                      );
+                      setModalOpen(true);
+                      return;
+                    }
                     await generarConstancia(
                       {
                         ...taller,
