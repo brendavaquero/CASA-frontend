@@ -11,10 +11,11 @@ import {
   getMunicipiosOaxaca
 } from "../apis/catalogo_Service";
 import { validarCurp } from "../apis/participante_Service";
+import ModalMensaje from "./ModalMensaje";
 
 
 
-const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
+const PasoParticipante = ({ onSubmit, pedirContrasenia = false,loading }) => {
   // separación visual de apellidos
   const [apellidoPaterno, setApellidoPaterno] = useState("");
   const [apellidoMaterno, setApellidoMaterno] = useState("");
@@ -34,7 +35,7 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
     sexo: "",
     fechaNacimiento: "",
     curp: "",
-    numeroTelefono: "",
+    numeroTelefono: "+",
     codigoPostal: "",
     pais: "",
     estado: null,
@@ -52,7 +53,9 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
   const [paises, setPaises] = useState([]);
   const [lenguas, setLenguas] = useState([]);
   const [errors, setErrors] = useState({});
-
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalTitle, setModalTitle] = useState("Mensaje");
+    const [modalMessage, setModalMessage] = useState("");
 
   /* =======================
      CARGA DE CATÁLOGOS
@@ -85,6 +88,7 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
      🔹 LÓGICA CÓDIGO POSTAL (COPOMEX)
      🔹 ÚNICO useEffect
   ======================== */
+
   useEffect(() => {
     const buscarCP = async () => {
       if (
@@ -300,6 +304,7 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
     }));
   }; */
 
+  /*
   const handleSubmit = async (e) => {
   e.preventDefault();
 
@@ -322,7 +327,33 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
     setModalMessage("Ocurrió un error validando el CURP");
     setModalOpen(true);
   }
+};*/
+const handleSubmit = async (e) => {
+  e.preventDefault();
+    if (loading) return;
+  try {
+    if (form.curp.length === 18) {
+      const existe = await validarCurp(form.curp);
+      if (existe) {
+        //alert("El CURP ya está registrado");
+        setModalTitle("Exito");
+        setModalMessage("El CURP ya está registrado");
+        setModalOpen(true);
+        return;
+      }
+    }
+
+    await onSubmit(form); 
+
+  } catch (error) {
+    console.error("Error en la validación de CURP", error);
+    //alert("Ocurrió un error validando el CURP");
+    setModalTitle("Error");
+    setModalMessage("Ocurrió un error validando el CURP");
+    setModalOpen(true);
+  }
 };
+
 
   const cpBloqueaCampos = form.codigoPostal.length === 5;
   const municipiosFinales = cpBloqueaCampos
@@ -331,6 +362,7 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
 
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="space-y-6">
 
       {/* =======================
@@ -396,6 +428,7 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
             value={form.curp}
             onChange={handleChange}
             required
+            maxLength={18}
           /> 
           {errors.curp && (
                   <Typography variant="small" color="red">
@@ -510,7 +543,13 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
             name="numeroTelefono"
             value={form.numeroTelefono}
             onChange={handleChange}
+            inputMode="numeric"
+            /*placeholder="+52XXXXXXXXXX"*/
+            maxLength={16}
           />
+          <Typography variant="small" className="text-gray-500 mt-1">
+            Ingresa número con lada
+          </Typography>
         </div>
       </div>
 
@@ -537,9 +576,21 @@ const PasoParticipante = ({ onSubmit, pedirContrasenia = false }) => {
       </div>
 
       <div className="flex justify-end">
-        <Button type="submit">Continuar</Button>
+        {/*<Button type="submit">Continuar</Button>*/}
+        <Button type="submit" disabled={loading}>
+          {loading ? "Registrando..." : "Continuar"}
+        </Button>
       </div>
     </form>
+    <ModalMensaje
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+                title={modalTitle}
+                message={modalMessage}
+                autoClose
+                autoCloseTime={10000}
+            />
+     </>
   );
 };
 

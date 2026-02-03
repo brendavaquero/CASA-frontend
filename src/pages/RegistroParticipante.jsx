@@ -1,15 +1,22 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, Typography } from "@material-tailwind/react";
 import PasoParticipante from "../componentes/PasoParticipante";
 import { crearParticipante } from "../apis/participante_Service";
 import { ChevronLeft } from "lucide-react";
+import ModalMensaje from "@/componentes/ModalMensaje";
 
 //const { user } = useAuth();
 
 const RegistroParticipante = ({ onVolver }) => {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+ const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState("Mensaje");
+  const [modalMessage, setModalMessage] = useState("");
 
   const handleParticipanteSubmit = async (data) => {
+    if (loading) return;
     try {
       setLoading(true);
 
@@ -17,13 +24,20 @@ const RegistroParticipante = ({ onVolver }) => {
       console.log("Participante registrado:", response);
 
       alert(
-        "Registro realizado correctamente. Revisa tu correo para acceder a tu cuenta."
+        "Registro realizado correctamente."
       );
-// Redirige a login
-navigate("/login");
+      setModalTitle("Exito");
+      setModalMessage("Registro realizado correctamente 2");
+       setModalOpen(true);
+    // Redirige a login
+  navigate("/login");
     } catch (error) {
       console.error(error);
-      alert("Error al registrar participante");
+      //alert("Error al registrar participante");
+      setModalTitle("Error");
+      setModalMessage("Error al registrar");
+       setModalOpen(true);
+
     } finally {
       setLoading(false);
     }
@@ -50,6 +64,7 @@ navigate("/login");
           <PasoParticipante
             onSubmit={handleParticipanteSubmit}
             pedirContrasenia={true}
+            loading={loading}
           />
 
           {loading && (
@@ -59,6 +74,14 @@ navigate("/login");
           )}
         </Card>
       </div>
+      <ModalMensaje
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+                title={modalTitle}
+                message={modalMessage}
+                autoClose
+                autoCloseTime={10000}
+            />
     </>
   );
 };

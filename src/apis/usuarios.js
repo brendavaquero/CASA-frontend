@@ -24,7 +24,16 @@ export const updateUsuarioGen = async(idUsuario,data) =>{
   const res = await api.put(`/usuarios/general/${idUsuario}`,data);
   return res.data;
 };
-
+export const updateActivo = async (idUsuario, activo) => {
+  const res = await api.put(
+    `/usuarios/activo/${idUsuario}`,
+    null,
+    {
+      params: { activo },
+    }
+  );
+  return res.data;
+};
 export const deleteUsuario = async (idusuario)=>{
   const res = await api.delete(`/usuarios/${idusuario}`);
   return res.data;
