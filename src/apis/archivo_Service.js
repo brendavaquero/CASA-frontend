@@ -37,16 +37,6 @@ export const getEvidenciasByActividad = async (idActividad) => {
   }
 };
 
-/* export const getArchivoPostulacion = async (idPostulacion) => {
-  const response = await axios.get(
-    `${API_URL}/postulacion/${idPostulacion}`,
-    {
-      responseType: "blob",
-    }
-  );
-
-  return response.data; 
-}; */
 export const deleteArchivo = async (idArchivo) => {
   const res = await api.delete(`/archivos/archivo/${idArchivo}`);
   return res.data;

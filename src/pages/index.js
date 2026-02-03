@@ -21,3 +21,4 @@ export { default as PerfilGanador } from "./PerfilGanador";
 export { default as RegistroPostal } from "./RegistroPostal";
 export { default as RegistroParticipante } from "./RegistroParticipante";
 export { default as DashboardTrimestral } from "./DashboardTrimestral";
+export { default as InstitucionesPage } from "./InstitucionesPage";

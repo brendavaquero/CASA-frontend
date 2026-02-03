@@ -1,5 +1,5 @@
 import { Home, Aprender, RondaUnoEvaluacion, PostulacionesEvaluar, Convocatorias, ConvocatoriaIndividual, TallerIndividual, PostulacionForm, PostulacionConvocatoriaForm, ProgramasUsuarioPage, PostulacionesPendientesPage } from "@/pages";
-import { DashboardTrimestral, Requisitar_Taller, RondaFinal, PerfilGanador, RegistroPostal, RegistroParticipante} from "@/pages";
+import { DashboardTrimestral, InstitucionesPage, Requisitar_Taller, RondaFinal, PerfilGanador, RegistroPostal, RegistroParticipante} from "@/pages";
 import HomeDocente from "./pages/docente/HomeDocente";
 import HomeAlumno from "./pages/alumno/HomeAlumno";
 import HomeAuxiliar from "./pages/auxiliar/HomeAuxiliar";
@@ -26,6 +26,11 @@ export const routes = [
     name: "Evaluación 1",
     path: "/evaluar/ronda1/:idPostulacion",
     element: <RondaUnoEvaluacion />,
+  },
+  {
+    name: "Instituciones",
+    path: "/instituciones",
+    element: <InstitucionesPage />,
   },
   {
     name: "Registro participante",
